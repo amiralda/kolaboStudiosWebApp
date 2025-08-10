@@ -1,0 +1,13 @@
+{
+  "name": "lighthouse-audit",
+  "description": "Run Lighthouse audit on the application",
+  "scripts": {
+    "audit:local": "lighthouse http://localhost:3000 --output=html --output-path=./lighthouse-report.html --chrome-flags='--headless'",
+    "audit:ci": "lhci autorun",
+    "audit:all-pages": "npm run audit:home && npm run audit:about && npm run audit:galleries && npm run audit:contact",
+    "audit:home": "lighthouse http://localhost:3000 --output=json --output-path=./reports/home.json",
+    "audit:about": "lighthouse http://localhost:3000/about --output=json --output-path=./reports/about.json",
+    "audit:galleries": "lighthouse http://localhost:3000/galleries --output=json --output-path=./reports/galleries.json",
+    "audit:contact": "lighthouse http://localhost:3000/contact --output=json --output-path=./reports/contact.json"
+  }
+}
