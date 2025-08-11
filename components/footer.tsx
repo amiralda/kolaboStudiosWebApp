@@ -83,7 +83,7 @@ export function Footer() {
               </div>
               <div className="flex items-center">
                 <Phone className="h-5 w-5 mr-3 text-primary" />
-                <span>(555) 123-4567</span>
+                <span>(856) 462-4062</span>
               </div>
               <div className="flex items-center">
                 <Mail className="h-5 w-5 mr-3 text-primary" />
@@ -101,7 +101,7 @@ export function Footer() {
             </div>
 
             <div className="text-sm text-white/60">
-              <p>&copy; 2024 Kolabo Studios. All rights reserved.</p>
+              <p>&copy; 2025 Kolabo Studios. All rights reserved.</p>
             </div>
           </div>
         </div>

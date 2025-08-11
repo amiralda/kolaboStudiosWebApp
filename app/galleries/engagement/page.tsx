@@ -5,7 +5,7 @@ import { notFound } from 'next/navigation'
 
 export const metadata = {
   title: 'Engagement Photography - Kolabo Studios',
-  description: 'Celebrating your love story with romantic and playful engagement photography. Professional engagement sessions in South Jersey.',
+  description: 'Celebrating your love story with romantic and playful engagement photography. Professional engagement sessions in New Jersey.',
 }
 
 export default function EngagementPage() {
