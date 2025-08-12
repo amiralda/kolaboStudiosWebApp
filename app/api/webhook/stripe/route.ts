@@ -1,4 +1,5 @@
 // app/api/webhook/stripe/route.ts
+export const dynamic = 'force-dynamic'
 import type { NextRequest } from 'next/server';
 import Stripe from 'stripe';
 

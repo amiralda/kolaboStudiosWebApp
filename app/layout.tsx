@@ -12,8 +12,8 @@ const sora  = Sora({  subsets: ['latin'], variable: '--font-sora',  display: 'sw
 
 const SITE = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
 
-export const metadata: Metadata = {
-  metadataBase: new URL(SITE),
+export const metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://kolabostudios.com'),
   title: 'Kolabo Studios',
   description:
     'Wedding, engagement, and maternity photography that captures every moment perfectly. Professional photography services in South Jersey.',
@@ -35,11 +35,10 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     locale: 'en_US',
-    url: SITE,
+    url: 'https://kolabostudios.com',
     siteName: 'Kolabo Studios',
     title: 'Kolabo Studios - Professional Photography',
-    description:
-      'Wedding, engagement, and maternity photography that captures every moment perfectly.',
+    description: 'Wedding, engagement, and maternity photography that captures every moment perfectly.',
     images: [
       {
         url: '/wedding-dance-sunset.png',
@@ -52,13 +51,12 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'Kolabo Studios - Professional Photography',
-    description:
-      'Wedding, engagement, and maternity photography that captures every moment perfectly.',
+    description: 'Wedding, engagement, and maternity photography that captures every moment perfectly.',
     images: ['/wedding-dance-sunset.png'],
   },
-  verification: {
-    google: 'your-google-verification-code', // replace or remove
-  },
+  verification: { google: 'your-google-verification-code' },
+}
+
   generator: 'v0.dev',
 }
 

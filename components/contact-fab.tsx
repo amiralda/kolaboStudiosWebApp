@@ -18,39 +18,40 @@ export default function ContactFAB() {
   if (!mounted) return null;
 
   return (
-    <div className="fixed right-6 bottom-4 md:right-10 md:bottom-8 z-[9999]">  
+    <div className="fixed right-6 bottom-4 md:right-10 md:bottom-6 z-[9999]">
+      {/* subtle entrance */}
       <div className="animate-fabFadeIn relative">
-        {/* Radial actions (closer to K) */}
+        {/* Radial actions */}
         <div className="relative w-16 h-16 select-none">
           <Action
             href={telHref}
             label="Call"
             icon={<Phone className="h-4 w-4 md:h-5 md:w-5" />}
             angle={210}
-            distMobile={70}
-            distDesktop={90}
+            distMobile={65}
+            distDesktop={85}
             open={open}
-            className="bg-black text-white tap-smooth fab-shadow-soft"
+            className="bg-black text-white"
           />
           <Action
             href={smsHref}
             label="Text"
             icon={<MessageSquareText className="h-4 w-4 md:h-5 md:w-5" />}
             angle={270}
-            distMobile={74}
-            distDesktop={94}
+            distMobile={72}
+            distDesktop={95}
             open={open}
-            className="bg-neutral-800 text-white tap-smooth fab-shadow-soft"
+            className="bg-neutral-800 text-white"
           />
           <Action
             href={waHref}
             label="WhatsApp"
             icon={<MessageCircle className="h-4 w-4 md:h-5 md:w-5" />}
             angle={330}
-            distMobile={70}
-            distDesktop={90}
+            distMobile={65}
+            distDesktop={85}
             open={open}
-            className="text-white tap-smooth fab-shadow-soft"
+            className="text-white"
             style={{ backgroundColor: "#00C6AE" }}
             external
           />
@@ -62,7 +63,7 @@ export default function ContactFAB() {
           aria-expanded={open}
           onClick={() => setOpen((v) => !v)}
           className={`
-            group mt-2 md:mt-3 grid place-items-center tap-smooth
+            group mt-2 md:mt-3 grid place-items-center
             w-16 h-16 md:w-18 md:h-18 rounded-full
             backdrop-blur-md bg-white/75 dark:bg-zinc-900/60
             border border-white/50 dark:border-white/10
@@ -124,6 +125,7 @@ function Action({
 
   const labelOnLeftMobile = xm > 0;
   const labelOnLeftDesktop = xd > 0;
+
   const SHIFT = 28;
   const labelShiftMobile = labelOnLeftMobile ? -SHIFT : SHIFT;
   const labelShiftDesktop = labelOnLeftDesktop ? -SHIFT : SHIFT;
@@ -134,7 +136,7 @@ function Action({
       {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
       aria-label={label}
       className={`
-        absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 tap-smooth
+        absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2
         grid place-items-center
         w-11 h-11 md:w-12 md:h-12 rounded-full
         border border-white/40 dark:border-white/10
@@ -151,15 +153,15 @@ function Action({
     >
       {icon}
 
-      {/* label chip */}
+      {/* Transparent label chip */}
       <span
         className={`
           absolute left-1/2 top-1/2 translate-y-1/2
           whitespace-nowrap rounded-full px-2.5 py-1
           text-[11px] md:text-xs font-medium
           bg-white/60 dark:bg-zinc-900/60 text-zinc-900 dark:text-white
-          border border-white/60 dark:border-white/10
-          shadow-sm backdrop-blur-sm
+          border border-white/30 dark:border-white/20
+          shadow-sm
           transition-all duration-300
           ${open ? "opacity-100 translate-x-0 animate-labelSlide" : "opacity-0 translate-x-2"}
         `}
