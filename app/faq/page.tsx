@@ -9,46 +9,42 @@ import {
 
 const faqs = [
   {
-    question: "What is your pricing structure?",
-    answer: "Our pricing varies based on the type of session and package you choose. Wedding packages start at $2,500 and include 6-8 hours of coverage, online gallery, and high-resolution images. Engagement sessions start at $450, and maternity sessions start at $350. We offer detailed pricing information during our consultation to ensure you find the perfect package for your needs and budget."
+    question: "How much do your photography packages cost?",
+    answer:
+      "We tailor every package to your needs and budget—whether you want something simple or full-day coverage. We have options for every wallet. Contact us for a custom quote and we’ll recommend the best fit for you."
   },
   {
-    question: "How long does it take to receive our photos?",
-    answer: "We understand how excited you are to see your photos! For engagement and maternity sessions, you can expect to receive your gallery within 2-3 weeks. Wedding photos typically take 6-8 weeks due to the extensive editing process. We'll provide a sneak peek of 5-10 images within 48 hours of your wedding day to share with family and friends."
+    question: "How fast do we receive our photos?",
+    answer:
+      "Our team works hard to deliver final galleries within 24–48 hours for most sessions, provided all client requirements (selections, approvals, payments, and any needed info) are complete. Larger events may take longer due to detailed editing, and we’ll keep you updated at every step."
   },
   {
     question: "How many photos will we receive?",
-    answer: "The number of photos depends on your session type. Engagement sessions typically include 50-75 edited images, maternity sessions include 40-60 images, and wedding packages include 400-600+ images depending on your coverage time. All images are professionally edited and delivered in high resolution through a private online gallery."
-  },
-  {
-    question: "Do you have liability insurance?",
-    answer: "Yes, we carry comprehensive liability insurance and are fully insured for all types of photography sessions and venues. We can provide certificates of insurance to your venue if required. This protects both you and the venue in the unlikely event of any accidents during your session."
-  },
-  {
-    question: "Who owns the copyright to our photos?",
-    answer: "As the photographer, we retain the copyright to all images. However, you receive full personal usage rights, which means you can print, share on social media, and use the images for personal purposes. We ask that you credit Kolabo Studios when sharing online. Commercial usage requires separate licensing, which we're happy to discuss if needed."
-  },
-  {
-    question: "How far in advance should we book?",
-    answer: "We recommend booking as early as possible, especially for weddings during peak season (May-October). Wedding bookings are typically made 6-12 months in advance, while engagement and maternity sessions can often be scheduled 2-4 weeks out. However, we sometimes have last-minute availability, so don't hesitate to reach out even if your date is approaching quickly."
-  },
-  {
-    question: "Do you offer videography services?",
-    answer: "While we specialize in photography, we work closely with several talented videographers in the area and can provide recommendations. We're experienced in coordinating with video teams to ensure both photo and video coverage work seamlessly together on your special day."
-  },
-  {
-    question: "What happens if you're sick or unable to shoot our wedding?",
-    answer: "Your wedding day is irreplaceable, and we take this responsibility seriously. We maintain a network of professional backup photographers who share our style and standards. In the extremely rare event that we cannot fulfill our commitment, we will provide a qualified replacement at no additional cost to you. We also carry professional liability insurance for additional peace of mind."
+    answer:
+      "Image count depends on the package and coverage we agree on together. From short sessions to full-day events, we focus on delivering a polished set that tells your story beautifully."
   },
   {
     question: "Can we request specific shots or poses?",
-    answer: "We encourage you to share any specific shots, poses, or moments that are important to you. We'll create a shot list together during our consultation and planning process. While we'll guide you through natural poses and capture candid moments, we want to ensure we document everything that matters most to you."
+    answer:
+      "Absolutely. Share your must-have shots and inspiration during planning, and we’ll build a shot list. On the day, we guide natural posing and capture candid moments—so your vision comes to life."
   },
   {
-    question: "Do you travel for destination weddings?",
-    answer: "Yes, we love destination weddings! We're available for travel throughout the United States and internationally. Travel fees vary based on location and may include transportation, accommodation, and meal expenses. We're happy to provide a detailed quote for your destination wedding and help make your dream wedding photography a reality."
+    question: "Do you offer videography?",
+    answer:
+      "We specialize in photography, and we partner with trusted videographers. If you’d like video, we’ll recommend a great fit and coordinate so photo + video work seamlessly together."
+  },
+  {
+    question: "What happens if you’re unavailable on my date?",
+    answer:
+      "Your event matters. In the rare case we cannot attend, we’ll arrange a trusted professional with a similar style to step in—so your day is fully covered without compromise."
+  },
+  {
+    question: "Do you travel for events or destination weddings?",
+    answer:
+      "Yes—we travel throughout the U.S. and internationally. Travel fees vary by location, and we’ll provide a clear, all-inclusive quote before you book."
   }
 ]
+
 
 export default function FAQPage() {
   return (
