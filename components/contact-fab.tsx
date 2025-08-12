@@ -124,6 +124,16 @@ function Action({
   const xd = Math.cos(rad) * distDesktop;
   const yd = Math.sin(rad) * distDesktop;
 
+  // If the satellite is on the RIGHT side of the launcher (x > 0),
+  // put the label on the LEFT so it doesn't run off-screen.
+  const labelOnLeftMobile = xm > 0;
+  const labelOnLeftDesktop = xd > 0;
+
+  // Choose shift per breakpoint
+  const SHIFT = 28; // px distance for label chip offset
+  const labelShiftMobile = labelOnLeftMobile ? -SHIFT : SHIFT;
+  const labelShiftDesktop = labelOnLeftDesktop ? -SHIFT : SHIFT;
+
   return (
     <a
       href={href}
@@ -146,12 +156,12 @@ function Action({
       style={style}
     >
       {icon}
-      {/* label chip */}
+
+      {/* label chip (auto-flips side) */}
       <span
         className={`
-          absolute left-1/2 top-1/2 translate-y-1/2 ml-2
-          md:ml-3 whitespace-nowrap
-          rounded-full px-2.5 py-1
+          absolute left-1/2 top-1/2 translate-y-1/2
+          whitespace-nowrap rounded-full px-2.5 py-1
           text-[11px] md:text-xs font-medium
           bg-white/90 dark:bg-zinc-900/80 text-zinc-900 dark:text-white
           border border-white/60 dark:border-white/10
@@ -159,10 +169,17 @@ function Action({
           transition-all duration-300
           ${open ? "opacity-100 translate-x-0 animate-labelSlide" : "opacity-0 translate-x-2"}
         `}
-        style={{ transform: "translate(20px, -50%)" }}
+        // Apply different horizontal shift for mobile vs desktop via CSS var trick
+        style={{
+          transform: `translate(${labelShiftMobile}px, -50%)`,
+        }}
       >
-        {label}
+        <span className="hidden md:inline" style={{ transform: `translate(${labelShiftDesktop - labelShiftMobile}px, 0)` }}>
+          {label}
+        </span>
+        <span className="md:hidden">{label}</span>
       </span>
     </a>
   );
 }
+
