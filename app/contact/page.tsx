@@ -184,7 +184,7 @@ export default function ContactPage() {
                 <Phone className="h-6 w-6 text-primary mr-4 mt-1" />
                 <div>
                   <h3 className="font-semibold mb-1">Phone</h3>
-                  <p className="text-muted-foreground">(856) 462-4062</p>
+                  <p className="text-muted-foreground">(856) 595-5203</p>
                 </div>
               </div>
               
