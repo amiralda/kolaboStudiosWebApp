@@ -27,8 +27,8 @@ export default function ContactFAB() {
             label="Call"
             icon={<Phone className="h-5 w-5" />}
             angle={210}
-            distMobile={86}
-            distDesktop={112}
+            distMobile={84}
+            distDesktop={108}
             open={open}
             className="bg-black text-white"
           />
@@ -37,8 +37,8 @@ export default function ContactFAB() {
             label="Text"
             icon={<MessageSquareText className="h-5 w-5" />}
             angle={270}
-            distMobile={88}      // pulled slightly inward
-            distDesktop={118}    // pulled slightly inward
+            distMobile={84}     /* pulled inward */
+            distDesktop={112}
             open={open}
             className="bg-neutral-800 text-white"
           />
@@ -46,9 +46,9 @@ export default function ContactFAB() {
             href={waHref}
             label="WhatsApp"
             icon={<MessageCircle className="h-5 w-5" />}
-            angle={330}
-            distMobile={78}      // pulled slightly inward
-            distDesktop={104}    // pulled slightly inward
+            angle={315}         /* was 330: up-left to stay in view */
+            distMobile={70}     /* closer to K on phones */
+            distDesktop={98}
             open={open}
             className="text-white"
             style={{ backgroundColor: "#00C6AE" }}
@@ -61,12 +61,12 @@ export default function ContactFAB() {
           aria-label={open ? "Close quick contact" : "Open quick contact"}
           aria-expanded={open}
           onClick={() => setOpen(v => !v)}
-          className={`
+          className="
             group mt-2 md:mt-3 relative grid place-items-center
             w-[68px] h-[68px] md:w-[72px] md:h-[72px] rounded-full
             transition-transform duration-300 active:scale-95
             focus:outline-none focus-visible:ring-2 focus-visible:ring-[#00C6AE]/60
-          `}
+          "
           style={{ touchAction: "manipulation" }}
         >
           {/* Gradient ring */}
@@ -93,28 +93,26 @@ export default function ContactFAB() {
 
           {/* K monogram */}
           <span
-            className={`
+            className="
               relative z-[1] text-[21px] font-semibold tracking-wide
               text-zinc-900 dark:text-white
               transition-transform duration-300
               group-hover:translate-y-[-1px] group-hover:[transform:perspective(400px)_rotateX(6deg)]
-            `}
+            "
             style={{ fontFamily: "var(--font-sora), sans-serif" }}
           >
             K
           </span>
 
-          {/* Tiny helper tooltip when closed (desktop only) */}
+          {/* Transparent helper label (desktop only) */}
           {!open && (
             <span
               className="
                 hidden md:block absolute right-full mr-2 top-1/2 -translate-y-1/2
                 text-xs font-medium whitespace-nowrap
-                rounded-full px-2.5 py-1
-                bg-white/90 dark:bg-zinc-900/85
-                text-zinc-900 dark:text-white
-                border border-white/50 dark:border-white/10
-                shadow-sm animate-labelSlide
+                px-2.5 py-1
+                text-zinc-800/60 dark:text-white/60
+                animate-labelSlide
               "
               style={{ transform: "translate(-6px, -50%)" }}
             >
@@ -140,16 +138,25 @@ type ActionProps = {
   external?: boolean;
 };
 
-function useIsDesktop() {
+function useBreakpoint() {
   const [isDesktop, setIsDesktop] = useState(false);
+  const [isNarrow, setIsNarrow] = useState(false);
   useEffect(() => {
-    const mq = window.matchMedia("(min-width: 768px)");
-    const update = () => setIsDesktop(mq.matches);
+    const mqDesktop = window.matchMedia("(min-width: 768px)");
+    const mqNarrow = window.matchMedia("(max-width: 390px)");
+    const update = () => {
+      setIsDesktop(mqDesktop.matches);
+      setIsNarrow(mqNarrow.matches);
+    };
     update();
-    mq.addEventListener?.("change", update);
-    return () => mq.removeEventListener?.("change", update);
+    mqDesktop.addEventListener?.("change", update);
+    mqNarrow.addEventListener?.("change", update);
+    return () => {
+      mqDesktop.removeEventListener?.("change", update);
+      mqNarrow.removeEventListener?.("change", update);
+    };
   }, []);
-  return isDesktop;
+  return { isDesktop, isNarrow };
 }
 
 function Action({
@@ -164,15 +171,20 @@ function Action({
   style,
   external,
 }: ActionProps) {
-  const isDesktop = useIsDesktop();
+  const { isDesktop, isNarrow } = useBreakpoint();
+
+  // Base distances by breakpoint, with extra shrink on very narrow phones
+  let dist = isDesktop ? distDesktop : distMobile;
+  if (!isDesktop && isNarrow) {
+    dist = Math.max(60, dist - 12); // ensure we don't go too far out on tiny screens
+  }
 
   // Polar -> Cartesian
   const rad = (angle * Math.PI) / 180;
-  const dist = isDesktop ? distDesktop : distMobile;
   const x = Math.cos(rad) * dist;
   const y = Math.sin(rad) * dist;
 
-  // Inline transform (works consistently)
+  // Inline transform (robust)
   const translate = open ? `translate(${x}px, ${y}px)` : `translate(0px, 0px)`;
   const scale = open ? `scale(1)` : `scale(0)`;
   const transform = `${translate} ${scale}`;
