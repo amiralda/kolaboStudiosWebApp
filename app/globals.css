@@ -40,3 +40,20 @@
     font-family: var(--font-sora), sans-serif;
   }
 }
+/* FAB entrance + pop animation */
+@keyframes fabFadeIn {
+  from { opacity: 0; transform: translateY(8px) scale(.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+.animate-fabFadeIn {
+  animation: fabFadeIn .45s ease-out both;
+}
+
+@keyframes fabPop {
+  0%   { transform: scale(0.6); }
+  60%  { transform: scale(1.07); }
+  100% { transform: scale(1); }
+}
+.fab-pop {
+  animation: fabPop .28s ease-out both;
+}
