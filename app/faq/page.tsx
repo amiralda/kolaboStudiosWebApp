@@ -11,7 +11,7 @@ const faqs = [
   {
     question: "How much do your photography packages cost?",
     answer:
-      "We tailor every package to your needs and budget—whether you want something simple or full-day coverage. We have options for every wallet. Contact us for a custom quote and we’ll recommend the best fit for you."
+      "We tailor every package to your needs and budget whether you want something simple or full-day coverage. We have options for every wallet. Contact us for a custom quote and we’ll recommend the best fit for you."
   },
   {
     question: "How fast do we receive our photos?",
@@ -26,7 +26,7 @@ const faqs = [
   {
     question: "Can we request specific shots or poses?",
     answer:
-      "Absolutely. Share your must-have shots and inspiration during planning, and we’ll build a shot list. On the day, we guide natural posing and capture candid moments—so your vision comes to life."
+      "Absolutely. Share your must-have shots and inspiration during planning, and we’ll build a shot list. On the day, we guide natural posing and capture candid moments, so your vision comes to life."
   },
   {
     question: "Do you offer videography?",
@@ -36,12 +36,12 @@ const faqs = [
   {
     question: "What happens if you’re unavailable on my date?",
     answer:
-      "Your event matters. In the rare case we cannot attend, we’ll arrange a trusted professional with a similar style to step in—so your day is fully covered without compromise."
+      "Your event matters. In the rare case we cannot attend, we’ll arrange a trusted professional with a similar style to step in, so your day is fully covered without compromise."
   },
   {
     question: "Do you travel for events or destination weddings?",
     answer:
-      "Yes—we travel throughout the U.S. and internationally. Travel fees vary by location, and we’ll provide a clear, all-inclusive quote before you book."
+      "Yes, we travel throughout the U.S. and internationally. Travel fees vary by location, and we’ll provide a clear, all-inclusive quote before you book."
   }
 ]
 
