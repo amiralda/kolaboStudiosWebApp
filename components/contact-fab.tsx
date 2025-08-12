@@ -18,107 +18,73 @@ export default function ContactFAB() {
   if (!mounted) return null;
 
   return (
-    <div className="fixed right-4 bottom-4 md:right-6 md:bottom-6 z-[9999]">
+    <div className="fixed right-6 bottom-4 md:right-10 md:bottom-8 z-[9999]">  
       <div className="animate-fabFadeIn relative">
-        {/* Radial actions */}
+        {/* Radial actions (closer to K) */}
         <div className="relative w-16 h-16 select-none">
           <Action
             href={telHref}
             label="Call"
-            icon={<Phone className="h-5 w-5" />}
+            icon={<Phone className="h-4 w-4 md:h-5 md:w-5" />}
             angle={210}
-            distMobile={84}
-            distDesktop={108}
+            distMobile={70}
+            distDesktop={90}
             open={open}
-            className="bg-black text-white"
+            className="bg-black text-white tap-smooth fab-shadow-soft"
           />
           <Action
             href={smsHref}
             label="Text"
-            icon={<MessageSquareText className="h-5 w-5" />}
+            icon={<MessageSquareText className="h-4 w-4 md:h-5 md:w-5" />}
             angle={270}
-            distMobile={84}     /* pulled inward */
-            distDesktop={112}
+            distMobile={74}
+            distDesktop={94}
             open={open}
-            className="bg-neutral-800 text-white"
+            className="bg-neutral-800 text-white tap-smooth fab-shadow-soft"
           />
           <Action
             href={waHref}
             label="WhatsApp"
-            icon={<MessageCircle className="h-5 w-5" />}
-            angle={315}         /* was 330: up-left to stay in view */
-            distMobile={70}     /* closer to K on phones */
-            distDesktop={98}
+            icon={<MessageCircle className="h-4 w-4 md:h-5 md:w-5" />}
+            angle={330}
+            distMobile={70}
+            distDesktop={90}
             open={open}
-            className="text-white"
+            className="text-white tap-smooth fab-shadow-soft"
             style={{ backgroundColor: "#00C6AE" }}
             external
           />
         </div>
 
-        {/* Main “K” launcher — branded */}
+        {/* Main “K” launcher */}
         <button
           aria-label={open ? "Close quick contact" : "Open quick contact"}
           aria-expanded={open}
-          onClick={() => setOpen(v => !v)}
-          className="
-            group mt-2 md:mt-3 relative grid place-items-center
-            w-[68px] h-[68px] md:w-[72px] md:h-[72px] rounded-full
+          onClick={() => setOpen((v) => !v)}
+          className={`
+            group mt-2 md:mt-3 grid place-items-center tap-smooth
+            w-16 h-16 md:w-18 md:h-18 rounded-full
+            backdrop-blur-md bg-white/75 dark:bg-zinc-900/60
+            border border-white/50 dark:border-white/10
+            shadow-[0_14px_30px_rgba(0,0,0,0.18)]
             transition-transform duration-300 active:scale-95
-            focus:outline-none focus-visible:ring-2 focus-visible:ring-[#00C6AE]/60
-          "
-          style={{ touchAction: "manipulation" }}
+            relative overflow-visible
+          `}
+          style={{ WebkitBackdropFilter: "blur(12px)" }}
         >
-          {/* Gradient ring */}
-          <span
-            aria-hidden
-            className="absolute inset-0 rounded-full p-[2px] bg-[conic-gradient(from_180deg_at_50%_50%,_#00C6AE_0%,_#34d399_40%,_#00C6AE_80%,_#34d399_100%)]"
-          >
-            <span className="block w-full h-full rounded-full bg-white/80 dark:bg-zinc-900/70 backdrop-blur-md border border-white/50 dark:border-white/10 shadow-[0_14px_30px_rgba(0,0,0,0.18)]" />
-          </span>
-
-          {/* Shimmer sweep */}
-          <span aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden rounded-full">
-            <span className="absolute -inset-1 rotate-12 bg-gradient-to-r from-transparent via-white/25 to-transparent animate-fabShimmer" />
-          </span>
-
-          {/* Teal halo (only when closed) */}
-          {!open && (
-            <span
-              aria-hidden
-              className="pointer-events-none absolute inset-0 rounded-full animate-fabHalo"
-              style={{ boxShadow: "0 0 0 0 rgba(0,198,174,0.28)" }}
-            />
-          )}
-
           {/* K monogram */}
-          <span
-            className="
-              relative z-[1] text-[21px] font-semibold tracking-wide
-              text-zinc-900 dark:text-white
-              transition-transform duration-300
-              group-hover:translate-y-[-1px] group-hover:[transform:perspective(400px)_rotateX(6deg)]
-            "
-            style={{ fontFamily: "var(--font-sora), sans-serif" }}
-          >
+          <span className="text-[19px] md:text-[21px] font-semibold tracking-wide text-zinc-900 dark:text-white">
             K
           </span>
 
-          {/* Transparent helper label (desktop only) */}
-          {!open && (
-            <span
-              className="
-                hidden md:block absolute right-full mr-2 top-1/2 -translate-y-1/2
-                text-xs font-medium whitespace-nowrap
-                px-2.5 py-1
-                text-zinc-800/60 dark:text-white/60
-                animate-labelSlide
-              "
-              style={{ transform: "translate(-6px, -50%)" }}
-            >
-              Contact Kolabo
-            </span>
-          )}
+          {/* Teal halo pulse */}
+          <span
+            className="pointer-events-none absolute inset-0 rounded-full ring-0 animate-fabHalo"
+            style={{ boxShadow: "0 0 0 0 rgba(0,198,174,0.35)" }}
+          />
+
+          {/* Hover ring */}
+          <span className="pointer-events-none absolute inset-0 rounded-full ring-0 group-hover:ring-4 ring-[#00C6AE]/25 transition-all" />
         </button>
       </div>
     </div>
@@ -129,35 +95,14 @@ type ActionProps = {
   href: string;
   label: string;
   icon: React.ReactNode;
-  angle: number;        // degrees
-  distMobile: number;   // px
-  distDesktop: number;  // px
+  angle: number;
+  distMobile: number;
+  distDesktop: number;
   open: boolean;
   className?: string;
   style?: React.CSSProperties;
   external?: boolean;
 };
-
-function useBreakpoint() {
-  const [isDesktop, setIsDesktop] = useState(false);
-  const [isNarrow, setIsNarrow] = useState(false);
-  useEffect(() => {
-    const mqDesktop = window.matchMedia("(min-width: 768px)");
-    const mqNarrow = window.matchMedia("(max-width: 390px)");
-    const update = () => {
-      setIsDesktop(mqDesktop.matches);
-      setIsNarrow(mqNarrow.matches);
-    };
-    update();
-    mqDesktop.addEventListener?.("change", update);
-    mqNarrow.addEventListener?.("change", update);
-    return () => {
-      mqDesktop.removeEventListener?.("change", update);
-      mqNarrow.removeEventListener?.("change", update);
-    };
-  }, []);
-  return { isDesktop, isNarrow };
-}
 
 function Action({
   href,
@@ -171,27 +116,17 @@ function Action({
   style,
   external,
 }: ActionProps) {
-  const { isDesktop, isNarrow } = useBreakpoint();
-
-  // Base distances by breakpoint, with extra shrink on very narrow phones
-  let dist = isDesktop ? distDesktop : distMobile;
-  if (!isDesktop && isNarrow) {
-    dist = Math.max(60, dist - 12); // ensure we don't go too far out on tiny screens
-  }
-
-  // Polar -> Cartesian
   const rad = (angle * Math.PI) / 180;
-  const x = Math.cos(rad) * dist;
-  const y = Math.sin(rad) * dist;
+  const xm = Math.cos(rad) * distMobile;
+  const ym = Math.sin(rad) * distMobile;
+  const xd = Math.cos(rad) * distDesktop;
+  const yd = Math.sin(rad) * distDesktop;
 
-  // Inline transform (robust)
-  const translate = open ? `translate(${x}px, ${y}px)` : `translate(0px, 0px)`;
-  const scale = open ? `scale(1)` : `scale(0)`;
-  const transform = `${translate} ${scale}`;
-
-  // Auto-flip label to keep it inside viewport
+  const labelOnLeftMobile = xm > 0;
+  const labelOnLeftDesktop = xd > 0;
   const SHIFT = 28;
-  const labelShift = x > 0 ? -SHIFT : SHIFT;
+  const labelShiftMobile = labelOnLeftMobile ? -SHIFT : SHIFT;
+  const labelShiftDesktop = labelOnLeftDesktop ? -SHIFT : SHIFT;
 
   return (
     <a
@@ -199,33 +134,43 @@ function Action({
       {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
       aria-label={label}
       className={`
-        absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2
+        absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 tap-smooth
         grid place-items-center
-        w-12 h-12 md:w-[52px] md:h-[52px] rounded-full
+        w-11 h-11 md:w-12 md:h-12 rounded-full
         border border-white/40 dark:border-white/10
         shadow-[0_12px_28px_rgba(0,0,0,0.15)]
         transition-transform duration-500 ease-[cubic-bezier(.22,.92,.22,1)]
-        will-change-transform ${className}
+        ${open ? "scale-100 fab-pop" : "scale-0"}
+        ${className}
+        will-change-transform
+        ${open
+          ? `translate-x-[${xm}px] translate-y-[${ym}px] md:translate-x-[${xd}px] md:translate-y-[${yd}px]`
+          : "translate-x-[0px] translate-y-[0px]"}
       `}
-      style={{ ...style, transform, touchAction: "manipulation" }}
+      style={style}
     >
       {icon}
 
-      {/* label chip (inside link, fully clickable) */}
+      {/* label chip */}
       <span
         className={`
-          absolute left-1/2 top-1/2 translate-y-[-50%]
+          absolute left-1/2 top-1/2 translate-y-1/2
           whitespace-nowrap rounded-full px-2.5 py-1
           text-[11px] md:text-xs font-medium
-          bg-white/90 dark:bg-zinc-900/80 text-zinc-900 dark:text-white
+          bg-white/60 dark:bg-zinc-900/60 text-zinc-900 dark:text-white
           border border-white/60 dark:border-white/10
-          shadow-sm
+          shadow-sm backdrop-blur-sm
           transition-all duration-300
-          ${open ? "opacity-100 animate-labelSlide" : "opacity-0"}
+          ${open ? "opacity-100 translate-x-0 animate-labelSlide" : "opacity-0 translate-x-2"}
         `}
-        style={{ transform: `translate(${labelShift}px, -50%)` }}
+        style={{
+          transform: `translate(${labelShiftMobile}px, -50%)`,
+        }}
       >
-        {label}
+        <span className="hidden md:inline" style={{ transform: `translate(${labelShiftDesktop - labelShiftMobile}px, 0)` }}>
+          {label}
+        </span>
+        <span className="md:hidden">{label}</span>
       </span>
     </a>
   );

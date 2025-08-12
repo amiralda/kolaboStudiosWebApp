@@ -75,7 +75,7 @@ function ContactFAB() {
     <div className="fixed bottom-6 right-6 flex flex-col gap-3 z-50">
       {/* Call Button */}
       <a
-        href="tel:+18564624062"
+        href="tel:+18565955203"
         className="flex items-center justify-center bg-green-600 text-white rounded-full p-4 shadow-lg hover:bg-green-700 transition-all"
         title="Call Us"
       >
@@ -84,7 +84,7 @@ function ContactFAB() {
 
       {/* Text Button */}
       <a
-        href="sms:+18564624062"
+        href="sms:+18565955203
         className="flex items-center justify-center bg-blue-600 text-white rounded-full p-4 shadow-lg hover:bg-blue-700 transition-all"
         title="Send a Text"
       >
@@ -93,7 +93,7 @@ function ContactFAB() {
 
       {/* WhatsApp Button */}
       <a
-        href="https://wa.me/18564624062"
+        href="https://wa.me/18565955203"
         target="_blank"
         rel="noopener noreferrer"
         className="flex items-center justify-center bg-[#25D366] text-white rounded-full p-4 shadow-lg hover:bg-[#1DA851] transition-all"
