@@ -3,12 +3,6 @@
 import { useEffect, useState } from "react";
 import { Phone, MessageCircle, MessageSquareText } from "lucide-react";
 
-/**
- * Uses env vars but falls back to your real number for local dev.
- * Set these on Vercel:
- *  - NEXT_PUBLIC_PHONE_E164
- *  - NEXT_PUBLIC_WHATSAPP_E164
- */
 const PHONE_E164 = process.env.NEXT_PUBLIC_PHONE_E164 || "+18565955203";
 const WA_E164 = process.env.NEXT_PUBLIC_WHATSAPP_E164 || PHONE_E164;
 
@@ -16,12 +10,6 @@ const telHref = `tel:${PHONE_E164}`;
 const smsHref = `sms:${PHONE_E164}`;
 const waHref = `https://wa.me/${WA_E164.replace(/\D/g, "")}`;
 
-/**
- * Branded, animated radial FAB
- * - Idle: single “K” button (Kolabo)
- * - Tap/Click: three actions orbit out with springy motion
- * - Glassy look, brand teal accent (#00C6AE)
- */
 export default function ContactFAB() {
   const [mounted, setMounted] = useState(false);
   const [open, setOpen] = useState(false);
@@ -31,120 +19,150 @@ export default function ContactFAB() {
 
   return (
     <div className="fixed right-4 bottom-4 md:right-6 md:bottom-6 z-[9999]">
-      {/* Container with subtle entrance */}
-      <div className={`animate-fabFadeIn`}>
-        {/* Satellite actions */}
-        <div className="relative w-14 h-14 md:w-16 md:h-16">
-          {/* CALL */}
-          <a
+      {/* subtle entrance */}
+      <div className="animate-fabFadeIn relative">
+        {/* Radial actions */}
+        <div className="relative w-16 h-16 select-none">
+          <Action
             href={telHref}
-            aria-label="Call Kolabo Studios"
-            className={satelliteClass(
-              open,
-              // angle, distance(px) for mobile/desktop
-              210, 72, 96,
-              "bg-black text-white"
-            )}
-          >
-            <Phone className="h-[18px] w-[18px] md:h-5 md:w-5" />
-          </a>
-
-          {/* TEXT */}
-          <a
+            label="Call"
+            icon={<Phone className="h-4 w-4 md:h-5 md:w-5" />}
+            angle={210}
+            distMobile={86}
+            distDesktop={112}
+            open={open}
+            className="bg-black text-white"
+          />
+          <Action
             href={smsHref}
-            aria-label="Text Kolabo Studios"
-            className={satelliteClass(
-              open,
-              270, 78, 108,
-              "bg-neutral-800 text-white"
-            )}
-          >
-            <MessageSquareText className="h-[18px] w-[18px] md:h-5 md:w-5" />
-          </a>
-
-          {/* WHATSAPP */}
-          <a
+            label="Text"
+            icon={<MessageSquareText className="h-4 w-4 md:h-5 md:w-5" />}
+            angle={270}
+            distMobile={94}
+            distDesktop={128}
+            open={open}
+            className="bg-neutral-800 text-white"
+          />
+          <Action
             href={waHref}
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="WhatsApp Kolabo Studios"
-            className={satelliteClass(
-              open,
-              330, 72, 96,
-              "text-white"
-            )}
+            label="WhatsApp"
+            icon={<MessageCircle className="h-4 w-4 md:h-5 md:w-5" />}
+            angle={330}
+            distMobile={86}
+            distDesktop={112}
+            open={open}
+            className="text-white"
             style={{ backgroundColor: "#00C6AE" }}
-          >
-            <MessageCircle className="h-[18px] w-[18px] md:h-5 md:w-5" />
-          </a>
+            external
+          />
         </div>
 
-        {/* Main launcher (K) */}
+        {/* Main “K” launcher */}
         <button
           aria-label={open ? "Close quick contact" : "Open quick contact"}
-          onClick={() => setOpen(v => !v)}
+          aria-expanded={open}
+          onClick={() => setOpen((v) => !v)}
           className={`
             group mt-2 md:mt-3 grid place-items-center
-            w-14 h-14 md:w-16 md:h-16 rounded-full
-            shadow-[0_10px_25px_rgba(0,0,0,0.18)]
+            w-16 h-16 md:w-18 md:h-18 rounded-full
+            backdrop-blur-md bg-white/75 dark:bg-zinc-900/60
             border border-white/50 dark:border-white/10
-            backdrop-blur-md bg-white/70 dark:bg-zinc-900/60
+            shadow-[0_14px_30px_rgba(0,0,0,0.18)]
             transition-transform duration-300 active:scale-95
+            relative overflow-visible
           `}
-          style={{ WebkitBackdropFilter: "blur(10px)" }}
+          style={{ WebkitBackdropFilter: "blur(12px)" }}
         >
           {/* K monogram */}
-          <span
-            className={`
-              font-sora text-[18px] md:text-[20px] font-semibold tracking-wide
-              text-zinc-900 dark:text-white
-            `}
-          >
+          <span className="text-[19px] md:text-[21px] font-semibold tracking-wide text-zinc-900 dark:text-white">
             K
           </span>
 
-          {/* Ripple accent on hover */}
+          {/* Teal halo pulse to hint interactivity */}
           <span
-            className={`
-              pointer-events-none absolute inset-0 rounded-full
-              ring-0 group-hover:ring-4 ring-[#00C6AE]/25 transition-all
-            `}
+            className="pointer-events-none absolute inset-0 rounded-full ring-0 animate-fabHalo"
+            style={{ boxShadow: "0 0 0 0 rgba(0,198,174,0.35)" }}
           />
+
+          {/* Hover ring (desktop) */}
+          <span className="pointer-events-none absolute inset-0 rounded-full ring-0 group-hover:ring-4 ring-[#00C6AE]/25 transition-all" />
         </button>
       </div>
     </div>
   );
 }
 
-/** Build satellite button classes + position/animation */
-function satelliteClass(
-  open: boolean,
-  angleDeg: number,
-  distMobile: number,
-  distDesktop: number,
-  colorClasses: string
-) {
-  // Convert polar to cartesian for mobile/desktop distances
-  const rad = (angleDeg * Math.PI) / 180;
-  const xM = Math.cos(rad) * distMobile;
-  const yM = Math.sin(rad) * distMobile;
-  const xD = Math.cos(rad) * distDesktop;
-  const yD = Math.sin(rad) * distDesktop;
+type ActionProps = {
+  href: string;
+  label: string;
+  icon: React.ReactNode;
+  angle: number;
+  distMobile: number;
+  distDesktop: number;
+  open: boolean;
+  className?: string;
+  style?: React.CSSProperties;
+  external?: boolean;
+};
 
-  return `
-    absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2
-    grid place-items-center
-    w-11 h-11 md:w-12 md:h-12 rounded-full
-    shadow-[0_10px_25px_rgba(0,0,0,0.15)]
-    border border-white/40 dark:border-white/10
-    ${colorClasses}
-    ${open ? "scale-100 fab-pop" : "scale-0"}
-    transition-transform duration-500 ease-[cubic-bezier(.2,.8,.2,1)]
-    will-change-transform
+function Action({
+  href,
+  label,
+  icon,
+  angle,
+  distMobile,
+  distDesktop,
+  open,
+  className = "",
+  style,
+  external,
+}: ActionProps) {
+  // position from angle + distance
+  const rad = (angle * Math.PI) / 180;
+  const xm = Math.cos(rad) * distMobile;
+  const ym = Math.sin(rad) * distMobile;
+  const xd = Math.cos(rad) * distDesktop;
+  const yd = Math.sin(rad) * distDesktop;
 
-    ${open
-      ? `translate-x-[${xM}px] translate-y-[${yM}px] md:translate-x-[${xD}px] md:translate-y-[${yD}px]`
-      : "translate-x-[0px] translate-y-[0px]"
-    }
-  `;
+  return (
+    <a
+      href={href}
+      {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+      aria-label={label}
+      className={`
+        absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2
+        grid place-items-center
+        w-11 h-11 md:w-12 md:h-12 rounded-full
+        border border-white/40 dark:border-white/10
+        shadow-[0_12px_28px_rgba(0,0,0,0.15)]
+        transition-transform duration-500 ease-[cubic-bezier(.22,.92,.22,1)]
+        ${open ? "scale-100 fab-pop" : "scale-0"}
+        ${className}
+        will-change-transform
+        ${open
+          ? `translate-x-[${xm}px] translate-y-[${ym}px] md:translate-x-[${xd}px] md:translate-y-[${yd}px]`
+          : "translate-x-[0px] translate-y-[0px]"}
+      `}
+      style={style}
+    >
+      {icon}
+      {/* label chip */}
+      <span
+        className={`
+          absolute left-1/2 top-1/2 translate-y-1/2 ml-2
+          md:ml-3 whitespace-nowrap
+          rounded-full px-2.5 py-1
+          text-[11px] md:text-xs font-medium
+          bg-white/90 dark:bg-zinc-900/80 text-zinc-900 dark:text-white
+          border border-white/60 dark:border-white/10
+          shadow-sm
+          transition-all duration-300
+          ${open ? "opacity-100 translate-x-0 animate-labelSlide" : "opacity-0 translate-x-2"}
+        `}
+        style={{ transform: "translate(20px, -50%)" }}
+      >
+        {label}
+      </span>
+    </a>
+  );
 }
