@@ -2,8 +2,8 @@
 import { useEffect, useState } from "react";
 import { Phone, MessageCircle, MessageSquareText } from "lucide-react";
 
-const phone = process.env.NEXT_PUBLIC_PHONE_E164 || "+10000000000";
-const wa = process.env.NEXT_PUBLIC_WHATSAPP_E164 || "+10000000000";
+const phone = process.env.NEXT_PUBLIC_PHONE_E164 || "+18565955203";
+const wa = process.env.NEXT_PUBLIC_WHATSAPP_E164 || "+18565955203";
 
 const telHref = `tel:${phone}`;
 const smsHref = `sms:${phone}`;
