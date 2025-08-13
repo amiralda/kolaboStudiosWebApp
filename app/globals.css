@@ -2,6 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
+/* =========================
+   Base tokens
+   ========================= */
 @layer base {
   :root {
     --background: 0 0% 100%;
@@ -25,63 +28,93 @@
     --ring: 174 100% 39%;
     --radius: 0.5rem;
     --teal: #00C6AE;
-  }
-}
 
-@layer base {
-  * {
-    @apply border-border;
+    /* Motion tokens for FAB/dialog */
+    --fab-dur-in: .45s;
+    --fab-dur-pop: .32s;
+    --fab-dur-label: .22s;
+    --fab-ease: cubic-bezier(.22,.92,.22,1);
+    --fab-ease-pop: cubic-bezier(.2,1,.22,1);
+    --fab-ease-label: cubic-bezier(.25,.9,.3,1);
   }
+
+  * { @apply border-border; }
+
   body {
     @apply bg-background text-foreground;
     font-family: var(--font-inter), sans-serif;
   }
+
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-sora), sans-serif;
   }
 }
 
 /* =========================
-   Animations (keyframes)
+   Keyframes (single source of truth)
    ========================= */
+
+/* FAB entrance */
 @keyframes fabFadeIn {
-  from { opacity: 0; transform: translateY(8px) scale(.98); }
-  to   { opacity: 1; transform: translateY(0) scale(1); }
+  from { opacity: 0; transform: translateY(10px) scale(.97); filter: blur(1px); }
+  to   { opacity: 1; transform: translateY(0)   scale(1);   filter: blur(0); }
 }
 
+/* FAB pop/overshoot */
 @keyframes fabPop {
-  0%   { transform: scale(0.6); }
-  60%  { transform: scale(1.07); }
+  0%   { transform: scale(.6); }
+  60%  { transform: scale(1.08); }
   100% { transform: scale(1); }
 }
 
+/* Teal halo pulse */
 @keyframes fabHalo {
-  0%   { box-shadow: 0 0 0 0 rgba(0,198,174,0.0); }
+  0%   { box-shadow: 0 0 0 0 rgba(0,198,174,0); }
   40%  { box-shadow: 0 0 0 12px rgba(0,198,174,0.18); }
-  100% { box-shadow: 0 0 0 0 rgba(0,198,174,0.0); }
+  100% { box-shadow: 0 0 0 0 rgba(0,198,174,0); }
 }
 
+/* Label slide-in */
 @keyframes labelSlide {
-  from { opacity: 0; transform: translate(10px, -50%); }
-  to   { opacity: 1; transform: translate(0, -50%); }
+  from { opacity: 0; transform: translate(8px, -50%); }
+  to   { opacity: 1; transform: translate(0,   -50%); }
 }
 
+/* Diagonal shimmer (optional accent) */
 @keyframes fabShimmer {
   0%   { transform: translateX(-120%); opacity: 0; }
   15%  { opacity: .7; }
-  60%  { transform: translateX(120%); opacity: 0; }
+  60%  { transform: translateX(120%);  opacity: 0; }
   100% { opacity: 0; }
 }
 
+/* Dialog pop-in */
+@keyframes dialogIn {
+  from { opacity: 0; transform: translateY(4px) scale(.98); }
+  to   { opacity: 1; transform: translateY(0)  scale(1); }
+}
+
 /* =========================
-   Utility classes
+   Utilities
    ========================= */
 @layer utilities {
-  .animate-fabFadeIn { animation: fabFadeIn .45s ease-out both; }
-  .fab-pop           { animation: fabPop .28s ease-out both; }
+  .animate-fabFadeIn { animation: fabFadeIn var(--fab-dur-in) var(--fab-ease) both; }
+  .fab-pop           { animation: fabPop var(--fab-dur-pop) var(--fab-ease-pop) both; }
   .animate-fabHalo   { animation: fabHalo 2.8s ease-out infinite; }
-  .animate-labelSlide{ animation: labelSlide .22s ease-out both; }
+  .animate-labelSlide{ animation: labelSlide var(--fab-dur-label) var(--fab-ease-label) both; }
   .animate-fabShimmer{ animation: fabShimmer 3.5s ease-out infinite; }
+
+  /* Dialog animation helper used by the contact dialog */
+  .dialog-animate-in { animation: dialogIn .22s ease-out both; }
+
+  /* Subtle soft shadow for floating items */
+  .fab-shadow-soft   { box-shadow: 0 10px 24px rgba(0,0,0,.14); }
+
+  /* Mobile tap polish */
+  .tap-smooth {
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
 }
 
 /* =========================
@@ -92,82 +125,19 @@
   .fab-pop,
   .animate-fabHalo,
   .animate-labelSlide,
-  .animate-fabShimmer {
+  .animate-fabShimmer,
+  .dialog-animate-in {
     animation: none !important;
   }
 }
+
 /* =========================
-   FAB polish (smoother curves,
-   nicer pop, better mobile)
+   Small-phone tweaks
    ========================= */
-
-/* Consistent easing + timing tokens (tweak freely) */
-:root {
-  --fab-dur-in: .45s;
-  --fab-dur-pop: .32s;
-  --fab-dur-label: .22s;
-  --fab-ease: cubic-bezier(.22,.92,.22,1);
-  --fab-ease-pop: cubic-bezier(.2, 1, .22, 1);      /* springier */
-  --fab-ease-label: cubic-bezier(.25,.9,.3,1);
-}
-
-/* Replace the default entrance with a slightly longer, smoother one */
-@keyframes fabFadeIn {
-  from { opacity: 0; transform: translateY(10px) scale(.97); filter: blur(1px); }
-  to   { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
-}
-@layer utilities {
-  .animate-fabFadeIn { animation: fabFadeIn var(--fab-dur-in) var(--fab-ease) both; }
-}
-
-/* Nicer pop with a tiny overshoot */
-@keyframes fabPop {
-  0%   { transform: scale(.6); }
-  60%  { transform: scale(1.08); }
-  100% { transform: scale(1); }
-}
-@layer utilities {
-  .fab-pop { animation: fabPop var(--fab-dur-pop) var(--fab-ease-pop) both; }
-}
-
-/* Keep label slide subtle + crisp */
-@keyframes labelSlide {
-  from { opacity: 0; transform: translate(8px, -50%); }
-  to   { opacity: 1; transform: translate(0, -50%); }
-}
-@layer utilities {
-  .animate-labelSlide { animation: labelSlide var(--fab-dur-label) var(--fab-ease-label) both; }
-}
-
-/* Softer shadow for satellites; reduces harshness on light backgrounds */
-@layer utilities {
-  .fab-shadow-soft { box-shadow: 0 10px 24px rgba(0,0,0,.14); }
-}
-
-/* Reduce visual density on very narrow phones so nothing feels cramped */
 @media (max-width: 390px) {
-  /* Slightly smaller labels so they never feel edge-crowded */
+  /* Slightly smaller chips/labels so they never feel edge-crowded */
   .animate-labelSlide {
     font-size: 11px !important;
     padding: .3rem .55rem !important;
-  }
-}
-
-/* Mobile tap polish */
-@layer utilities {
-  .tap-smooth {
-    -webkit-tap-highlight-color: transparent;
-    touch-action: manipulation;
-  }
-}
-
-/* Respect reduced motion users globally */
-@media (prefers-reduced-motion: reduce) {
-  .animate-fabFadeIn,
-  .fab-pop,
-  .animate-fabHalo,
-  .animate-labelSlide,
-  .animate-fabShimmer {
-    animation: none !important;
   }
 }
