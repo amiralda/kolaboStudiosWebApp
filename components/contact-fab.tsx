@@ -18,18 +18,21 @@ export default function ContactFAB() {
   if (!mounted) return null;
 
   return (
-    <div className="fixed right-6 bottom-4 md:right-10 md:bottom-6 z-[9999]">
-      {/* subtle entrance */}
+    <div
+      className="fixed bottom-4 md:bottom-6 z-[9999]"
+      // Nudge a bit left so satellites never clip the edge (safe-area aware)
+      style={{ right: "max(env(safe-area-inset-right), 2.75rem)" }} // ≈ right-11
+    >
       <div className="animate-fabFadeIn relative">
-        {/* Radial actions */}
+        {/* Radial actions (kept close to K) */}
         <div className="relative w-16 h-16 select-none">
           <Action
             href={telHref}
             label="Call"
             icon={<Phone className="h-4 w-4 md:h-5 md:w-5" />}
-            angle={210}
-            distMobile={65}
-            distDesktop={85}
+            angle={205}
+            distMobile={54}
+            distDesktop={72}
             open={open}
             className="bg-black text-white"
           />
@@ -37,9 +40,9 @@ export default function ContactFAB() {
             href={smsHref}
             label="Text"
             icon={<MessageSquareText className="h-4 w-4 md:h-5 md:w-5" />}
-            angle={270}
-            distMobile={72}
-            distDesktop={95}
+            angle={265}
+            distMobile={60}
+            distDesktop={84}
             open={open}
             className="bg-neutral-800 text-white"
           />
@@ -47,9 +50,9 @@ export default function ContactFAB() {
             href={waHref}
             label="WhatsApp"
             icon={<MessageCircle className="h-4 w-4 md:h-5 md:w-5" />}
-            angle={330}
-            distMobile={65}
-            distDesktop={85}
+            angle={325}
+            distMobile={54}
+            distDesktop={72}
             open={open}
             className="text-white"
             style={{ backgroundColor: "#00C6AE" }}
@@ -64,7 +67,7 @@ export default function ContactFAB() {
           onClick={() => setOpen((v) => !v)}
           className={`
             group mt-2 md:mt-3 grid place-items-center
-            w-16 h-16 md:w-18 md:h-18 rounded-full
+            w-16 h-16 rounded-full
             backdrop-blur-md bg-white/75 dark:bg-zinc-900/60
             border border-white/50 dark:border-white/10
             shadow-[0_14px_30px_rgba(0,0,0,0.18)]
@@ -73,7 +76,6 @@ export default function ContactFAB() {
           `}
           style={{ WebkitBackdropFilter: "blur(12px)" }}
         >
-          {/* K monogram */}
           <span className="text-[19px] md:text-[21px] font-semibold tracking-wide text-zinc-900 dark:text-white">
             K
           </span>
@@ -117,18 +119,17 @@ function Action({
   style,
   external,
 }: ActionProps) {
+  // convert polar → cartesian
   const rad = (angle * Math.PI) / 180;
   const xm = Math.cos(rad) * distMobile;
   const ym = Math.sin(rad) * distMobile;
   const xd = Math.cos(rad) * distDesktop;
   const yd = Math.sin(rad) * distDesktop;
 
-  const labelOnLeftMobile = xm > 0;
-  const labelOnLeftDesktop = xd > 0;
-
-  const SHIFT = 28;
-  const labelShiftMobile = labelOnLeftMobile ? -SHIFT : SHIFT;
-  const labelShiftDesktop = labelOnLeftDesktop ? -SHIFT : SHIFT;
+  // Auto-flip label side if satellite is on the right
+  const SHIFT = 26;
+  const labelShiftMobile = xm > 0 ? -SHIFT : SHIFT;
+  const labelShiftDesktop = xd > 0 ? -SHIFT : SHIFT;
 
   return (
     <a
@@ -153,13 +154,13 @@ function Action({
     >
       {icon}
 
-      {/* Transparent label chip */}
+      {/* Transparent label chip (clickable; inside <a>) */}
       <span
         className={`
           absolute left-1/2 top-1/2 translate-y-1/2
           whitespace-nowrap rounded-full px-2.5 py-1
           text-[11px] md:text-xs font-medium
-          bg-white/60 dark:bg-zinc-900/60 text-zinc-900 dark:text-white
+          bg-white/50 dark:bg-zinc-900/50 text-zinc-900 dark:text-white
           border border-white/30 dark:border-white/20
           shadow-sm
           transition-all duration-300
@@ -169,7 +170,10 @@ function Action({
           transform: `translate(${labelShiftMobile}px, -50%)`,
         }}
       >
-        <span className="hidden md:inline" style={{ transform: `translate(${labelShiftDesktop - labelShiftMobile}px, 0)` }}>
+        <span
+          className="hidden md:inline"
+          style={{ transform: `translate(${labelShiftDesktop - labelShiftMobile}px, 0)` }}
+        >
           {label}
         </span>
         <span className="md:hidden">{label}</span>
