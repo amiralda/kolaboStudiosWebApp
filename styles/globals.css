@@ -2,12 +2,14 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ---------- Utilities ---------- */
 @layer utilities {
   .text-balance {
     text-wrap: balance;
   }
 }
 
+/* ---------- Design Tokens ---------- */
 @layer base {
   :root {
     --background: 0 0% 100%;
@@ -35,6 +37,8 @@
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
     --radius: 0.5rem;
+
+    /* Sidebar tokens (shadcn/ui) */
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
     --sidebar-primary: 240 5.9% 10%;
@@ -43,7 +47,11 @@
     --sidebar-accent-foreground: 240 5.9% 10%;
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 217.2 91.2% 59.8%;
+
+    /* Brand */
+    --teal-hex: #00C6AE;
   }
+
   .dark {
     --background: 0 0% 3.9%;
     --foreground: 0 0% 98%;
@@ -69,6 +77,7 @@
     --chart-3: 30 80% 55%;
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
+
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
     --sidebar-primary: 224.3 76.3% 48%;
@@ -81,26 +90,29 @@
 }
 
 @layer base {
-  * {
-    @apply border-border;
-  }
-  body {
-    @apply bg-background text-foreground;
-  }
+  * { @apply border-border; }
+  body { @apply bg-background text-foreground; }
 }
 
-@keyframes dialogPop {
-  from { opacity: 0; transform: translateY(6px) scale(.98); }
-  to   { opacity: 1; transform: translateY(0) scale(1); }
-}
-.dialog-animate-in {
-  animation: dialogPop .22s ease-out both;
-}
-/* Smooth scale+fade for dialog */
-.dialog-animate-in {
-  animation: dialogIn .22s ease-out both;
-}
+/* ---------- Dialog animation (single source of truth) ---------- */
 @keyframes dialogIn {
   from { opacity: 0; transform: translateY(4px) scale(.98); }
   to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+.dialog-animate-in { animation: dialogIn .22s ease-out both; }
+
+/* ---------- K button halo animation (used by ContactFAB) ---------- */
+@keyframes fabHalo {
+  0%   { box-shadow: 0 0 0 0 rgba(0,198,174,0.00); }
+  40%  { box-shadow: 0 0 0 12px rgba(0,198,174,0.18); }
+  100% { box-shadow: 0 0 0 0 rgba(0,198,174,0.00); }
+}
+.animate-fabHalo { animation: fabHalo 2.8s ease-out infinite; }
+
+/* ---------- Respect users who prefer reduced motion ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .dialog-animate-in,
+  .animate-fabHalo {
+    animation: none !important;
+  }
 }
