@@ -7,47 +7,86 @@ import {
   DialogHeader,
   DialogTitle,
   DialogDescription,
-  DialogFooter,
   DialogClose,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Phone, MessageCircle, MessageSquareText, X, Clipboard } from "lucide-react";
-import { useToast } from "@/components/ui/use-toast";
+import {
+  Phone,
+  MessageCircle,
+  MessageSquareText,
+  X,
+  Clipboard,
+} from "lucide-react";
 
-const PHONE_E164 = process.env.NEXT_PUBLIC_PHONE_E164 || "+18565955203";
-const WA_E164 = process.env.NEXT_PUBLIC_WHATSAPP_E164 || PHONE_E164;
+/** --- Phone handling & helpers --- */
+const RAW_PHONE = process.env.NEXT_PUBLIC_PHONE_E164 || "+18565955203";
+const RAW_WA = process.env.NEXT_PUBLIC_WHATSAPP_E164 || RAW_PHONE;
 
+// Keep + for tel/sms (E.164), strip to digits for WhatsApp deep links.
+const WA_DIGITS = RAW_WA.replace(/\D/g, "");
+
+// Remember preferred channel (purely UX)
 const PREF_KEY = "kolabo-preferred-channel";
 
 function vibrate(ms = 12) {
-  try { if (navigator.vibrate) navigator.vibrate(ms); } catch {}
+  try {
+    if (navigator.vibrate) navigator.vibrate(ms);
+  } catch {}
 }
-
 function track(event: string, data?: Record<string, any>) {
-  try { (window as any).plausible?.(event, { props: data }); } catch {}
+  try {
+    (window as any).plausible?.(event, { props: data });
+  } catch {}
 }
 
 export default function ContactFAB() {
   const [open, setOpen] = React.useState(false);
   const [mounted, setMounted] = React.useState(false);
   const [pref, setPref] = React.useState<string | null>(null);
-  const page = typeof window !== "undefined" ? window.location.pathname : "/";
-  const hasPhone = !!(PHONE_E164 && PHONE_E164.trim());
-
-  // prefilled deep links
-  const prefill = encodeURIComponent(`Hi Kolabo Studios — I'm on ${page} and want to book a session.`);
-  const telHref = `tel:${PHONE_E164}`;
-  const smsHref = `sms:${PHONE_E164}?&body=${prefill}`;
-  const waHref  = `https://wa.me/${WA_E164.replace(/\D/g, "")}?text=${prefill}`;
 
   React.useEffect(() => {
     setMounted(true);
-    try { setPref(localStorage.getItem(PREF_KEY)); } catch {}
+    try {
+      setPref(localStorage.getItem(PREF_KEY));
+    } catch {}
+  }, []);
+
+  // Build context-aware prefill when client is mounted
+  const { telHref, smsHref, waHref } = React.useMemo(() => {
+    const origin =
+      typeof window !== "undefined"
+        ? window.location.origin
+        : "https://kolabostudios.com";
+    const path =
+      typeof window !== "undefined" ? window.location.pathname : "/";
+    const fullUrl = `${origin}${path}`;
+    const pageHint = path === "/" ? "the homepage" : `the page: ${path}`;
+
+    const body =
+      `Hi Kolabo Studios 👋\n\n` +
+      `I'm interested in booking a session.\n` +
+      `I'm currently viewing ${pageHint} (${fullUrl}).\n\n` +
+      `Service: [Wedding / Engagement / Maternity / Retouch]\n` +
+      `Preferred date: [MM/DD]\n` +
+      `Budget: [Flexible]\n` +
+      `Notes: [Tell us anything important]\n\n` +
+      `— Sent from kolabostudios.com`;
+
+    const encoded = encodeURIComponent(body);
+
+    return {
+      telHref: `tel:${RAW_PHONE}`, // don't add a body for tel:
+      smsHref: `sms:${RAW_PHONE}?&body=${encoded}`,
+      waHref: `https://wa.me/${WA_DIGITS}?text=${encoded}`,
+    };
   }, []);
 
   React.useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.key.toLowerCase() === "c") { setOpen(true); vibrate(10); }
+      if (e.key.toLowerCase() === "c") {
+        setOpen(true);
+        vibrate(10);
+      }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
@@ -57,18 +96,22 @@ export default function ContactFAB() {
 
   return (
     <>
-      {/* Floating K button */}
+      {/* Floating K button — nudged inward so sheet never spills off-screen */}
       <div
         className="fixed bottom-4 md:bottom-6 z-[9999]"
         style={{ right: "max(env(safe-area-inset-right), 4.25rem)" }}
       >
         <button
           aria-label={open ? "Close contact options" : "Open contact options"}
-          onClick={() => { setOpen(true); vibrate(12); track("contact_open", { from: page }); }}
+          onClick={() => {
+            setOpen(true);
+            vibrate(12);
+            track("contact_open");
+          }}
           className={`
             group grid place-items-center
             w-16 h-16 rounded-full
-            backdrop-blur-md bg-white/65 dark:bg-zinc-900/55
+            backdrop-blur-md bg-white/60 dark:bg-zinc-900/55
             border border-white/40 dark:border-white/10
             shadow-[0_14px_30px_rgba(0,0,0,0.18)]
             transition-transform duration-300 active:scale-95
@@ -79,6 +122,7 @@ export default function ContactFAB() {
           <span className="text-[21px] font-semibold tracking-wide text-zinc-900 dark:text-white">
             K
           </span>
+          {/* soft teal halo */}
           <span
             className="pointer-events-none absolute inset-0 rounded-full animate-fabHalo"
             style={{ boxShadow: "0 0 0 0 rgba(0,198,174,0.35)" }}
@@ -87,11 +131,11 @@ export default function ContactFAB() {
         </button>
       </div>
 
-      {/* Dialog */}
+      {/* Glass dialog */}
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="sm:max-w-[420px] border-0 bg-transparent p-0 dialog-animate-in">
           <div className="relative rounded-2xl overflow-hidden shadow-[0_25px_60px_rgba(0,0,0,0.35)]">
-            {/* Gradient border */}
+            {/* Gradient frame */}
             <div
               className="pointer-events-none absolute inset-0 rounded-2xl"
               style={{
@@ -104,69 +148,86 @@ export default function ContactFAB() {
                 maskComposite: "exclude" as any,
               }}
             />
-            {/* Glass panel */}
-            <div className="relative rounded-2xl bg-white/40 dark:bg-zinc-900/50 backdrop-blur-2xl">
-              <DialogHeader className="p-5 pb-2">
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <DialogTitle className="text-[1.15rem] font-sora text-zinc-900 dark:text-white">
-                      Contact Kolabo Studios
-                    </DialogTitle>
-                    <div className="flex items-center gap-2">
-                      <DialogDescription className="text-sm text-zinc-700/80 dark:text-zinc-300/90">
-                        Choose how you’d like to reach us.
-                      </DialogDescription>
-                      <HoursBadge />
-                    </div>
-                  </div>
-                  <DialogClose asChild>
-                    <button
-                      aria-label="Close"
-                      className="grid place-items-center size-9 rounded-full bg-white/55 dark:bg-zinc-800/60 border border-white/40 dark:border-white/10 hover:bg-white/75 dark:hover:bg-zinc-800/80 transition-colors"
-                    >
-                      <X className="h-4 w-4 text-zinc-700 dark:text-zinc-200" />
-                    </button>
-                  </DialogClose>
+            {/* Glass panel (more transparent + stronger blur) */}
+            <div className="relative rounded-2xl bg-white/30 dark:bg-zinc-900/45 backdrop-blur-3xl">
+              <DialogHeader className="px-5 pt-5">
+                {/* Copy icon + Close in header */}
+                <DialogClose asChild>
+                  <button
+                    aria-label="Close"
+                    className="absolute right-4 top-4 grid place-items-center size-9 rounded-full bg-white/55 dark:bg-zinc-800/60 border border-white/40 dark:border-white/10 hover:bg-white/75 dark:hover:bg-zinc-800/80 transition-colors"
+                  >
+                    <X className="h-4 w-4 text-zinc-700 dark:text-zinc-200" />
+                  </button>
+                </DialogClose>
+
+                <button
+                  aria-label="Copy phone number"
+                  onClick={() => {
+                    navigator.clipboard.writeText(RAW_PHONE);
+                    vibrate(8);
+                    track("contact_copy_number");
+                  }}
+                  className="absolute right-16 top-4 grid place-items-center size-9 rounded-full bg-white/55 dark:bg-zinc-800/60 border border-white/40 dark:border-white/10 hover:bg-white/75 dark:hover:bg-zinc-800/80 transition-colors"
+                  title={`Copy ${RAW_PHONE}`}
+                >
+                  <Clipboard className="h-4 w-4 text-zinc-700 dark:text-zinc-200" />
+                </button>
+
+                {/* Centered title & subtitle */}
+                <DialogTitle className="text-center text-[1.15rem] font-sora text-zinc-900 dark:text-white">
+                  Contact Kolabo Studios
+                </DialogTitle>
+                <DialogDescription className="text-center text-sm text-zinc-700/85 dark:text-zinc-300/90">
+                  Select your preferred way to connect with us. We’re online and ready to assist you.
+                </DialogDescription>
+                <div className="flex justify-center pt-2 pb-1">
+                  <HoursBadge />
                 </div>
               </DialogHeader>
 
               {/* Actions */}
-              <div className="px-5 pt-3 pb-4 grid gap-3">
-                <GlassOutlineLink
-                  href={hasPhone ? telHref : undefined}
-                  label="Call"
+              <div className="px-5 pb-5 grid gap-3">
+                <GlassAction
+                  href={telHref}
+                  label="Call Now"
+                  icon={<Phone className="h-5 w-5 opacity-90" />}
                   highlight={pref === "call"}
-                  onClick={() => { remember("call"); vibrate(10); track("contact_call", { from: page }); }}
-                  disabled={!hasPhone}
-                >
-                  <Phone className="h-5 w-5 opacity-90" />
-                </GlassOutlineLink>
+                  onClick={() => {
+                    remember("call", setPref);
+                    vibrate(10);
+                    track("contact_call");
+                  }}
+                />
 
-                <GlassOutlineLink
-                  href={hasPhone ? smsHref : undefined}
-                  label="Text"
+                <GlassAction
+                  href={smsHref}
+                  label="Text Message"
+                  icon={<MessageSquareText className="h-5 w-5 opacity-90" />}
                   highlight={pref === "text"}
-                  onClick={() => { remember("text"); vibrate(10); track("contact_text", { from: page }); }}
-                  disabled={!hasPhone}
-                >
-                  <MessageSquareText className="h-5 w-5 opacity-90" />
-                </GlassOutlineLink>
+                  onClick={() => {
+                    remember("text", setPref);
+                    vibrate(10);
+                    track("contact_text");
+                  }}
+                />
 
-                <GlassOutlineLink
+                <GlassAction
                   href={waHref}
-                  label="WhatsApp"
+                  label="WhatsApp Chat"
+                  icon={<MessageCircle className="h-5 w-5 opacity-90" />}
                   external
                   accent
                   highlight={pref === "whatsapp"}
-                  onClick={() => { remember("whatsapp"); vibrate(10); track("contact_whatsapp", { from: page }); }}
-                >
-                  <MessageCircle className="h-5 w-5 opacity-90" />
-                </GlassOutlineLink>
-
-                <CopyNumberRow />
+                  onClick={() => {
+                    remember("whatsapp", setPref);
+                    vibrate(10);
+                    track("contact_whatsapp");
+                  }}
+                />
               </div>
 
-              <DialogFooter className="px-5 pb-5">
+              <div className="px-5 pb-5">
                 <DialogClose asChild>
                   <Button
                     variant="ghost"
@@ -175,17 +236,20 @@ export default function ContactFAB() {
                     Close
                   </Button>
                 </DialogClose>
-              </DialogFooter>
+              </div>
             </div>
           </div>
         </DialogContent>
       </Dialog>
     </>
   );
+}
 
-  function remember(channel: string) {
-    try { localStorage.setItem(PREF_KEY, channel); setPref(channel); } catch {}
-  }
+function remember(channel: string, setPref: (v: string) => void) {
+  try {
+    localStorage.setItem(PREF_KEY, channel);
+    setPref(channel);
+  } catch {}
 }
 
 function HoursBadge() {
@@ -202,86 +266,69 @@ function HoursBadge() {
   );
 }
 
-function CopyNumberRow() {
-  const { toast } = useToast();
-  return (
-    <button
-      onClick={() => {
-        navigator.clipboard.writeText(PHONE_E164);
-        toast({ title: "Number copied", description: PHONE_E164 });
-      }}
-      className="h-10 rounded-lg bg-white/45 dark:bg-zinc-800/50 backdrop-blur border border-white/30 dark:border-white/10 text-sm hover:bg-white/65 dark:hover:bg-zinc-800/70 transition-colors"
-    >
-      <Clipboard className="inline h-4 w-4 mr-2" />
-      Copy phone number
-    </button>
-  );
-}
-
-function GlassOutlineLink({
+/** Minimal, fancy glass-outline button with icon + text */
+function GlassAction({
   href,
   label,
-  children,
+  icon,
   external = false,
   accent = false,
   highlight = false,
   onClick,
-  disabled = false,
 }: {
-  href?: string;
+  href: string;
   label: string;
-  children: React.ReactNode;
+  icon: React.ReactNode;
   external?: boolean;
   accent?: boolean;
   highlight?: boolean;
   onClick?: () => void;
-  disabled?: boolean;
 }) {
-  const common = `
-    rounded-xl
-    bg-white/35 dark:bg-zinc-900/45
-    backdrop-blur-xl
-    border border-white/30 dark:border-white/10
-    h-12 px-4
-    flex items-center justify-center gap-2.5
-    text-[0.94rem]
-    text-zinc-900 dark:text-zinc-100
-    transition-all duration-200
-    shadow-[0_6px_22px_rgba(0,0,0,0.14)]
-    ${accent ? "hover:bg-[#00C6AE]/85 hover:text-white" : "hover:bg-white/50 dark:hover:bg-zinc-900/60"}
-    ${highlight ? "ring-2 ring-[#00C6AE]/60" : ""}
-    ${disabled ? "opacity-50 pointer-events-none" : "group-hover:translate-y-[-1px]"}
-  `;
-
-  const inner = (
-    <div className={common} onClick={onClick}>
-      {children}
-      <span className="font-medium">{label}</span>
-    </div>
-  );
-
-  if (!href) return <div className="relative rounded-xl" style={frameStyle}>{inner}</div>;
-
   return (
     <a
       href={href}
       {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
       aria-label={label}
       className="block group"
+      onClick={onClick}
     >
-      <div className="relative rounded-xl" style={frameStyle}>
-        {inner}
+      {/* Gradient frame */}
+      <div
+        className="relative rounded-xl"
+        style={{
+          padding: 1.25,
+          background:
+            "linear-gradient(135deg, rgba(0,198,174,0.6), rgba(255,255,255,0.45))",
+          WebkitMask:
+            "linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0)",
+          WebkitMaskComposite: "xor",
+          maskComposite: "exclude" as any,
+        }}
+      >
+        <div
+          className={`
+            rounded-xl
+            bg-white/30 dark:bg-zinc-900/45
+            backdrop-blur-2xl
+            border border-white/25 dark:border-white/10
+            h-12 px-4
+            flex items-center justify-center gap-2.5
+            text-[0.94rem]
+            text-zinc-900 dark:text-zinc-100
+            transition-all duration-200
+            shadow-[0_6px_22px_rgba(0,0,0,0.14)]
+            ${
+              accent
+                ? "group-hover:bg-[#00C6AE]/85 group-hover:text-white"
+                : "hover:bg-white/45 dark:hover:bg-zinc-900/55"
+            }
+            ${highlight ? "ring-2 ring-[#00C6AE]/60" : "group-hover:translate-y-[-1px]"}
+          `}
+        >
+          {icon}
+          <span className="font-medium">{label}</span>
+        </div>
       </div>
     </a>
   );
 }
-
-const frameStyle: React.CSSProperties = {
-  padding: 1.25,
-  background:
-    "linear-gradient(135deg, rgba(0,198,174,0.6), rgba(255,255,255,0.45))",
-  WebkitMask:
-    "linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0)",
-  WebkitMaskComposite: "xor",
-  maskComposite: "exclude" as any,
-};

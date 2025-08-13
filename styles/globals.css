@@ -96,3 +96,11 @@
 .dialog-animate-in {
   animation: dialogPop .22s ease-out both;
 }
+/* Smooth scale+fade for dialog */
+.dialog-animate-in {
+  animation: dialogIn .22s ease-out both;
+}
+@keyframes dialogIn {
+  from { opacity: 0; transform: translateY(4px) scale(.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
