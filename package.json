@@ -41,6 +41,7 @@
     "@stripe/react-stripe-js": "latest",
     "@stripe/stripe-js": "latest",
     "@supabase/supabase-js": "latest",
+    "@vercel/analytics": "^1.5.0",
     "@vercel/blob": "latest",
     "autoprefixer": "^10.4.20",
     "class-variance-authority": "^0.7.1",
