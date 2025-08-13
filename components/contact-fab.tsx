@@ -10,7 +10,6 @@ const telHref = `tel:${PHONE_E164}`;
 const smsHref = `sms:${PHONE_E164}`;
 const waHref = `https://wa.me/${WA_E164.replace(/\D/g, "")}`;
 
-// breakpoint helper for spacing
 function useIsDesktop() {
   const [isDesktop, setIsDesktop] = useState(false);
   useEffect(() => {
@@ -32,14 +31,11 @@ export default function ContactFAB() {
   return (
     <div
       className="fixed bottom-4 md:bottom-6 z-[9999]"
-      // Nudge a bit left; safe-area aware so nothing clips on iOS
-      style={{ right: "max(env(safe-area-inset-right), 2.75rem)" }} // ≈ right-11
+      // move left enough to avoid edge clipping (safe-area aware)
+      style={{ right: "max(env(safe-area-inset-right), 4.25rem)" }} // tweak to 5rem if needed
     >
       <div className="animate-fabFadeIn relative">
-        {/* Vertical actions column (appears above K) */}
         <VerticalActions open={open} />
-
-        {/* Main “K” launcher */}
         <button
           aria-label={open ? "Close quick contact" : "Open quick contact"}
           aria-expanded={open}
@@ -58,14 +54,10 @@ export default function ContactFAB() {
           <span className="text-[19px] md:text-[21px] font-semibold tracking-wide text-zinc-900 dark:text-white">
             K
           </span>
-
-          {/* Teal halo pulse */}
           <span
             className="pointer-events-none absolute inset-0 rounded-full ring-0 animate-fabHalo"
             style={{ boxShadow: "0 0 0 0 rgba(0,198,174,0.35)" }}
           />
-
-          {/* Hover ring */}
           <span className="pointer-events-none absolute inset-0 rounded-full ring-0 group-hover:ring-4 ring-[#00C6AE]/25 transition-all" />
         </button>
       </div>
@@ -76,43 +68,44 @@ export default function ContactFAB() {
 function VerticalActions({ open }: { open: boolean }) {
   const isDesktop = useIsDesktop();
 
-  // Distances (in px) from the center of the K button, vertically upward
-  const gap1 = isDesktop ? 72 : 56;   // first button above K
-  const gap2 = isDesktop ? 130 : 100; // second
-  const gap3 = isDesktop ? 188 : 144; // third
+  // TIGHT, CLEAN stack above K (closer = smaller numbers)
+  const gap1 = isDesktop ? 60 : 44;   // Call
+  const gap2 = isDesktop ? 108 : 88;  // Text
+  const gap3 = isDesktop ? 156 : 132; // WhatsApp
 
-  // Slight right shift for labels (keeps them readable without going off-screen)
-  const LABEL_SHIFT = 24;
+  const LABEL_SHIFT = 22; // subtle right shift
 
   return (
-    <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-[220px] pointer-events-none">
-      {/* The container has pointer-events none; each action re-enables it */}
+    <div
+      className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-16 pointer-events-none"
+      style={{ height: isDesktop ? 180 : 160 }}
+    >
       <Action
-        href={`tel:${PHONE_E164}`}
+        href={telHref}
         label="Call"
         icon={<Phone className="h-4 w-4 md:h-5 md:w-5" />}
-        y={-gap1}
         x={0}
+        y={-gap1}
         labelShift={LABEL_SHIFT}
         open={open}
         className="bg-black text-white"
       />
       <Action
-        href={`sms:${PHONE_E164}`}
+        href={smsHref}
         label="Text"
         icon={<MessageSquareText className="h-4 w-4 md:h-5 md:w-5" />}
-        y={-gap2}
         x={0}
+        y={-gap2}
         labelShift={LABEL_SHIFT}
         open={open}
         className="bg-neutral-800 text-white"
       />
       <Action
-        href={`https://wa.me/${WA_E164.replace(/\D/g, "")}`}
+        href={waHref}
         label="WhatsApp"
         icon={<MessageCircle className="h-4 w-4 md:h-5 md:w-5" />}
-        y={-gap3}
         x={0}
+        y={-gap3}
         labelShift={LABEL_SHIFT}
         open={open}
         className="text-white"
@@ -127,9 +120,9 @@ type ActionProps = {
   href: string;
   label: string;
   icon: React.ReactNode;
-  x: number;           // horizontal offset from K center (px)
-  y: number;           // vertical offset from K center (px, negative is up)
-  labelShift: number;  // how far to the right the label sits
+  x: number;  // px from K center
+  y: number;  // px from K center (negative is up)
+  labelShift: number;
   open: boolean;
   className?: string;
   style?: React.CSSProperties;
@@ -173,14 +166,12 @@ function Action({
       }}
     >
       {icon}
-
-      {/* Transparent label chip to the right (clickable; part of the <a>) */}
       <span
         className={`
           absolute left-1/2 top-1/2 translate-y-1/2
           whitespace-nowrap rounded-full px-2.5 py-1
           text-[11px] md:text-xs font-medium
-          bg-white/50 dark:bg-zinc-900/50 text-zinc-900 dark:text-white
+          bg-white/40 dark:bg-zinc-900/40 text-zinc-900 dark:text-white
           border border-white/30 dark:border-white/20
           shadow-sm
           transition-opacity transition-transform duration-300

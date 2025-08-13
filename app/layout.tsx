@@ -77,6 +77,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`${inter.variable} ${sora.variable}`}>
+	<head>
+	// add this line inside <head> of your root layout
+		<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+	</head>
       <body className="font-inter">
         <ErrorBoundary>
           <Navigation />

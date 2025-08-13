@@ -128,6 +128,8 @@ export default function RootLayout({
           as="image"
           type="image/png"
         />
+		// add this line inside <head> of your root layout
+		<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
       </head>
       <body className="font-inter">
         <ErrorBoundary>
@@ -135,6 +137,7 @@ export default function RootLayout({
             <Navigation />
             <main>{children}</main>
             <Footer />
+			import ContactFAB from '@/components/contact-fab'
             <ContactFAB />
           </PerformanceProvider>
         </ErrorBoundary>
