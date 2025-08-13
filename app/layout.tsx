@@ -1,20 +1,29 @@
 import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
-import { Sora } from 'next/font/google'
+import { Inter, Sora } from 'next/font/google'
 import './globals.css'
 import { Navigation } from '@/components/navigation'
 import { Footer } from '@/components/footer'
 import { ErrorBoundary } from '@/components/error-boundary'
 import ContactFAB from '@/components/contact-fab'
 
-const inter = Inter({ subsets: ['latin'], variable: '--font-inter', display: 'swap' })
-const sora  = Sora({  subsets: ['latin'], variable: '--font-sora',  display: 'swap' })
+const inter = Inter({
+  subsets: ['latin'],
+  variable: '--font-inter',
+  display: 'swap',
+})
 
-const SITE = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
+const sora = Sora({
+  subsets: ['latin'],
+  variable: '--font-sora',
+  display: 'swap',
+})
 
-export const metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://kolabostudios.com'),
-  title: 'Kolabo Studios',
+export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? 'https://kolabostudios.com'),
+  title: {
+    default: 'Kolabo Studios',
+    template: '%s | Kolabo Studios',
+  },
   description:
     'Wedding, engagement, and maternity photography that captures every moment perfectly. Professional photography services in South Jersey.',
   keywords: ['photography', 'wedding', 'engagement', 'maternity', 'south jersey', 'professional'],
@@ -38,7 +47,8 @@ export const metadata = {
     url: 'https://kolabostudios.com',
     siteName: 'Kolabo Studios',
     title: 'Kolabo Studios - Professional Photography',
-    description: 'Wedding, engagement, and maternity photography that captures every moment perfectly.',
+    description:
+      'Wedding, engagement, and maternity photography that captures every moment perfectly.',
     images: [
       {
         url: '/wedding-dance-sunset.png',
@@ -51,16 +61,20 @@ export const metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'Kolabo Studios - Professional Photography',
-    description: 'Wedding, engagement, and maternity photography that captures every moment perfectly.',
+    description:
+      'Wedding, engagement, and maternity photography that captures every moment perfectly.',
     images: ['/wedding-dance-sunset.png'],
   },
-  verification: { google: 'your-google-verification-code' },
+  verification: {
+    google: 'your-google-verification-code',
+  },
 }
 
-  generator: 'v0.dev',
-}
-
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
   return (
     <html lang="en" className={`${inter.variable} ${sora.variable}`}>
       <body className="font-inter">
