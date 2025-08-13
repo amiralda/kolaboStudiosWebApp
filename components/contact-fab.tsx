@@ -1,4 +1,3 @@
-// components/contact-fab.tsx
 "use client";
 
 import * as React from "react";
@@ -16,9 +15,9 @@ import { Phone, MessageCircle, MessageSquareText, X, Clipboard } from "lucide-re
 /** === Phone numbers (env overrides) === */
 const RAW_PHONE = process.env.NEXT_PUBLIC_PHONE_E164 || "+18565955203";
 const RAW_WA = process.env.NEXT_PUBLIC_WHATSAPP_E164 || RAW_PHONE;
-const WA_DIGITS = RAW_WA.replace(/\D/g, ""); // WhatsApp needs digits only
+const WA_DIGITS = RAW_WA.replace(/\D/g, ""); // WhatsApp requires digits only
 
-/** === Small UX helpers === */
+/** === UX helpers === */
 const PREF_KEY = "kolabo-preferred-channel";
 function vibrate(ms = 12) {
   try {
@@ -43,7 +42,7 @@ export default function ContactFAB() {
     } catch {}
   }, []);
 
-  // Build context-aware prefill once on client
+  // Build a context-aware prefilled message (once on client)
   const { telHref, smsHref, waHref } = React.useMemo(() => {
     const origin =
       typeof window !== "undefined" ? window.location.origin : "https://kolabostudios.com";
@@ -64,13 +63,13 @@ export default function ContactFAB() {
     const encoded = encodeURIComponent(body);
 
     return {
-      telHref: `tel:${RAW_PHONE}`, // tel: doesn't support body
+      telHref: `tel:${RAW_PHONE}`,
       smsHref: `sms:${RAW_PHONE}?&body=${encoded}`,
       waHref: `https://wa.me/${WA_DIGITS}?text=${encoded}`,
     };
   }, []);
 
-  // Keyboard shortcut: press "c" to open
+  // Quick keyboard shortcut (“c” to open)
   React.useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key.toLowerCase() === "c") {
@@ -86,7 +85,7 @@ export default function ContactFAB() {
 
   return (
     <>
-      {/* Floating “K” button (nudged away from edge) */}
+      {/* Floating “K” button – nudged from the right so it never hugs screen edge */}
       <div
         className="fixed bottom-4 md:bottom-6 z-[9999]"
         style={{ right: "max(env(safe-area-inset-right), 4.25rem)" }}
@@ -100,7 +99,7 @@ export default function ContactFAB() {
           }}
           className={`
             group grid place-items-center
-            w-16 h-16 rounded-full
+            w-16 h-16 rounded-full tap-smooth
             backdrop-blur-md bg-white/60 dark:bg-zinc-900/55
             border border-white/40 dark:border-white/10
             shadow-[0_14px_30px_rgba(0,0,0,0.18)]
@@ -112,7 +111,7 @@ export default function ContactFAB() {
           <span className="text-[21px] font-semibold tracking-wide text-zinc-900 dark:text-white">
             K
           </span>
-          {/* subtle teal halo */}
+          {/* soft teal halo */}
           <span
             className="pointer-events-none absolute inset-0 rounded-full animate-fabHalo"
             style={{ boxShadow: "0 0 0 0 rgba(0,198,174,0.35)" }}
@@ -121,16 +120,13 @@ export default function ContactFAB() {
         </button>
       </div>
 
-      {/* Glass dialog (single instance) */}
+      {/* Single glass dialog */}
       <Dialog open={open} onOpenChange={setOpen}>
-        {/* We keep bg-transparent here; your new .modal-overlay is handled in CSS.
-           If your local shadcn Dialog doesn't expose Overlay, the default overlay still shows. */}
-        <DialogContent className="sm:max-w-[480px] border-0 bg-transparent p-0 dialog-animate-in">
-          {/* Apply your new glass container class */}
-          <div className="modal-container relative overflow-hidden">
-            {/* gradient outline ring (kept from your previous design) */}
+        <DialogContent className="sm:max-w-[420px] border-0 bg-transparent p-0 dialog-animate-in">
+          <div className="relative rounded-2xl overflow-hidden shadow-[0_25px_60px_rgba(0,0,0,0.35)]">
+            {/* gradient frame */}
             <div
-              className="pointer-events-none absolute inset-0 rounded-[0.85rem]"
+              className="pointer-events-none absolute inset-0 rounded-2xl"
               style={{
                 padding: 2,
                 background:
@@ -141,93 +137,92 @@ export default function ContactFAB() {
                 maskComposite: "exclude" as any,
               }}
             />
+            {/* frosted glass panel */}
+            <div className="relative rounded-2xl bg-white/30 dark:bg-zinc-900/45 backdrop-blur-3xl">
+              <DialogHeader className="px-5 pt-5">
+                {/* Close */}
+                <DialogClose asChild>
+                  <button
+                    aria-label="Close"
+                    className="absolute right-4 top-4 grid place-items-center size-9 rounded-full bg-white/55 dark:bg-zinc-800/60 border border-white/40 dark:border-white/10 hover:bg-white/75 dark:hover:bg-zinc-800/80 transition-colors"
+                  >
+                    <X className="h-4 w-4 text-zinc-700 dark:text-zinc-200" />
+                  </button>
+                </DialogClose>
 
-            <DialogHeader className="px-5 pt-5">
-              {/* Close button */}
-              <DialogClose asChild>
+                {/* Copy number (kept) */}
                 <button
-                  aria-label="Close"
-                  className="absolute right-4 top-4 grid place-items-center size-9 rounded-full bg-white/55 dark:bg-zinc-800/60 border border-white/40 dark:border-white/10 hover:bg-white/75 dark:hover:bg-zinc-800/80 transition-colors"
+                  aria-label="Copy phone number"
+                  onClick={() => {
+                    navigator.clipboard.writeText(RAW_PHONE);
+                    vibrate(8);
+                    track("contact_copy_number");
+                  }}
+                  className="absolute right-16 top-4 grid place-items-center size-9 rounded-full bg-white/55 dark:bg-zinc-800/60 border border-white/40 dark:border-white/10 hover:bg-white/75 dark:hover:bg-zinc-800/80 transition-colors"
+                  title={`Copy ${RAW_PHONE}`}
                 >
-                  <X className="h-4 w-4 text-zinc-700 dark:text-zinc-200" />
+                  <Clipboard className="h-4 w-4 text-zinc-700 dark:text-zinc-200" />
                 </button>
-              </DialogClose>
 
-              {/* Copy phone */}
-              <button
-                aria-label="Copy phone number"
-                onClick={() => {
-                  navigator.clipboard.writeText(RAW_PHONE);
-                  vibrate(8);
-                  track("contact_copy_number");
-                }}
-                className="absolute right-16 top-4 grid place-items-center size-9 rounded-full bg-white/55 dark:bg-zinc-800/60 border border-white/40 dark:border-white/10 hover:bg-white/75 dark:hover:bg-zinc-800/80 transition-colors"
-                title={`Copy ${RAW_PHONE}`}
-              >
-                <Clipboard className="h-4 w-4 text-zinc-700 dark:text-zinc-200" />
-              </button>
+                {/* centered title + refined subtitle */}
+                <DialogTitle className="text-center text-[1.15rem] font-sora text-zinc-900 dark:text-white">
+                  Contact Kolabo Studios
+                </DialogTitle>
+                <DialogDescription className="text-center text-sm text-zinc-700/85 dark:text-zinc-300/90">
+                  Choose how you’d like to reach us. We’re online and ready to help.
+                </DialogDescription>
+              </DialogHeader>
 
-              {/* Centered title & subtitle using your new classes */}
-              <DialogTitle className="modal-title">
-                Contact Kolabo Studios
-              </DialogTitle>
-              <DialogDescription className="modal-subtitle">
-                Choose how you’d like to reach us. We’re online and ready to help.
-              </DialogDescription>
-
-              <div className="flex justify-center pt-2 pb-1">
-                <HoursBadge />
+              {/* Actions (clearly labeled, fancy + minimal) */}
+              <div className="px-5 pb-5 grid gap-3 mt-2">
+                <GlassAction
+                  href={telHref}
+                  label="Call Now"
+                  icon={<Phone className="h-5 w-5 opacity-90" />}
+                  highlight={pref === "call"}
+                  onClick={() => {
+                    remember("call", setPref);
+                    vibrate(10);
+                    track("contact_call");
+                  }}
+                />
+                <GlassAction
+                  href={smsHref}
+                  label="Text Message"
+                  icon={<MessageSquareText className="h-5 w-5 opacity-90" />}
+                  highlight={pref === "text"}
+                  onClick={() => {
+                    remember("text", setPref);
+                    vibrate(10);
+                    track("contact_text");
+                  }}
+                />
+                <GlassAction
+                  href={waHref}
+                  label="WhatsApp Chat"
+                  icon={<MessageCircle className="h-5 w-5 opacity-90" />}
+                  external
+                  accent
+                  highlight={pref === "whatsapp"}
+                  onClick={() => {
+                    remember("whatsapp", setPref);
+                    vibrate(10);
+                    track("contact_whatsapp");
+                  }}
+                />
               </div>
-            </DialogHeader>
 
-            {/* Actions (keep your fancy glass buttons) */}
-            <div className="px-5 pb-5 grid gap-3">
-              <GlassAction
-                href={telHref}
-                label="Call Now"
-                icon={<Phone className="h-5 w-5 opacity-90" />}
-                highlight={pref === "call"}
-                onClick={() => {
-                  remember("call", setPref);
-                  vibrate(10);
-                  track("contact_call");
-                }}
-              />
-              <GlassAction
-                href={smsHref}
-                label="Text Message"
-                icon={<MessageSquareText className="h-5 w-5 opacity-90" />}
-                highlight={pref === "text"}
-                onClick={() => {
-                  remember("text", setPref);
-                  vibrate(10);
-                  track("contact_text");
-                }}
-              />
-              <GlassAction
-                href={waHref}
-                label="WhatsApp Chat"
-                icon={<MessageCircle className="h-5 w-5 opacity-90" />}
-                external
-                accent
-                highlight={pref === "whatsapp"}
-                onClick={() => {
-                  remember("whatsapp", setPref);
-                  vibrate(10);
-                  track("contact_whatsapp");
-                }}
-              />
-            </div>
-
-            <div className="px-5 pb-1">
-              <DialogClose asChild>
-                <Button
-                  variant="ghost"
-                  className="w-full text-zinc-900 dark:text-zinc-200 hover:bg-white/50 dark:hover:bg-zinc-800/60"
-                >
-                  Close
-                </Button>
-              </DialogClose>
+              {/* Close */}
+              <div className="px-5 pb-5">
+                <DialogClose asChild>
+                  <Button
+                    variant="ghost"
+                    className="w-full text-zinc-900 dark:text-zinc-200 hover:bg-white/50 dark:hover:bg-zinc-800/60"
+                  >
+                    Close
+                  </Button>
+                </DialogClose>
+              </div>
             </div>
           </div>
         </DialogContent>
@@ -242,20 +237,6 @@ function remember(channel: string, setPref: (v: string) => void) {
     localStorage.setItem(PREF_KEY, channel);
     setPref(channel);
   } catch {}
-}
-
-/** Small “availability” badge */
-function HoursBadge() {
-  const [label, setLabel] = React.useState("Typically replies within 1–2h");
-  React.useEffect(() => {
-    const h = new Date().getHours();
-    setLabel(h >= 9 && h < 19 ? "Online now" : "We’ll reply first thing");
-  }, []);
-  return (
-    <span className="text-xs px-2 py-1 rounded-full bg-[#00C6AE]/15 text-[#006d61] border border-[#00C6AE]/20">
-      {label}
-    </span>
-  );
 }
 
 /** Glassy action button (icon + text) */

@@ -141,3 +141,89 @@
     padding: .3rem .55rem !important;
   }
 }
+
+/* Modal container fix */
+.modal-container {
+  background-color: rgba(255, 255, 255, 0.95); /* more solid background */
+  backdrop-filter: blur(8px); /* smooth blur for elegance */
+  border-radius: 0.75rem; /* slightly larger radius */
+  padding: 1.5rem;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+}
+
+/* Overlay behind modal */
+.modal-overlay {
+  background-color: rgba(0, 0, 0, 0.55); /* darker overlay for contrast */
+}
+
+/* Button styles */
+.button-primary {
+  background-color: var(--teal);
+  color: white;
+  font-weight: 600;
+  padding: 0.6rem 1.2rem;
+  border-radius: var(--radius);
+  transition: background-color 0.2s ease;
+}
+.button-primary:hover {
+  background-color: hsl(174, 100%, 35%);
+}
+
+/* Contact Modal Enhancements */
+.modal-container {
+  background-color: rgba(255, 255, 255, 0.92); /* nearly solid but still elegant */
+  backdrop-filter: blur(10px) saturate(150%);
+  border-radius: 0.85rem;
+  padding: 1.5rem;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25);
+}
+
+/* Darker overlay for better contrast */
+.modal-overlay {
+  background-color: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(3px);
+}
+
+/* Dialog title */
+.modal-title {
+  text-align: center;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--teal);
+}
+
+/* Subtitle text */
+.modal-subtitle {
+  text-align: center;
+  font-size: 0.95rem;
+  color: rgba(0, 0, 0, 0.65);
+  margin-bottom: 1rem;
+}
+
+/* Buttons */
+.button-primary {
+  background-color: var(--teal);
+  color: white;
+  font-weight: 600;
+  padding: 0.75rem 1rem;
+  border-radius: 0.6rem;
+  transition: background-color 0.2s ease, transform 0.15s ease;
+}
+.button-primary:hover {
+  background-color: hsl(174, 100%, 35%);
+  transform: translateY(-2px);
+}
+
+.button-outline {
+  border: 2px solid var(--teal);
+  color: var(--teal);
+  background: transparent;
+  padding: 0.75rem 1rem;
+  font-weight: 500;
+  border-radius: 0.6rem;
+  transition: all 0.2s ease;
+}
+.button-outline:hover {
+  background-color: var(--teal);
+  color: white;
+}
