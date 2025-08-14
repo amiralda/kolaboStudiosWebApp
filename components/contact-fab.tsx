@@ -16,7 +16,7 @@ const WA_DIGITS = (process.env.NEXT_PUBLIC_WHATSAPP_E164 || PHONE).replace(/\D/g
 
 const telHref = `tel:${PHONE}`;
 const smsHref = `sms:${PHONE}`;
-const waHref = `https://wa.me/${WA_DIGITS}`;
+const waHref  = `https://wa.me/${WA_DIGITS}`;
 
 export default function ContactFAB() {
   const [open, setOpen] = React.useState(false);
@@ -37,10 +37,10 @@ export default function ContactFAB() {
 
       {/* Dialog with 3 circular actions */}
       <Dialog open={open} onOpenChange={setOpen}>
-        {/* Added hideCloseButton to prevent duplicate */}
+        {/* hideCloseButton prevents the built-in X so we keep only our custom one */}
         <DialogContent
           hideCloseButton
-          className="sm:max-w-[420px] rounded-2xl border bg-white/90 dark:bg-zinc-900/90"
+          className="sm:max-w-[420px] rounded-2xl border bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl"
         >
           <DialogHeader>
             <DialogTitle className="text-center">Contact Kolabo Studios</DialogTitle>
