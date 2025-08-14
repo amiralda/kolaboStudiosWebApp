@@ -44,16 +44,6 @@ export default function ContactFAB() {
         >
           <DialogHeader>
             <DialogTitle className="text-center">Contact Kolabo Studios</DialogTitle>
-
-            {/* Keep only this close button */}
-            <DialogClose asChild>
-              <button
-                aria-label="Close"
-                className="absolute right-4 top-4 grid place-items-center size-8 rounded-full hover:bg-zinc-100/70 dark:hover:bg-zinc-800 transition"
-              >
-                <X className="h-4 w-4" />
-              </button>
-            </DialogClose>
           </DialogHeader>
 
           {/* Three round buttons with labels */}
