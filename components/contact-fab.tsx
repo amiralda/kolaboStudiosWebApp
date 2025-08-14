@@ -1,112 +1,122 @@
-// components/ui/dialog.tsx
-"use client"
+// components/contact-fab.tsx
+"use client";
 
-import * as React from "react"
-import * as DialogPrimitive from "@radix-ui/react-dialog"
-import { X } from "lucide-react"
+import * as React from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogClose,
+} from "@/components/ui/dialog";
+import { Phone, MessageCircle, MessageSquareText, X } from "lucide-react";
 
-import { cn } from "@/lib/utils"
+const PHONE = process.env.NEXT_PUBLIC_PHONE_E164 || "+18565955203";
+const WA_DIGITS = (process.env.NEXT_PUBLIC_WHATSAPP_E164 || PHONE).replace(/\D/g, "");
 
-export const Dialog = DialogPrimitive.Root
-export const DialogTrigger = DialogPrimitive.Trigger
-export const DialogPortal = DialogPrimitive.Portal
-export const DialogClose = DialogPrimitive.Close
+const telHref = `tel:${PHONE}`;
+const smsHref = `sms:${PHONE}`;
+const waHref  = `https://wa.me/${WA_DIGITS}`;
 
-export const DialogOverlay = React.forwardRef<
-  React.ElementRef<typeof DialogPrimitive.Overlay>,
-  React.ComponentPropsWithoutRef<typeof DialogPrimitive.Overlay>
->(({ className, ...props }, ref) => (
-  <DialogPrimitive.Overlay
-    ref={ref}
-    className={cn(
-      "fixed inset-0 z-50 bg-black/40 backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
-      className
-    )}
-    {...props}
-  />
-))
-DialogOverlay.displayName = DialogPrimitive.Overlay.displayName
+export default function ContactFAB() {
+  const [open, setOpen] = React.useState(false);
 
-type DialogContentProps = React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content> & {
-  /** Hide the default top-right close button (prevents duplicate “X” in custom UIs). */
-  hideCloseButton?: boolean
+  return (
+    <>
+      {/* K launcher */}
+      <div className="fixed right-4 bottom-4 md:right-6 md:bottom-6 z-[9999]">
+        <button
+          aria-label="Open contact options"
+          onClick={() => setOpen(true)}
+          className="grid place-items-center w-14 h-14 rounded-full bg-white text-zinc-900 dark:bg-zinc-900 dark:text-white border border-zinc-200 dark:border-zinc-700 shadow-lg hover:shadow-xl transition"
+          style={{ WebkitBackdropFilter: "blur(6px)", backdropFilter: "blur(6px)" }}
+        >
+          <span className="text-lg font-semibold">K</span>
+        </button>
+      </div>
+
+      {/* Dialog with 3 circular actions */}
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent
+          hideCloseButton
+          className="sm:max-w-[420px] rounded-2xl border bg-white/90 dark:bg-zinc-900/90"
+        >
+          <DialogHeader>
+            <DialogTitle className="text-center">Contact Kolabo Studios</DialogTitle>
+
+            <DialogClose asChild>
+              <button
+                aria-label="Close"
+                className="absolute right-4 top-4 grid place-items-center size-8 rounded-full hover:bg-zinc-100/70 dark:hover:bg-zinc-800 transition"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </DialogClose>
+          </DialogHeader>
+
+          {/* Three round buttons with labels */}
+          <div className="py-2">
+            <div className="flex items-center justify-center gap-7">
+              {/* Call */}
+              <ActionCircle
+                href={telHref}
+                label="Call"
+                icon={<Phone className="h-6 w-6 text-white" />}
+                bgClass="bg-[#007AFF]" // iOS call blue
+              />
+
+              {/* Text */}
+              <ActionCircle
+                href={smsHref}
+                label="Text"
+                icon={<MessageSquareText className="h-6 w-6 text-white" />}
+                bgClass="bg-neutral-800"
+              />
+
+              {/* WhatsApp */}
+              <ActionCircle
+                href={waHref}
+                label="WhatsApp"
+                icon={<MessageCircle className="h-6 w-6 text-white" />}
+                bgClass="bg-[#00C6AE]" // Kolabo teal
+                external
+              />
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
+  );
 }
 
-export const DialogContent = React.forwardRef<
-  React.ElementRef<typeof DialogPrimitive.Content>,
-  DialogContentProps
->(({ className, children, hideCloseButton = false, ...props }, ref) => (
-  <DialogPortal>
-    <DialogOverlay />
-    <DialogPrimitive.Content
-      ref={ref}
-      className={cn(
-        "fixed left-1/2 top-1/2 z-50 grid w-full max-w-lg -translate-x-1/2 -translate-y-1/2 gap-4 border bg-background p-6 shadow-lg duration-200",
-        "data-[state=open]:animate-in data-[state=closed]:animate-out",
-        "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
-        "data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
-        "data-[state=closed]:slide-out-to-top-[2%] data-[state=open]:slide-in-from-top-[2%]",
-        "rounded-lg",
-        className
-      )}
-      {...props}
+function ActionCircle({
+  href,
+  label,
+  icon,
+  bgClass,
+  external = false,
+}: {
+  href: string;
+  label: string;
+  icon: React.ReactNode;
+  bgClass: string;
+  external?: boolean;
+}) {
+  return (
+    <a
+      href={href}
+      {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+      className="group flex flex-col items-center gap-2"
+      aria-label={label}
     >
-      {children}
-
-      {/* Default close button (now optional) */}
-      {!hideCloseButton && (
-        <DialogPrimitive.Close
-          className={cn(
-            "absolute right-4 top-4 rounded-full p-1",
-            "text-muted-foreground/80 hover:text-foreground",
-            "focus:outline-none focus:ring-2 focus:ring-ring"
-          )}
-          aria-label="Close"
-        >
-          <X className="h-4 w-4" />
-        </DialogPrimitive.Close>
-      )}
-    </DialogPrimitive.Content>
-  </DialogPortal>
-))
-DialogContent.displayName = DialogPrimitive.Content.displayName
-
-export const DialogHeader = ({
-  className,
-  ...props
-}: React.HTMLAttributes<HTMLDivElement>) => (
-  <div className={cn("flex flex-col space-y-1.5 text-center sm:text-left", className)} {...props} />
-)
-DialogHeader.displayName = "DialogHeader"
-
-export const DialogFooter = ({
-  className,
-  ...props
-}: React.HTMLAttributes<HTMLDivElement>) => (
-  <div className={cn("flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2", className)} {...props} />
-)
-DialogFooter.displayName = "DialogFooter"
-
-export const DialogTitle = React.forwardRef<
-  React.ElementRef<typeof DialogPrimitive.Title>,
-  React.ComponentPropsWithoutRef<typeof DialogPrimitive.Title>
->(({ className, ...props }, ref) => (
-  <DialogPrimitive.Title
-    ref={ref}
-    className={cn("text-lg font-semibold leading-none tracking-tight", className)}
-    {...props}
-  />
-))
-DialogTitle.displayName = DialogPrimitive.Title.displayName
-
-export const DialogDescription = React.forwardRef<
-  React.ElementRef<typeof DialogPrimitive.Description>,
-  React.ComponentPropsWithoutRef<typeof DialogPrimitive.Description>
->(({ className, ...props }, ref) => (
-  <DialogPrimitive.Description
-    ref={ref}
-    className={cn("text-sm text-muted-foreground", className)}
-    {...props}
-  />
-))
-DialogDescription.displayName = DialogPrimitive.Description.displayName
+      <span
+        className={`grid place-items-center w-16 h-16 rounded-full ${bgClass} shadow-md hover:shadow-lg transition`}
+      >
+        {icon}
+      </span>
+      <span className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
+        {label}
+      </span>
+    </a>
+  );
+}
