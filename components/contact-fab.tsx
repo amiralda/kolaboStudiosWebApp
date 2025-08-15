@@ -37,19 +37,29 @@ export default function ContactFAB() {
 
       {/* Dialog with 3 circular actions */}
       <Dialog open={open} onOpenChange={setOpen}>
-        {/* hideCloseButton prevents the built-in X so we keep only our custom one */}
+        {/* hideCloseButton prevents shadcn’s default “X” so we only show our own */}
         <DialogContent
           hideCloseButton
           className="sm:max-w-[420px] rounded-2xl border bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl"
         >
           <DialogHeader>
             <DialogTitle className="text-center">Contact Kolabo Studios</DialogTitle>
+
+            {/* Single custom close button */}
+            <DialogClose asChild>
+              <button
+                aria-label="Close"
+                className="absolute right-4 top-4 grid place-items-center size-8 rounded-full hover:bg-zinc-100/70 dark:hover:bg-zinc-800 transition"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </DialogClose>
           </DialogHeader>
 
           {/* Three round buttons with labels */}
           <div className="py-2">
             <div className="flex items-center justify-center gap-7">
-              {/* Call */}
+              {/* Call (blue) */}
               <ActionCircle
                 href={telHref}
                 label="Call"
@@ -57,7 +67,7 @@ export default function ContactFAB() {
                 bgClass="bg-blue-500"
               />
 
-              {/* Text */}
+              {/* Text (dark) */}
               <ActionCircle
                 href={smsHref}
                 label="Text"
@@ -65,12 +75,12 @@ export default function ContactFAB() {
                 bgClass="bg-neutral-800"
               />
 
-              {/* WhatsApp */}
+              {/* WhatsApp (Kolabo teal) */}
               <ActionCircle
                 href={waHref}
                 label="WhatsApp"
                 icon={<MessageCircle className="h-6 w-6 text-white" />}
-                bgClass="bg-[#00C6AE]" // Kolabo teal
+                bgClass="bg-[#00C6AE]"
                 external
               />
             </div>
@@ -81,6 +91,7 @@ export default function ContactFAB() {
   );
 }
 
+/** Single ActionCircle definition */
 function ActionCircle({
   href,
   label,
@@ -103,38 +114,6 @@ function ActionCircle({
     >
       <span
         className={`grid place-items-center w-16 h-16 rounded-full ${bgClass} shadow-md hover:shadow-lg transition`}
-      >
-        {icon}
-      </span>
-      <span className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
-        {label}
-      </span>
-    </a>
-  );
-}
-
-function ActionCircle({
-  href,
-  label,
-  icon,
-  bgClass,
-  external = false,
-}: {
-  href: string;
-  label: string;
-  icon: React.ReactNode;
-  bgClass: string;
-  external?: boolean;
-}) {
-  return (
-    <a
-      href={href}
-      {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
-      className="group flex flex-col items-center gap-2"
-      aria-label={label}
-    >
-      <span
-        className={`grid place-items-center w-16 h-16 rounded-full ${bgClass} shadow-md transition transform hover:scale-110 hover:brightness-110`}
       >
         {icon}
       </span>
