@@ -7,37 +7,15 @@ import { ChevronLeft, ChevronRight, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
 const galleryImages = [
-  {
-    src: "/elegant-bride-portrait.png",
-    alt: "Elegant bride portrait",
-    category: "Wedding"
-  },
-  {
-    src: "/romantic-engagement-couple.png",
-    alt: "Romantic engagement session",
-    category: "Engagement"
-  },
-  {
-    src: "/beautiful-maternity-photo.png",
-    alt: "Beautiful maternity session",
-    category: "Maternity"
-  },
-  {
-    src: "/gallery-4.png",
-    alt: "Wedding ceremony moment",
-    category: "Wedding"
-  },
-  {
-    src: "/couple-laughing.png",
-    alt: "Couple laughing together",
-    category: "Engagement"
-  },
-  {
-    src: "/expecting-mother-silhouette.png",
-    alt: "Expecting mother silhouette",
-    category: "Maternity"
-  }
+  // ⬇️ Replace these filenames with yours from /public/gallery/featured
+  { src: "/gallery/featured/hero(26).jpg",      alt: "Bride portrait on the porch",    category: "Wedding" },
+  { src: "/gallery/featured/hero(22).jpg",     alt: "Couple laughing together",       category: "Engagement" },
+  { src: "/gallery/featured/hero(24).jpg", alt: "Maternity at sunset",            category: "Maternity" },
+  { src: "/gallery/featured/hero(18).jpg",      alt: "Wedding ring detail",            category: "Wedding" },
+  { src: "/gallery/featured/hero(20).jpg",             alt: "Reading vows",                   category: "Wedding" },
+  { src: "/gallery/featured/hero(2).jpg",            alt: "First dance",                    category: "Wedding" },
 ]
+
 
 export function FeaturedGallery() {
   const [selectedImage, setSelectedImage] = useState<number | null>(null)

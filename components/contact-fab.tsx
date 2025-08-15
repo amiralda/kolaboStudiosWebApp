@@ -112,3 +112,35 @@ function ActionCircle({
     </a>
   );
 }
+
+function ActionCircle({
+  href,
+  label,
+  icon,
+  bgClass,
+  external = false,
+}: {
+  href: string;
+  label: string;
+  icon: React.ReactNode;
+  bgClass: string;
+  external?: boolean;
+}) {
+  return (
+    <a
+      href={href}
+      {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+      className="group flex flex-col items-center gap-2"
+      aria-label={label}
+    >
+      <span
+        className={`grid place-items-center w-16 h-16 rounded-full ${bgClass} shadow-md transition transform hover:scale-110 hover:brightness-110`}
+      >
+        {icon}
+      </span>
+      <span className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
+        {label}
+      </span>
+    </a>
+  );
+}
