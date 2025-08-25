@@ -6,15 +6,25 @@ import { Dialog, DialogContent } from '@/components/ui/dialog'
 import { ChevronLeft, ChevronRight, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
-const galleryImages = [
+//const galleryImages = [
   // ⬇️ Replace these filenames with yours from /public/gallery/featured
-  { src: "/gallery/featured/hero(26).jpg",      alt: "Bride portrait on the porch",    category: "Wedding" },
-  { src: "/gallery/featured/hero(22).jpg",     alt: "Couple laughing together",       category: "Engagement" },
-  { src: "/gallery/featured/hero(24).jpg", alt: "Maternity at sunset",            category: "Maternity" },
-  { src: "/gallery/featured/hero(18).jpg",      alt: "Wedding ring detail",            category: "Wedding" },
-  { src: "/gallery/featured/hero(20).jpg",             alt: "Reading vows",                   category: "Wedding" },
-  { src: "/gallery/featured/hero(2).jpg",            alt: "First dance",                    category: "Wedding" },
+  //{ src: "/gallery/featured/hero(26).jpg",      alt: "Bride portrait on the porch",    category: "Wedding" },
+  //{ src: "/gallery/featured/hero(22).jpg",     alt: "Couple laughing together",       category: "Engagement" },
+  //{ src: "/gallery/featured/hero(24).jpg", alt: "Maternity at sunset",            category: "Maternity" },
+  //{ src: "/gallery/featured/hero(18).jpg",      alt: "Wedding ring detail",            category: "Wedding" },
+  //{ src: "/gallery/featured/hero(20).jpg",             alt: "Reading vows",                   category: "Wedding" },
+  //{ src: "/gallery/featured/hero(2).jpg",            alt: "First dance",                    category: "Wedding" },
+//]
+
+const galleryImages = [
+  { src: "/home/bride-portrait.jpg",        alt: "Elegant bride portrait",             category: "Wedding"    },
+  { src: "/home/engagement-couple.jpg",     alt: "Romantic engagement session",        category: "Engagement" },
+  { src: "/home/maternity-silhouette.jpg",  alt: "Beautiful maternity session",        category: "Maternity"  },
+  { src: "/home/wedding-ceremony.jpg",      alt: "Wedding ceremony moment",            category: "Wedding"    },
+  { src: "/home/couple-laughing.jpg",       alt: "Couple laughing together",           category: "Engagement" },
+  { src: "/home/gallery-4.jpg",             alt: "Candid wedding reception moment",    category: "Wedding"    },
 ]
+
 
 
 export function FeaturedGallery() {
