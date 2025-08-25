@@ -1,59 +1,118 @@
 // app/api/webhook/stripe/route.ts
-import { NextResponse, type NextRequest } from 'next/server'
-import Stripe from 'stripe'
+import Stripe from "stripe";
 
-export const runtime = 'nodejs'            // ensure Node runtime (not Edge)
-export const dynamic = 'force-dynamic'     // do not prerender this route
+/**
+ * Force Node runtime (not Edge) and avoid any static optimization.
+ * Using raw body via req.text() is required for Stripe signature verification.
+ */
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
-// Lazy init Stripe server SDK
-let stripe: Stripe | null = null
-function getStripe() {
-  if (!stripe) {
-    const key = process.env.STRIPE_SECRET_KEY
-    if (!key) throw new Error('STRIPE_SECRET_KEY is not set')
-    stripe = new Stripe(key, { apiVersion: '2024-06-20' })
+// Optional (only needed if you plan to call Stripe inside this route):
+// const stripe = new Stripe(process.env.STRIPE_SECRET_KEY ?? "", {
+//   apiVersion: "2024-06-20",
+// });
+
+/** Select the correct webhook signing secret for test/live */
+function getSigningSecret(): string {
+  const mode = (process.env.NEXT_PUBLIC_STRIPE_MODE || "live").toLowerCase();
+  const secret =
+    mode === "test"
+      ? process.env.STRIPE_WEBHOOK_SECRET_TEST
+      : process.env.STRIPE_WEBHOOK_SECRET;
+
+  if (!secret) {
+    throw new Error(
+      `Missing Stripe signing secret for mode="${mode}". ` +
+        `Set ${mode === "test" ? "STRIPE_WEBHOOK_SECRET_TEST" : "STRIPE_WEBHOOK_SECRET"} in env.`
+    );
   }
-  return stripe!
+  return secret;
 }
 
-export async function POST(req: NextRequest) {
+/** Small logger helper so Vercel logs are easy to read */
+function log(label: string, data?: unknown) {
   try {
-    const sig = req.headers.get('stripe-signature')
-    const secret = process.env.STRIPE_WEBHOOK_SECRET
+    console.log(`[stripe:webhook] ${label}`, data ?? "");
+  } catch {}
+}
 
-    if (!sig || !secret) {
-      // Don’t throw—return 200 so Stripe doesn’t retry forever in prod while you’re configuring
-      console.warn('Missing stripe signature or webhook secret env')
-      return NextResponse.json({ ok: true, skipped: true }, { status: 200 })
-    }
+export async function POST(req: Request) {
+  const sig = req.headers.get("stripe-signature") || "";
 
-    // Stripe needs the *raw* request body string
-    const rawBody = await req.text()
+  // IMPORTANT: use the *raw body*
+  const rawBody = await req.text();
 
-    // Verify event
-    const event = getStripe().webhooks.constructEvent(
-      Buffer.from(rawBody),
+  let event: Stripe.Event;
+
+  try {
+    event = Stripe.webhooks.constructEvent(
+      rawBody,
       sig,
-      secret
-    )
+      getSigningSecret()
+    );
+  } catch (err: any) {
+    log("Signature verification FAILED", err?.message || err);
+    return new Response("Invalid signature", { status: 400 });
+  }
 
-    // Handle a few common event types (no-ops — extend as you need)
+  log("Event received", { id: event.id, type: event.type });
+
+  try {
     switch (event.type) {
-      case 'payment_intent.succeeded':
-      case 'charge.succeeded':
-      case 'checkout.session.completed':
-        // TODO: update order in DB, send emails, etc.
-        break
-      default:
-        // Optional: log unhandled types for later
-        // console.log(`Unhandled event type ${event.type}`)
-        break
+      case "checkout.session.completed": {
+        const session = event.data.object as Stripe.Checkout.Session;
+        log("Checkout completed", {
+          sessionId: session.id,
+          payment_status: session.payment_status,
+          amount_total: session.amount_total,
+          customer_email: session.customer_details?.email,
+          metadata: session.metadata,
+          mode: session.mode,
+        });
+
+        // TODO: After deposit confirmation:
+        // - Mark booking as confirmed in DB
+        // - Create Google Calendar event with buffer
+        // - Send confirmation SMS/Email
+        break;
+      }
+
+      case "payment_intent.succeeded": {
+        const pi = event.data.object as Stripe.PaymentIntent;
+        log("PaymentIntent succeeded", {
+          id: pi.id,
+          amount: pi.amount,
+          currency: pi.currency,
+          metadata: pi.metadata,
+        });
+        break;
+      }
+
+      case "payment_intent.payment_failed": {
+        const pi = event.data.object as Stripe.PaymentIntent;
+        log("PaymentIntent FAILED", {
+          id: pi.id,
+          error: pi.last_payment_error?.message,
+        });
+        break;
+      }
+
+      default: {
+        // Keep it quiet but visible in logs
+        log("Unhandled event", event.type);
+      }
     }
 
-    return NextResponse.json({ received: true }, { status: 200 })
+    return new Response("ok", { status: 200 });
   } catch (err: any) {
-    console.error('Stripe webhook error:', err?.message || err)
-    // Return 200 to avoid endless Stripe retries during setup; switch to 400 later if desired
-    return NextResponse.json({ error: 'webhook verification failed' }, { status: 200 })
+    log("Handler error", err?.message || err);
+    // Signal a temporary failure so Stripe can retry
+    return new Response("Webhook handler error", { status: 500 });
   }
+}
+
+/** Optional quick GET health check */
+export async function GET() {
+  return new Response("stripe webhook ok", { status: 200 });
 }
