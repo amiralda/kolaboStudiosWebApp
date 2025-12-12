@@ -66,9 +66,17 @@ export function Footer() {
                 rows={4}
                 className="bg-white/10 border-white/20 text-white placeholder:text-white/60"
               />
-              <Button type="submit" className="bg-primary hover:bg-primary/90">
-                Send Message
-              </Button>
+              <div className="space-y-2">
+                <Button type="submit" disabled={status === 'submitting'} className="bg-primary hover:bg-primary/90 w-full">
+                  {status === 'submitting' ? 'Sending…' : 'Send Message'}
+                </Button>
+                {status === 'success' && (
+                  <p className="text-sm text-emerald-300">Message sent. We’ll reply within 24 hours.</p>
+                )}
+                {submissionError && (
+                  <p className="text-sm text-red-300">{submissionError}</p>
+                )}
+              </div>
             </form>
           </div>
 

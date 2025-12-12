@@ -9,6 +9,7 @@ import { PaymentForm } from '@/components/payment-form'
 import { retouchServices } from '@/lib/retouch-data'
 import { calculateOrderAmount, formatCurrency } from '@/lib/payment-utils'
 import type { PaymentData } from '@/lib/payment-utils'
+import { SafeStorage } from '@/lib/storage'
 import { CheckCircle, Clock, FileImage, Zap, ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 
@@ -20,23 +21,9 @@ export default function CheckoutPage() {
 
   useEffect(() => {
     try {
-      // Get order data from localStorage
-      const orderData = localStorage.getItem('retouchOrder')
-      if (orderData) {
-        const data = JSON.parse(orderData)
-        
-        // Validate the data structure more thoroughly
-        if (data && 
-            data.serviceId && 
-            data.quantity && 
-            data.customerInfo && 
-            data.customerInfo.name && 
-            data.customerInfo.email) {
-          setPaymentData(data)
-        } else {
-          console.error('Invalid order data structure:', data)
-          setError('Invalid order data found. Please start a new order.')
-        }
+      const data = SafeStorage.getOrderData()
+      if (data && data.serviceId && data.customerInfo?.email) {
+        setPaymentData(data as unknown as PaymentData)
       } else {
         setError('No order data found. Please start a new order.')
       }
@@ -50,12 +37,16 @@ export default function CheckoutPage() {
 
   const handlePaymentSuccess = (paymentIntentId: string) => {
     try {
-      // Store payment success info
-      localStorage.setItem('paymentSuccess', JSON.stringify({
-        paymentIntentId,
-        orderData: paymentData
-      }))
-      
+      if (typeof window !== 'undefined') {
+        window.sessionStorage.setItem(
+          'paymentSuccess',
+          JSON.stringify({
+            paymentIntentId,
+            orderData: paymentData,
+          }),
+        )
+      }
+
       // Redirect to success page
       router.push('/retouch-services/success')
     } catch (err) {

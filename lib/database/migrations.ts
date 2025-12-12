@@ -1,3 +1,7 @@
+import { createSupabaseServerClient } from './supabase'
+
+const supabaseAdmin = createSupabaseServerClient()
+
 // Database migration utilities for schema updates
 export class DatabaseMigrations {
   // Migration tracking table

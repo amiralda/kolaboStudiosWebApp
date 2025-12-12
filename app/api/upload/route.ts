@@ -17,8 +17,29 @@ const ALLOWED_CLIENT_FILE_TYPES = [
   "application/x-rar-compressed",
 ]
 
+const ALLOWED_ORIGIN = process.env.NEXT_PUBLIC_SITE_URL
+
+function ensureSameOrigin(request: NextRequest) {
+  const origin = request.headers.get("origin")
+  if (origin && ALLOWED_ORIGIN && !origin.startsWith(ALLOWED_ORIGIN)) {
+    return NextResponse.json({ error: "Unauthorized origin" }, { status: 403 })
+  }
+  return null
+}
+
+function withCors(response: NextResponse) {
+  if (ALLOWED_ORIGIN) {
+    response.headers.set("Access-Control-Allow-Origin", ALLOWED_ORIGIN)
+    response.headers.set("Vary", "Origin")
+  }
+  return response
+}
+
 export async function POST(request: NextRequest) {
   try {
+    const originCheck = ensureSameOrigin(request)
+    if (originCheck) return originCheck
+
     const formData = await request.formData()
     const file = formData.get("file") as File
     const uploadType = (formData.get("type") as string) || "general"
@@ -87,7 +108,7 @@ export async function POST(request: NextRequest) {
 
     console.log("✅ Upload successful:", uploadResult.url)
 
-    return NextResponse.json({
+    return withCors(NextResponse.json({
       success: true,
       message: "File uploaded successfully",
       file: {
@@ -100,21 +121,24 @@ export async function POST(request: NextRequest) {
       uploadType,
       category,
       orderId,
-    })
+    }))
   } catch (error) {
     console.error("❌ Upload API error:", error)
-    return NextResponse.json(
+    return withCors(NextResponse.json(
       {
         error: "Internal server error. Please try again later.",
         details: process.env.NODE_ENV === "development" ? error.message : undefined,
       },
       { status: 500 },
-    )
+    ))
   }
 }
 
 export async function DELETE(request: NextRequest) {
   try {
+    const originCheck = ensureSameOrigin(request)
+    if (originCheck) return originCheck
+
     const { searchParams } = new URL(request.url)
     const fileUrl = searchParams.get("url")
 
@@ -134,30 +158,32 @@ export async function DELETE(request: NextRequest) {
 
     console.log("✅ Delete successful:", fileUrl)
 
-    return NextResponse.json({
+    return withCors(NextResponse.json({
       success: true,
       message: "File deleted successfully",
-    })
+    }))
   } catch (error) {
     console.error("❌ Delete API error:", error)
-    return NextResponse.json(
+    return withCors(NextResponse.json(
       {
         error: "Internal server error. Please try again later.",
         details: process.env.NODE_ENV === "development" ? error.message : undefined,
       },
       { status: 500 },
-    )
+    ))
   }
 }
 
 // Handle preflight requests for CORS
 export async function OPTIONS() {
-  return new NextResponse(null, {
+  const response = new NextResponse(null, {
     status: 200,
-    headers: {
-      "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Methods": "POST, DELETE, OPTIONS",
-      "Access-Control-Allow-Headers": "Content-Type",
-    },
   })
+  if (ALLOWED_ORIGIN) {
+    response.headers.set("Access-Control-Allow-Origin", ALLOWED_ORIGIN)
+  }
+  response.headers.set("Access-Control-Allow-Methods", "POST, DELETE, OPTIONS")
+  response.headers.set("Access-Control-Allow-Headers", "Content-Type")
+  response.headers.set("Vary", "Origin")
+  return response
 }
