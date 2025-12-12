@@ -29,6 +29,7 @@ const stripe = new Stripe(STRIPE_SECRET_KEY, {
 type Body = {
   // one of: "wedding" | "engagement" | "maternity"
   service?: string;
+  serviceKey?: string;
 
   // optional total price (USD) – if sent, deposit = 60% of this
   // if not sent, a fallback per-service table is used
@@ -36,6 +37,8 @@ type Body = {
 
   // ISO 8601 date/time (e.g., 2025-09-12T14:00:00-04:00)
   dateISO?: string;
+  date?: string;
+  time?: string;
 
   // free text
   location?: string;
@@ -66,7 +69,10 @@ export async function POST(req: NextRequest) {
   try {
     const body = (await req.json()) as Body;
 
-    const service = (body.service || "wedding").toLowerCase();
+    const rawService = (body.service || body.serviceKey || "wedding").toLowerCase();
+    const service =
+      Object.keys(DEFAULT_SERVICE_PRICE_USD).find((key) => rawService.startsWith(key)) ||
+      rawService;
     const fullPriceUsd =
       typeof body.fullPrice === "number" && body.fullPrice > 0
         ? body.fullPrice
@@ -76,9 +82,11 @@ export async function POST(req: NextRequest) {
     const depositUsd = fullPriceUsd * DEPOSIT_RATE;
     const amount_cents = dollarsToCents(depositUsd);
 
+    const combinedDate = body.dateISO ?? (body.date ? `${body.date}T${body.time ?? "00:00"}` : undefined);
+
     const title =
       `${capitalize(service)} Deposit (${Math.round(DEPOSIT_RATE * 100)}%)` +
-      (body.dateISO ? ` — ${formatShortDate(body.dateISO)}` : "");
+      (combinedDate ? ` — ${formatShortDate(combinedDate)}` : "");
 
     // Clean metadata to keep Stripe dashboard tidy
     const metadata: Record<string, string> = {
@@ -86,12 +94,13 @@ export async function POST(req: NextRequest) {
       service,
       deposit_rate: String(DEPOSIT_RATE),
       full_price_usd: String(fullPriceUsd),
-      date_iso: body.dateISO || "",
+      date_iso: combinedDate || "",
       location: body.location || "",
       customer_name: body.customerName || "",
       language: (body.language || "en").toLowerCase(),
       reference_id: body.referenceId || "",
       site_url: SITE_URL,
+      service_key: body.serviceKey || "",
     };
 
     const session = await stripe.checkout.sessions.create({
@@ -140,7 +149,7 @@ export async function POST(req: NextRequest) {
     });
 
     return NextResponse.json(
-      { id: session.id, url: session.url },
+      { id: session.id, url: session.url, sessionId: session.id },
       { status: 200 }
     );
   } catch (err: any) {
