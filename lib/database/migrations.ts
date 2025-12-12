@@ -1,6 +1,24 @@
 import { createSupabaseServerClient } from './supabase'
 
-const supabaseAdmin = createSupabaseServerClient()
+let supabaseAdmin:
+  | ReturnType<typeof createSupabaseServerClient>
+  | null
+  | undefined = undefined
+
+function getSupabaseAdmin() {
+  if (supabaseAdmin !== undefined) return supabaseAdmin
+
+  try {
+    supabaseAdmin = createSupabaseServerClient()
+  } catch (error) {
+    if (process.env.NODE_ENV === 'development') {
+      console.warn('Supabase server client not initialized:', error)
+    }
+    supabaseAdmin = null
+  }
+
+  return supabaseAdmin
+}
 
 // Database migration utilities for schema updates
 export class DatabaseMigrations {
@@ -18,7 +36,12 @@ export class DatabaseMigrations {
 
   // Check if migration has been run
   static async hasMigrationRun(version: string): Promise<boolean> {
-    const { data, error } = await supabaseAdmin
+    const admin = getSupabaseAdmin()
+    if (!admin) {
+      throw new Error('Supabase server client not configured')
+    }
+
+    const { data, error } = await admin
       .from('schema_migrations')
       .select('version')
       .eq('version', version)
@@ -29,7 +52,12 @@ export class DatabaseMigrations {
 
   // Record migration as completed
   static async recordMigration(version: string, description: string) {
-    const { error } = await supabaseAdmin
+    const admin = getSupabaseAdmin()
+    if (!admin) {
+      throw new Error('Supabase server client not configured')
+    }
+
+    const { error } = await admin
       .from('schema_migrations')
       .insert([{ version, description }])
 

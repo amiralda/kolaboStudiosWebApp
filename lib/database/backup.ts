@@ -1,7 +1,25 @@
 // Database backup and recovery utilities
 import { createSupabaseServerClient } from './supabase'
 
-const supabaseAdmin = createSupabaseServerClient()
+let supabaseAdmin:
+  | ReturnType<typeof createSupabaseServerClient>
+  | null
+  | undefined = undefined
+
+function getSupabaseAdmin() {
+  if (supabaseAdmin !== undefined) return supabaseAdmin
+
+  try {
+    supabaseAdmin = createSupabaseServerClient()
+  } catch (error) {
+    if (process.env.NODE_ENV === 'development') {
+      console.warn('Supabase server client not initialized:', error)
+    }
+    supabaseAdmin = null
+  }
+
+  return supabaseAdmin
+}
 
 export class DatabaseBackup {
   // Create full database backup
@@ -12,6 +30,14 @@ export class DatabaseBackup {
     console.log(`🔄 Creating database backup: ${backupName}`)
 
     try {
+      const admin = getSupabaseAdmin()
+      if (!admin) {
+        return {
+          success: false,
+          error: 'Supabase server client not configured',
+        }
+      }
+
       // In production, this would use Supabase CLI or pg_dump
       // For now, we'll create a logical backup by exporting data
       
@@ -24,7 +50,7 @@ export class DatabaseBackup {
       const backupData: Record<string, any[]> = {}
 
       for (const table of tables) {
-        const { data, error } = await supabaseAdmin
+        const { data, error } = await admin
           .from(table)
           .select('*')
 
@@ -70,8 +96,16 @@ export class DatabaseBackup {
     console.log('🔄 Starting database restore...')
 
     try {
+      const admin = getSupabaseAdmin()
+      if (!admin) {
+        return {
+          success: false,
+          error: 'Supabase server client not configured',
+        }
+      }
+
       // Disable triggers during restore to avoid conflicts
-      await supabaseAdmin.rpc('disable_triggers')
+      await admin.rpc('disable_triggers')
 
       for (const [table, records] of Object.entries(backupData)) {
         if (records.length === 0) continue
@@ -79,7 +113,7 @@ export class DatabaseBackup {
         console.log(`🔄 Restoring ${records.length} records to ${table}`)
 
         // Clear existing data (be very careful with this in production!)
-        const { error: deleteError } = await supabaseAdmin
+        const { error: deleteError } = await admin
           .from(table)
           .delete()
           .neq('id', '00000000-0000-0000-0000-000000000000') // Delete all
@@ -90,7 +124,7 @@ export class DatabaseBackup {
         }
 
         // Insert backup data
-        const { error: insertError } = await supabaseAdmin
+        const { error: insertError } = await admin
           .from(table)
           .insert(records)
 
@@ -103,7 +137,7 @@ export class DatabaseBackup {
       }
 
       // Re-enable triggers
-      await supabaseAdmin.rpc('enable_triggers')
+      await admin.rpc('enable_triggers')
 
       console.log('🎉 Database restore completed!')
       return { success: true }
