@@ -174,22 +174,3 @@ function formatShortDate(iso?: string) {
     return iso;
   }
 }
-
-(async () => {
-  const res = await fetch("/api/checkout", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      service: "wedding",                  // "wedding" | "engagement" | "maternity"
-      fullPrice: 3200,                     // optional; deposit = 60% of this
-      dateISO: "2025-10-18T15:00:00-04:00",
-      location: "Princeton, NJ",
-      customerName: "Dany Augustin",
-      customerEmail: "client@example.com",
-      language: "en",                      // "en" | "fr" | "es" | "ht"
-      referenceId: "UI-quote-8472"
-    }),
-  });
-  const { url } = await res.json();
-  window.location.href = url;
-})();
