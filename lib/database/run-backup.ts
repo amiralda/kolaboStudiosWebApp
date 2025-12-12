@@ -82,7 +82,8 @@ async function createBackup() {
     return true
 
   } catch (error) {
-    console.error('❌ Backup failed:', error.message)
+    const detail = error instanceof Error ? error.message : String(error)
+    console.error('❌ Backup failed:', detail)
     return false
   }
 }

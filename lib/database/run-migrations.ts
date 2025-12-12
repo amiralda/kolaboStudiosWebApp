@@ -38,7 +38,8 @@ async function runMigrations() {
           successCount++
         }
       } catch (err) {
-        console.log(`❌ Statement ${i + 1} failed:`, err.message)
+        const detail = err instanceof Error ? err.message : String(err)
+        console.log(`❌ Statement ${i + 1} failed:`, detail)
         errorCount++
       }
     }
@@ -63,7 +64,8 @@ async function runMigrations() {
     return true
 
   } catch (error) {
-    console.error('❌ Migration failed:', error.message)
+    const detail = error instanceof Error ? error.message : String(error)
+    console.error('❌ Migration failed:', detail)
     return false
   }
 }

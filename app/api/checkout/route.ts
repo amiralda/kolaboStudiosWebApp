@@ -15,14 +15,7 @@ const SITE_URL =
 
 const DEPOSIT_RATE = Number(process.env.DEPOSIT_RATE || "0.6"); // 60%
 
-if (!STRIPE_SECRET_KEY) {
-  // Fail early (prevents silent 500s)
-  throw new Error(
-    "Missing STRIPE_SECRET_KEY(_LIVE/_TEST). Add it to your environment."
-  );
-}
-
-const stripe = new Stripe(STRIPE_SECRET_KEY);
+const stripe = STRIPE_SECRET_KEY ? new Stripe(STRIPE_SECRET_KEY) : null;
 
 type Body = {
   // one of: "wedding" | "engagement" | "maternity"
@@ -65,6 +58,13 @@ function dollarsToCents(x: number) {
 
 export async function POST(req: NextRequest) {
   try {
+    if (!stripe) {
+      return NextResponse.json(
+        { error: "Checkout service not configured." },
+        { status: 500 }
+      );
+    }
+
     const body = (await req.json()) as Body;
 
     const rawService = (body.service || body.serviceKey || "wedding").toLowerCase();

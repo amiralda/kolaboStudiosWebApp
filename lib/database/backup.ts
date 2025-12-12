@@ -1,5 +1,7 @@
 // Database backup and recovery utilities
-import { supabaseAdmin } from './supabase'
+import { createSupabaseServerClient } from './supabase'
+
+const supabaseAdmin = createSupabaseServerClient()
 
 export class DatabaseBackup {
   // Create full database backup

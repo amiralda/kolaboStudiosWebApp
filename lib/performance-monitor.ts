@@ -37,9 +37,10 @@ export class PerformanceMonitor {
     const navigation = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming
     
     if (navigation) {
+      const start = navigation.startTime || 0
       this.metrics.ttfb = navigation.responseStart - navigation.requestStart
-      this.metrics.domContentLoaded = navigation.domContentLoadedEventEnd - navigation.navigationStart
-      this.metrics.loadComplete = navigation.loadEventEnd - navigation.navigationStart
+      this.metrics.domContentLoaded = navigation.domContentLoadedEventEnd - start
+      this.metrics.loadComplete = navigation.loadEventEnd - start
     }
   }
 

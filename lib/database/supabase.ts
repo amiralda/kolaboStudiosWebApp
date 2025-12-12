@@ -406,11 +406,21 @@ export class DatabaseService {
       if (error) throw error
       return { status: 'healthy', timestamp: new Date().toISOString() }
     } catch (error) {
-      return { status: 'unhealthy', error: error.message, timestamp: new Date().toISOString() }
+      const detail = error instanceof Error ? error.message : 'Unknown error'
+      return { status: 'unhealthy', error: detail, timestamp: new Date().toISOString() }
     }
   }
 }
 
 // Export default instance
 export const db = new DatabaseService()
-export const serverDb = new DatabaseService(true)
+export const serverDb: DatabaseService | null = (() => {
+  try {
+    return new DatabaseService(true)
+  } catch (error) {
+    if (process.env.NODE_ENV === 'development') {
+      console.warn('Supabase server client not initialized:', error)
+    }
+    return null
+  }
+})()

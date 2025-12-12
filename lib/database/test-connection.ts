@@ -56,7 +56,8 @@ async function testConnection() {
     return true
 
   } catch (error) {
-    console.error('❌ Database connection failed:', error.message)
+    const detail = error instanceof Error ? error.message : 'Unknown error'
+    console.error('❌ Database connection failed:', detail)
     console.error('🔧 Please check your environment variables:')
     console.error('   - NEXT_PUBLIC_SUPABASE_URL')
     console.error('   - SUPABASE_SERVICE_ROLE_KEY')

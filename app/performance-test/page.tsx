@@ -37,17 +37,17 @@ export default function PerformanceTestPage() {
     const measureWebVitals = async () => {
       try {
         // Import web-vitals dynamically
-        const { getCLS, getFID, getLCP } = await import('web-vitals')
+        const { onCLS, onINP, onLCP } = await import('web-vitals')
 
-        getCLS((metric) => {
+        onCLS((metric) => {
           setVitals(prev => ({ ...prev, cls: metric.value }))
         })
 
-        getFID((metric) => {
+        onINP((metric) => {
           setVitals(prev => ({ ...prev, fid: metric.value }))
         })
 
-        getLCP((metric) => {
+        onLCP((metric) => {
           setVitals(prev => ({ ...prev, lcp: metric.value }))
         })
 
@@ -110,7 +110,7 @@ export default function PerformanceTestPage() {
                 {getScoreText(vitals.lcp, [2500, 4000])}
               </Badge>
               <p className="text-sm text-gray-500 mt-2">
-                Good: ≤2.5s | Poor: >4.0s
+                Good: ≤2.5s | Poor: &gt;4.0s
               </p>
             </CardContent>
           </Card>
@@ -129,7 +129,7 @@ export default function PerformanceTestPage() {
                 {getScoreText(vitals.fid, [100, 300])}
               </Badge>
               <p className="text-sm text-gray-500 mt-2">
-                Good: ≤100ms | Poor: >300ms
+                Good: ≤100ms | Poor: &gt;300ms
               </p>
             </CardContent>
           </Card>
@@ -148,7 +148,7 @@ export default function PerformanceTestPage() {
                 {getScoreText(vitals.cls, [0.1, 0.25])}
               </Badge>
               <p className="text-sm text-gray-500 mt-2">
-                Good: ≤0.1 | Poor: >0.25
+                Good: ≤0.1 | Poor: &gt;0.25
               </p>
             </CardContent>
           </Card>
@@ -167,7 +167,7 @@ export default function PerformanceTestPage() {
                 {getScoreText(vitals.ttfb, [800, 1800])}
               </Badge>
               <p className="text-sm text-gray-500 mt-2">
-                Good: ≤800ms | Poor: >1.8s
+                Good: ≤800ms | Poor: &gt;1.8s
               </p>
             </CardContent>
           </Card>
