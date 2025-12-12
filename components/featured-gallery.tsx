@@ -17,12 +17,12 @@ import { Button } from '@/components/ui/button'
 //]
 
 const galleryImages = [
-  { src: "/home/bride-portrait.jpg",        alt: "Elegant bride portrait",             category: "Wedding"    },
-  { src: "/home/engagement-couple.jpg",     alt: "Romantic engagement session",        category: "Engagement" },
-  { src: "/home/maternity-silhouette.jpg",  alt: "Beautiful maternity session",        category: "Maternity"  },
-  { src: "/home/wedding-ceremony.jpg",      alt: "Wedding ceremony moment",            category: "Wedding"    },
-  { src: "/home/couple-laughing.jpg",       alt: "Couple laughing together",           category: "Engagement" },
-  { src: "/home/gallery-4.jpg",             alt: "Candid wedding reception moment",    category: "Wedding"    },
+  { src: "/home/elegant-bride-portrait.png", alt: "Elegant bride portrait", category: "Wedding" },
+  { src: "/home/romantic-engagement-couple.jpg", alt: "Romantic engagement session", category: "Engagement" },
+  { src: "/home/beautiful-maternity-photo.png", alt: "Beautiful maternity session", category: "Maternity" },
+  { src: "/home/couple-laughing.png", alt: "Couple laughing together", category: "Engagement" },
+  { src: "/home/gallery-4.png", alt: "Candid reception moment", category: "Wedding" },
+  { src: "/home/expecting-mother-silhouette.png", alt: "Maternity silhouette", category: "Maternity" },
 ]
 
 

@@ -6,14 +6,54 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { CheckCircle, XCircle, ExternalLink, Copy, Eye, EyeOff } from 'lucide-react'
-import { STRIPE_SETUP_STEPS, TEST_CARDS, validateStripeConfig } from '@/lib/stripe-setup-guide'
+import { STRIPE_SETUP_STEPS, TEST_CARDS } from '@/lib/stripe-setup-guide'
+
+interface StripeConfigResponse {
+  isComplete: boolean
+  missing: string[]
+  config: {
+    publishableKey: boolean
+    secretKey: boolean
+    webhookSecret: boolean
+  }
+}
 
 export default function StripeSetupPage() {
-  const [config, setConfig] = useState<any>(null)
+  const [config, setConfig] = useState<StripeConfigResponse | null>(null)
   const [showKeys, setShowKeys] = useState(false)
 
   useEffect(() => {
-    setConfig(validateStripeConfig())
+    let isMounted = true
+
+    const loadConfig = async () => {
+      try {
+        const res = await fetch('/api/admin/stripe-config')
+        if (!res.ok) throw new Error('Failed to load Stripe config')
+        const data = (await res.json()) as StripeConfigResponse
+        if (isMounted) {
+          setConfig(data)
+        }
+      } catch (error) {
+        console.error(error)
+        if (isMounted) {
+          setConfig({
+            isComplete: false,
+            missing: ['publishableKey', 'secretKey', 'webhookSecret'],
+            config: {
+              publishableKey: false,
+              secretKey: false,
+              webhookSecret: false,
+            },
+          })
+        }
+      }
+    }
+
+    loadConfig()
+
+    return () => {
+      isMounted = false
+    }
   }, [])
 
   const copyToClipboard = (text: string) => {

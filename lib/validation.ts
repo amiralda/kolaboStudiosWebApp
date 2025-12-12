@@ -1,5 +1,6 @@
 // ✅ Comprehensive input validation with Zod
 import { z } from 'zod'
+import type { OrderData } from './types'
 
 // Order validation schemas
 export const CustomerInfoSchema = z.object({

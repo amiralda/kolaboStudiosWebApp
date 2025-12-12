@@ -1,4 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server"
+import { createSupabaseServerClient } from "@/lib/database/supabase"
+import { sendContactEmail, sendContactConfirmation } from "@/lib/email/resend-client"
 
 export async function POST(request: NextRequest) {
   try {
@@ -10,32 +12,32 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Name, email, and message are required" }, { status: 400 })
     }
 
-    // Log the contact form submission
-    console.log("📧 Contact form submission:", {
+    const supabase = createSupabaseServerClient()
+    await supabase.from('contact_inquiries').insert({
       name,
       email,
       phone,
-      message: message.substring(0, 100) + "...",
-      serviceType,
-      timestamp: new Date().toISOString(),
+      shoot_type: serviceType,
+      message,
+      source: 'website_footer',
+      status: 'new',
     })
 
-    // In a real application, you would:
-    // 1. Save to database
-    // 2. Send email notification
-    // 3. Add to CRM system
+    await sendContactEmail({
+      name,
+      email,
+      phone,
+      message,
+      serviceInterest: serviceType,
+    })
 
-    // For now, we'll just simulate success
-    const adminEmail = process.env.ADMIN_EMAIL
-
-    if (adminEmail) {
-      console.log(`✅ Contact form would be sent to: ${adminEmail}`)
-    } else {
-      console.log("⚠️ No ADMIN_EMAIL configured - contact form logged only")
-    }
-
-    // Simulate processing delay
-    await new Promise((resolve) => setTimeout(resolve, 1000))
+    await sendContactConfirmation({
+      name,
+      email,
+      phone,
+      message,
+      serviceInterest: serviceType,
+    })
 
     return NextResponse.json({
       success: true,

@@ -3,12 +3,12 @@ import Link from 'next/link'
 import { Instagram } from 'lucide-react'
 
 const instagramPosts = [
-  { src: "/wedding-bouquet-detail.png", alt: "Wedding bouquet detail" },
-  { src: "/couple-beach-walk.png", alt: "Couple walking on beach" },
-  { src: "/maternity-silhouette-sunset.png", alt: "Maternity silhouette at sunset" },
-  { src: "/placeholder-ltlu2.png", alt: "Wedding rings macro shot" },
-  { src: "/engagement-ring-closeup.png", alt: "Engagement ring close up" },
-  { src: "/baby-shoes-on-belly.png", alt: "Baby shoes on pregnant belly" }
+  { src: "/home/elegant-bride-portrait.png", alt: "Bride portrait" },
+  { src: "/home/romantic-engagement-couple.jpg", alt: "Engagement couple" },
+  { src: "/home/beautiful-maternity-photo.png", alt: "Maternity session" },
+  { src: "/home/couple-laughing.png", alt: "Couple laughing" },
+  { src: "/home/gallery-4.png", alt: "Wedding reception moment" },
+  { src: "/home/expecting-mother-silhouette.png", alt: "Expecting mother silhouette" },
 ]
 
 export function InstagramFeed() {

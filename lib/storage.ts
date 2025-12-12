@@ -7,16 +7,16 @@ export class SafeStorage {
 
   static setItem<T>(key: string, value: T): boolean {
     if (!this.isClient) {
-      console.warn('localStorage not available on server')
+      console.warn('sessionStorage not available on server')
       return false
     }
 
     try {
       const serialized = JSON.stringify(value)
-      localStorage.setItem(key, serialized)
+      window.sessionStorage.setItem(key, serialized)
       return true
     } catch (error) {
-      console.error('Failed to save to localStorage:', error)
+      console.error('Failed to save to sessionStorage:', error)
       return false
     }
   }
@@ -26,18 +26,18 @@ export class SafeStorage {
     validator?: (data: unknown) => T | null
   ): T | null {
     if (!this.isClient) {
-      console.warn('localStorage not available on server')
+      console.warn('sessionStorage not available on server')
       return null
     }
 
     try {
-      const item = localStorage.getItem(key)
+      const item = window.sessionStorage.getItem(key)
       if (!item) return null
       
       const parsed = JSON.parse(item)
       return validator ? validator(parsed) : parsed
     } catch (error) {
-      console.error('Failed to read from localStorage:', error)
+      console.error('Failed to read from sessionStorage:', error)
       // Clean up corrupted data
       this.removeItem(key)
       return null
@@ -46,30 +46,30 @@ export class SafeStorage {
 
   static removeItem(key: string): boolean {
     if (!this.isClient) {
-      console.warn('localStorage not available on server')
+      console.warn('sessionStorage not available on server')
       return false
     }
 
     try {
-      localStorage.removeItem(key)
+      window.sessionStorage.removeItem(key)
       return true
     } catch (error) {
-      console.error('Failed to remove from localStorage:', error)
+      console.error('Failed to remove from sessionStorage:', error)
       return false
     }
   }
 
   static clear(): boolean {
     if (!this.isClient) {
-      console.warn('localStorage not available on server')
+      console.warn('sessionStorage not available on server')
       return false
     }
 
     try {
-      localStorage.clear()
+      window.sessionStorage.clear()
       return true
     } catch (error) {
-      console.error('Failed to clear localStorage:', error)
+      console.error('Failed to clear sessionStorage:', error)
       return false
     }
   }
@@ -93,8 +93,8 @@ export class SafeStorage {
 
     try {
       const test = '__storage_test__'
-      localStorage.setItem(test, test)
-      localStorage.removeItem(test)
+      window.sessionStorage.setItem(test, test)
+      window.sessionStorage.removeItem(test)
       return true
     } catch {
       return false

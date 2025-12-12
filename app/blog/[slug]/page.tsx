@@ -2,6 +2,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { Calendar, User, ArrowLeft } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { sanitizeHtml } from '@/lib/validation'
 
 // This would typically come from a CMS or database
 const getBlogPost = (slug: string) => {
@@ -69,6 +70,8 @@ export default function BlogPostPage({ params }: { params: { slug: string } }) {
     )
   }
 
+  const safeContent = sanitizeHtml(post.content)
+
   return (
     <div className="pt-16 min-h-screen">
       <article className="max-w-4xl mx-auto px-4 py-12">
@@ -113,7 +116,7 @@ export default function BlogPostPage({ params }: { params: { slug: string } }) {
 
         <div 
           className="prose prose-lg max-w-none prose-headings:font-sora prose-headings:font-semibold prose-p:text-muted-foreground prose-p:leading-relaxed"
-          dangerouslySetInnerHTML={{ __html: post.content }}
+          dangerouslySetInnerHTML={{ __html: safeContent }}
         />
 
         <div className="mt-12 pt-8 border-t">

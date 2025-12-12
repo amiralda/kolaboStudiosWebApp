@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
+import crypto from 'crypto'
 import { calculateOrderAmount } from '@/lib/payment-utils'
 import { validatePaymentIntent } from '@/lib/validation'
 import { ErrorHandler, ErrorType } from '@/lib/error-handler'
@@ -79,10 +80,11 @@ export async function POST(request: NextRequest) {
     }
 
     const { serviceId, quantity, rushDelivery, customerInfo } = validationResult.data
+    const hashedId = crypto.createHash('sha256').update(customerInfo.email.toLowerCase()).digest('hex')
 
     // ✅ Rate limiting
     const clientIP = request.headers.get('x-forwarded-for') || 'unknown'
-    const rateLimitKey = `payment_${customerInfo.email}_${clientIP}`
+    const rateLimitKey = `payment_${hashedId}_${clientIP}`
     
     if (!checkRateLimit(rateLimitKey, 5, 300000)) { // 5 requests per 5 minutes
       ErrorHandler.log({
@@ -127,35 +129,43 @@ export async function POST(request: NextRequest) {
       serviceId,
       quantity,
       rushDelivery,
-      customerEmail: customerInfo.email
+      customerHash: hashedId
     })
 
     // ✅ Create payment intent with comprehensive metadata
-    const paymentIntent = await stripe.paymentIntents.create({
-      amount,
-      currency: 'usd',
-      automatic_payment_methods: {
-        enabled: true,
+    const idempotencyKey = crypto
+      .createHash('sha256')
+      .update(`${customerInfo.email}-${serviceId}-${quantity}-${rushDelivery}`)
+      .digest('hex')
+
+    const paymentIntent = await stripe.paymentIntents.create(
+      {
+        amount,
+        currency: 'usd',
+        automatic_payment_methods: {
+          enabled: true,
+        },
+        metadata: {
+          serviceId,
+          quantity: quantity.toString(),
+          rushDelivery: rushDelivery.toString(),
+          customerHash: hashedId,
+          customerName: customerInfo.name,
+          company: customerInfo.company || '',
+          phone: customerInfo.phone || '',
+          createdAt: new Date().toISOString(),
+          source: 'website',
+          version: '1.0',
+        },
+        receipt_email: customerInfo.email,
+        description: `Photo Retouching Service - ${serviceId.replace('-', ' ').replace(/\b\w/g, (l: string) => l.toUpperCase())}`,
+        statement_descriptor: 'KOLABO STUDIOS',
+        // ✅ Additional security settings
+        capture_method: 'automatic',
+        confirmation_method: 'automatic',
       },
-      metadata: {
-        serviceId,
-        quantity: quantity.toString(),
-        rushDelivery: rushDelivery.toString(),
-        customerEmail: customerInfo.email,
-        customerName: customerInfo.name,
-        company: customerInfo.company || '',
-        phone: customerInfo.phone || '',
-        createdAt: new Date().toISOString(),
-        source: 'website',
-        version: '1.0',
-      },
-      receipt_email: customerInfo.email,
-      description: `Photo Retouching Service - ${serviceId.replace('-', ' ').replace(/\b\w/g, (l: string) => l.toUpperCase())}`,
-      statement_descriptor: 'KOLABO STUDIOS',
-      // ✅ Additional security settings
-      capture_method: 'automatic',
-      confirmation_method: 'automatic',
-    })
+      { idempotencyKey },
+    )
 
     console.log('Payment intent created successfully:', paymentIntent.id)
 
