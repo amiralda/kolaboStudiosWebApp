@@ -5,10 +5,10 @@ import Image from 'next/image'
 import { Dialog, DialogContent } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { ChevronLeft, ChevronRight, X } from 'lucide-react'
-import type { Photo } from '@/lib/gallery-data'
+import type { PhotoMetadata } from '@/lib/gallery-data'
 
 interface PhotoGridProps {
-  photos: Photo[]
+  photos: PhotoMetadata[]
   category: string
 }
 

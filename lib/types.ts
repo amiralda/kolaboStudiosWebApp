@@ -7,7 +7,7 @@ export interface OrderData {
   rushDelivery: boolean
   customerInfo: CustomerInfo
   orderDetails: OrderDetails
-  createdAt: string
+  createdAt?: string
   id?: string
 }
 

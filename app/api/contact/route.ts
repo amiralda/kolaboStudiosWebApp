@@ -1,5 +1,4 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { createSupabaseServerClient } from "@/lib/database/supabase"
 import { sendContactEmail, sendContactConfirmation } from "@/lib/email/resend-client"
 
 export async function POST(request: NextRequest) {
@@ -12,7 +11,18 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Name, email, and message are required" }, { status: 400 })
     }
 
-    const supabase = createSupabaseServerClient()
+    let supabase
+    try {
+      const { createSupabaseServerClient } = await import('@/lib/database/supabase')
+      supabase = createSupabaseServerClient()
+    } catch (supabaseError) {
+      const detail = supabaseError instanceof Error ? supabaseError.message : 'Supabase not configured'
+      console.error('❌ Contact form configuration error:', detail)
+      return NextResponse.json(
+        { error: "Contact service is not configured. Please try again later." },
+        { status: 500 },
+      )
+    }
     await supabase.from('contact_inquiries').insert({
       name,
       email,
@@ -45,11 +55,12 @@ export async function POST(request: NextRequest) {
     })
   } catch (error) {
     console.error("❌ Contact form error:", error)
+    const detail = error instanceof Error ? error.message : undefined
 
     return NextResponse.json(
       {
         error: "Failed to send message. Please try again later.",
-        details: process.env.NODE_ENV === "development" ? error.message : undefined,
+        details: process.env.NODE_ENV === "development" ? detail : undefined,
       },
       { status: 500 },
     )

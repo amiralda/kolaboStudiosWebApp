@@ -47,13 +47,16 @@ export async function GET(request: NextRequest) {
     }))
   } catch (error) {
     console.error("❌ File listing error:", error)
+    const detail = error instanceof Error ? error.message : undefined
 
-    return withCors(NextResponse.json(
-      {
-        error: "Failed to list files. Please try again later.",
-        details: process.env.NODE_ENV === "development" ? error.message : undefined,
-      },
-      { status: 500 },
-    ))
+    return withCors(
+      NextResponse.json(
+        {
+          error: "Failed to list files. Please try again later.",
+          details: process.env.NODE_ENV === "development" ? detail : undefined,
+        },
+        { status: 500 },
+      ),
+    )
   }
 }

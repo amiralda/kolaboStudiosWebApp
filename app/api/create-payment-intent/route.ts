@@ -17,7 +17,6 @@ const stripe = (() => {
     return null
   }
   return new Stripe(secretKey, { 
-    apiVersion: '2024-06-20',
     typescript: true,
   })
 })()

@@ -124,13 +124,16 @@ export async function POST(request: NextRequest) {
     }))
   } catch (error) {
     console.error("❌ Upload API error:", error)
-    return withCors(NextResponse.json(
-      {
-        error: "Internal server error. Please try again later.",
-        details: process.env.NODE_ENV === "development" ? error.message : undefined,
-      },
-      { status: 500 },
-    ))
+    const detail = error instanceof Error ? error.message : undefined
+    return withCors(
+      NextResponse.json(
+        {
+          error: "Internal server error. Please try again later.",
+          details: process.env.NODE_ENV === "development" ? detail : undefined,
+        },
+        { status: 500 },
+      ),
+    )
   }
 }
 
@@ -164,13 +167,16 @@ export async function DELETE(request: NextRequest) {
     }))
   } catch (error) {
     console.error("❌ Delete API error:", error)
-    return withCors(NextResponse.json(
-      {
-        error: "Internal server error. Please try again later.",
-        details: process.env.NODE_ENV === "development" ? error.message : undefined,
-      },
-      { status: 500 },
-    ))
+    const detail = error instanceof Error ? error.message : undefined
+    return withCors(
+      NextResponse.json(
+        {
+          error: "Internal server error. Please try again later.",
+          details: process.env.NODE_ENV === "development" ? detail : undefined,
+        },
+        { status: 500 },
+      ),
+    )
   }
 }
 

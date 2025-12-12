@@ -8,14 +8,14 @@ import { Button } from '@/components/ui/button'
 import { PaymentForm } from '@/components/payment-form'
 import { retouchServices } from '@/lib/retouch-data'
 import { calculateOrderAmount, formatCurrency } from '@/lib/payment-utils'
-import type { PaymentData } from '@/lib/payment-utils'
+import type { OrderData } from '@/lib/types'
 import { SafeStorage } from '@/lib/storage'
 import { CheckCircle, Clock, FileImage, Zap, ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 
 export default function CheckoutPage() {
   const router = useRouter()
-  const [paymentData, setPaymentData] = useState<PaymentData | null>(null)
+  const [paymentData, setPaymentData] = useState<OrderData | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -23,7 +23,7 @@ export default function CheckoutPage() {
     try {
       const data = SafeStorage.getOrderData()
       if (data && data.serviceId && data.customerInfo?.email) {
-        setPaymentData(data as unknown as PaymentData)
+        setPaymentData(data)
       } else {
         setError('No order data found. Please start a new order.')
       }

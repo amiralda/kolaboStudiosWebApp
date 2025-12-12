@@ -13,13 +13,37 @@ export function Footer() {
     email: '',
     message: ''
   })
+  const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle')
+  const [submissionError, setSubmissionError] = useState<string | null>(null)
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    // Handle form submission here
-    console.log('Contact form submitted:', formData)
-    // Reset form
-    setFormData({ name: '', email: '', message: '' })
+    setStatus('submitting')
+    setSubmissionError(null)
+
+    try {
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: formData.name,
+          email: formData.email,
+          message: formData.message,
+          serviceType: 'footer',
+        }),
+      })
+
+      if (!response.ok) {
+        const data = await response.json().catch(() => ({}))
+        throw new Error(data.error || 'Unable to send message right now.')
+      }
+
+      setFormData({ name: '', email: '', message: '' })
+      setStatus('success')
+    } catch (err) {
+      setStatus('error')
+      setSubmissionError(err instanceof Error ? err.message : 'Something went wrong. Please try again.')
+    }
   }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -70,12 +94,14 @@ export function Footer() {
                 <Button type="submit" disabled={status === 'submitting'} className="bg-primary hover:bg-primary/90 w-full">
                   {status === 'submitting' ? 'Sending…' : 'Send Message'}
                 </Button>
-                {status === 'success' && (
-                  <p className="text-sm text-emerald-300">Message sent. We’ll reply within 24 hours.</p>
-                )}
-                {submissionError && (
-                  <p className="text-sm text-red-300">{submissionError}</p>
-                )}
+                <div className="min-h-[1.5rem]" aria-live="polite">
+                  {status === 'success' && (
+                    <p className="text-sm text-emerald-300">Message sent. We’ll reply within 24 hours.</p>
+                  )}
+                  {submissionError && (
+                    <p className="text-sm text-red-300">{submissionError}</p>
+                  )}
+                </div>
               </div>
             </form>
           </div>

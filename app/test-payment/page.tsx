@@ -6,6 +6,8 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { CheckCircle, CreditCard, ArrowRight } from 'lucide-react'
+import type { OrderData } from '@/lib/types'
+import { SafeStorage } from '@/lib/storage'
 
 const TEST_SCENARIOS = [
   {
@@ -32,10 +34,10 @@ const TEST_SCENARIOS = [
 ]
 
 export default function TestPaymentPage() {
-  const [testOrder, setTestOrder] = useState(null)
+  const [testOrder, setTestOrder] = useState<OrderData | null>(null)
 
   const createTestOrder = () => {
-    const orderData = {
+    const orderData: OrderData = {
       serviceId: 'standard-retouch',
       quantity: 3,
       rushDelivery: false,
@@ -48,11 +50,12 @@ export default function TestPaymentPage() {
       orderDetails: {
         instructions: 'This is a test order for payment integration',
         fileFormat: 'jpg',
-        files: [] // Mock files for testing
-      }
+        files: [] as File[],
+      },
+      createdAt: new Date().toISOString(),
     }
 
-    localStorage.setItem('retouchOrder', JSON.stringify(orderData))
+    SafeStorage.setOrderData(orderData)
     setTestOrder(orderData)
   }
 

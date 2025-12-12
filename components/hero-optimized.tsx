@@ -9,11 +9,11 @@ export function HeroOptimized() {
         <OptimizedImage
           src="/wedding-dance-sunset.png"
           alt="Romantic wedding photography"
-          fill
+          width={1920}
+          height={1080}
           priority
           quality={90}
-          sizes="100vw"
-          className="object-cover"
+          className="object-cover w-full h-full"
           placeholder="blur"
         />
         <div className="absolute inset-0 bg-black/40" />
