@@ -13,9 +13,97 @@ interface DeleteResult {
   error?: string
 }
 
+// ---------------------------------------------------------------------------
+// Allowed MIME types → safe file extensions (server-side whitelist)
+// Never use the extension from the original filename — derive it from MIME type.
+// ---------------------------------------------------------------------------
+const MIME_TO_EXT: Record<string, string> = {
+  "image/jpeg": "jpg",
+  "image/jpg": "jpg",
+  "image/png": "png",
+  "image/webp": "webp",
+  "image/tiff": "tiff",
+  "image/heic": "heic",
+  "image/heif": "heif",
+  "image/gif": "gif",
+  "application/zip": "zip",
+  "application/x-zip-compressed": "zip",
+  "application/x-rar-compressed": "rar",
+}
+
+/**
+ * Build a safe storage path with no original filename components.
+ * Prevents path traversal attacks regardless of what the client sends.
+ */
+function buildSafeFilename(file: File, folder: string): string {
+  const timestamp = Date.now()
+  const random = Math.random().toString(36).substring(2, 10)
+  const ext = MIME_TO_EXT[file.type] ?? "bin"
+  // No original filename in path — timestamp + random suffix only
+  return `${folder}/${timestamp}-${random}.${ext}`
+}
+
+// ---------------------------------------------------------------------------
+// Magic-byte validation (server-side, cannot be spoofed by the client)
+// ---------------------------------------------------------------------------
+const MAGIC_BYTES: Array<{ type: string; check: (b: Uint8Array) => boolean }> = [
+  // JPEG: FF D8 FF
+  { type: "jpeg", check: (b) => b[0] === 0xff && b[1] === 0xd8 && b[2] === 0xff },
+  // PNG: 89 50 4E 47 0D 0A 1A 0A
+  { type: "png", check: (b) => b[0] === 0x89 && b[1] === 0x50 && b[2] === 0x4e && b[3] === 0x47 },
+  // WebP: RIFF????WEBP
+  {
+    type: "webp",
+    check: (b) =>
+      b[0] === 0x52 && b[1] === 0x49 && b[2] === 0x46 && b[3] === 0x46 &&
+      b[8] === 0x57 && b[9] === 0x45 && b[10] === 0x42 && b[11] === 0x50,
+  },
+  // GIF: GIF8
+  { type: "gif", check: (b) => b[0] === 0x47 && b[1] === 0x49 && b[2] === 0x46 && b[3] === 0x38 },
+  // TIFF little-endian: 49 49 2A 00  |  big-endian: 4D 4D 00 2A
+  {
+    type: "tiff",
+    check: (b) =>
+      (b[0] === 0x49 && b[1] === 0x49 && b[2] === 0x2a && b[3] === 0x00) ||
+      (b[0] === 0x4d && b[1] === 0x4d && b[2] === 0x00 && b[3] === 0x2a),
+  },
+  // HEIC/HEIF: ftyp box at offset 4
+  {
+    type: "heic",
+    check: (b) => b[4] === 0x66 && b[5] === 0x74 && b[6] === 0x79 && b[7] === 0x70,
+  },
+  // ZIP: PK header (50 4B 03 04 | 05 06 | 07 08)
+  {
+    type: "zip",
+    check: (b) =>
+      b[0] === 0x50 && b[1] === 0x4b &&
+      (b[2] === 0x03 || b[2] === 0x05 || b[2] === 0x07),
+  },
+  // RAR: Rar! (52 61 72 21)
+  { type: "rar", check: (b) => b[0] === 0x52 && b[1] === 0x61 && b[2] === 0x72 && b[3] === 0x21 },
+]
+
+/**
+ * Returns true if the first 12 bytes of the file match at least one known
+ * magic-byte signature. Prevents executables and other malicious files from
+ * being uploaded with a spoofed MIME type.
+ */
+export async function validateMagicBytes(file: File): Promise<boolean> {
+  try {
+    const buffer = await file.slice(0, 12).arrayBuffer()
+    const bytes = new Uint8Array(buffer)
+    return MAGIC_BYTES.some(({ check }) => check(bytes))
+  } catch {
+    return false
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Core upload / delete / list
+// ---------------------------------------------------------------------------
+
 export async function uploadFile(file: File, folder = "uploads"): Promise<UploadResult> {
   try {
-    // Check if Vercel Blob is configured
     if (!process.env.BLOB_READ_WRITE_TOKEN) {
       console.log("⚠️ No BLOB_READ_WRITE_TOKEN found - file upload skipped")
       return {
@@ -24,34 +112,15 @@ export async function uploadFile(file: File, folder = "uploads"): Promise<Upload
       }
     }
 
-    // Generate unique filename
-    const timestamp = Date.now()
-    const randomString = Math.random().toString(36).substring(2, 8)
-    const fileExtension = file.name.split(".").pop()
-    const baseName = file.name.split(".").slice(0, -1).join(".")
-    const filename = `${folder}/${timestamp}-${randomString}-${baseName}.${fileExtension}`
+    const filename = buildSafeFilename(file, folder)
 
-    console.log("📁 Uploading file:", {
-      originalName: file.name,
-      size: file.size,
-      type: file.type,
-      filename,
-    })
-
-    // Upload to Vercel Blob
     const blob = await put(filename, file, {
       access: "public",
-      addRandomSuffix: false, // We're already adding our own suffix
+      addRandomSuffix: false,
     })
 
     console.log("✅ File uploaded successfully:", blob.url)
-
-    return {
-      success: true,
-      url: blob.url,
-      pathname: blob.pathname,
-      filename: file.name,
-    }
+    return { success: true, url: blob.url, pathname: blob.pathname, filename: file.name }
   } catch (error) {
     console.error("❌ File upload error:", error)
     return {
@@ -64,15 +133,10 @@ export async function uploadFile(file: File, folder = "uploads"): Promise<Upload
 export async function deleteFile(url: string): Promise<DeleteResult> {
   try {
     if (!process.env.BLOB_READ_WRITE_TOKEN) {
-      console.log("⚠️ No BLOB_READ_WRITE_TOKEN found - file deletion skipped")
-      return {
-        success: false,
-        error: "File storage not configured",
-      }
+      return { success: false, error: "File storage not configured" }
     }
-
     await del(url)
-    console.log("✅ File deleted successfully:", url)
+    console.log("✅ File deleted:", url)
     return { success: true }
   } catch (error) {
     console.error("❌ File deletion error:", error)
@@ -86,21 +150,10 @@ export async function deleteFile(url: string): Promise<DeleteResult> {
 export async function listFiles(folder?: string, limit = 100) {
   try {
     if (!process.env.BLOB_READ_WRITE_TOKEN) {
-      console.log("⚠️ No BLOB_READ_WRITE_TOKEN found - file listing skipped")
-      return {
-        success: false,
-        error: "File storage not configured",
-        files: [],
-      }
+      return { success: false, error: "File storage not configured", files: [] }
     }
 
-    const { blobs } = await list({
-      prefix: folder,
-      limit,
-    })
-
-    console.log(`📋 Listed ${blobs.length} files from folder: ${folder || "root"}`)
-
+    const { blobs } = await list({ prefix: folder, limit })
     return {
       success: true,
       files: blobs.map((blob) => ({
@@ -120,13 +173,16 @@ export async function listFiles(folder?: string, limit = 100) {
   }
 }
 
+// ---------------------------------------------------------------------------
+// Validators
+// ---------------------------------------------------------------------------
+
 export function validateFileType(file: File, allowedTypes: string[]): boolean {
   return allowedTypes.includes(file.type)
 }
 
 export function validateFileSize(file: File, maxSizeMB: number): boolean {
-  const maxSizeBytes = maxSizeMB * 1024 * 1024
-  return file.size <= maxSizeBytes
+  return file.size <= maxSizeMB * 1024 * 1024
 }
 
 export function formatFileSize(bytes: number): string {
@@ -137,73 +193,41 @@ export function formatFileSize(bytes: number): string {
   return Number.parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i]
 }
 
-export function generateFileName(originalName: string, prefix?: string): string {
-  const timestamp = Date.now()
-  const randomString = Math.random().toString(36).substring(2, 8)
-  const fileExtension = originalName.split(".").pop()
-  const baseName = originalName.split(".").slice(0, -1).join(".")
+// ---------------------------------------------------------------------------
+// Typed upload helpers
+// ---------------------------------------------------------------------------
 
-  if (prefix) {
-    return `${prefix}/${timestamp}-${randomString}-${baseName}.${fileExtension}`
-  }
+const IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp", "image/tiff", "image/heic", "image/gif"]
+const CLIENT_FILE_TYPES = [...IMAGE_TYPES, "application/zip", "application/x-zip-compressed", "application/x-rar-compressed"]
 
-  return `${timestamp}-${randomString}-${baseName}.${fileExtension}`
-}
-
-// Photo-specific upload function
 export async function uploadPhoto(file: File, category = "gallery"): Promise<UploadResult> {
-  // Validate it's an image
-  const imageTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp", "image/tiff", "image/heic"]
-
-  if (!validateFileType(file, imageTypes)) {
-    return {
-      success: false,
-      error: "Invalid file type. Please upload an image file (JPEG, PNG, WebP, TIFF, or HEIC).",
-    }
+  if (!validateFileType(file, IMAGE_TYPES)) {
+    return { success: false, error: "Invalid file type. Please upload an image (JPEG, PNG, WebP, TIFF, GIF, or HEIC)." }
   }
-
-  // Validate file size (max 50MB for photos)
   if (!validateFileSize(file, 50)) {
-    return {
-      success: false,
-      error: "File too large. Maximum size is 50MB.",
-    }
+    return { success: false, error: "File too large. Maximum size is 50MB." }
   }
-
-  // Upload to photos folder with category
+  const magicOk = await validateMagicBytes(file)
+  if (!magicOk) {
+    return { success: false, error: "File content does not match its declared type." }
+  }
   return uploadFile(file, `photos/${category}`)
 }
 
-// Client file upload function (for retouch orders)
 export async function uploadClientFile(file: File, orderId: string): Promise<UploadResult> {
-  // Allow images and zip files for client uploads
-  const allowedTypes = [
-    "image/jpeg",
-    "image/jpg",
-    "image/png",
-    "image/webp",
-    "image/tiff",
-    "image/raw",
-    "application/zip",
-    "application/x-zip-compressed",
-    "application/x-rar-compressed",
-  ]
-
-  if (!validateFileType(file, allowedTypes)) {
-    return {
-      success: false,
-      error: "Invalid file type. Please upload images or zip files only.",
-    }
+  // Validate orderId to prevent path traversal in the folder name
+  if (!/^[a-zA-Z0-9_-]{1,64}$/.test(orderId)) {
+    return { success: false, error: "Invalid order ID." }
   }
-
-  // Validate file size (max 100MB for client files)
+  if (!validateFileType(file, CLIENT_FILE_TYPES)) {
+    return { success: false, error: "Invalid file type. Please upload images or zip files only." }
+  }
   if (!validateFileSize(file, 100)) {
-    return {
-      success: false,
-      error: "File too large. Maximum size is 100MB.",
-    }
+    return { success: false, error: "File too large. Maximum size is 100MB." }
   }
-
-  // Upload to client-files folder with order ID
+  const magicOk = await validateMagicBytes(file)
+  if (!magicOk) {
+    return { success: false, error: "File content does not match its declared type." }
+  }
   return uploadFile(file, `client-files/${orderId}`)
 }

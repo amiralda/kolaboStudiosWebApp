@@ -68,7 +68,8 @@ function resolvePrice(rawService: string, clientPrice?: number): { fullPriceUsd:
     return { fullPriceUsd: SERVER_PRICES_USD[prefix], isCustom: false }
   }
 
-  // Unknown service — use client-provided price, clamped to safe range
+  // Unknown service — log for audit, clamp client price to safe range
+  console.warn("[checkout] Unknown service key received:", rawService, "| client price:", clientPrice)
   const clamped = Math.min(
     CUSTOM_PRICE_MAX_USD,
     Math.max(CUSTOM_PRICE_MIN_USD, typeof clientPrice === "number" && isFinite(clientPrice) ? clientPrice : CUSTOM_PRICE_MIN_USD)

@@ -56,7 +56,7 @@ export async function POST(request: NextRequest) {
   if (!checkRateLimit(ip)) {
     return NextResponse.json(
       { error: "Too many requests. Please wait a moment and try again." },
-      { status: 429, headers: corsHeaders }
+      { status: 429, headers: { ...corsHeaders, "Retry-After": "60" } }
     )
   }
 

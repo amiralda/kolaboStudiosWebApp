@@ -28,6 +28,13 @@ function checkRateLimit(key: string, maxRequests: number = 10, windowMs: number 
   const now = Date.now()
   const record = rateLimitMap.get(key)
 
+  // Prune expired entries to prevent unbounded growth
+  if (rateLimitMap.size > 10000) {
+    for (const [k, v] of rateLimitMap) {
+      if (now > v.resetTime) rateLimitMap.delete(k)
+    }
+  }
+
   if (!record || now > record.resetTime) {
     rateLimitMap.set(key, { count: 1, resetTime: now + windowMs })
     return true
@@ -95,7 +102,7 @@ export async function POST(request: NextRequest) {
 
       return NextResponse.json(
         { error: 'Too many requests. Please wait before trying again.' },
-        { status: 429 }
+        { status: 429, headers: { "Retry-After": "300" } }
       )
     }
 
