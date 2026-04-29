@@ -7,7 +7,7 @@ export function HeroOptimized() {
     <section className="relative h-screen flex items-center justify-center">
       <div className="absolute inset-0 z-0">
         <OptimizedImage
-          src="/wedding-dance-sunset.png"
+          src="/gallery/featured/hero (1).jpg"
           alt="Romantic wedding photography"
           width={1920}
           height={1080}

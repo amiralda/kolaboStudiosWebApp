@@ -7,11 +7,12 @@ export function Hero() {
     <section className="relative h-screen flex items-center justify-center">
       <div className="absolute inset-0 z-0">
         <Image
-          src="/wedding-dance-sunset.png"
+          src="/gallery/featured/hero (1).jpg"
           alt="Romantic wedding photography"
           fill
           className="object-cover"
           priority
+          sizes="100vw"
         />
         <div className="absolute inset-0 bg-black/40" />
       </div>
