@@ -11,8 +11,8 @@ import {
 } from "@/components/ui/dialog";
 import { Phone, MessageCircle, MessageSquareText, X, Globe } from "lucide-react";
 
-const PHONE = process.env.NEXT_PUBLIC_PHONE_E164 || "+18565955203";
-const WA_DIGITS = (process.env.NEXT_PUBLIC_WHATSAPP_E164 || PHONE).replace(/\D/g, "");
+const PHONE = process.env.NEXT_PUBLIC_PHONE_E164 ?? "";
+const WA_DIGITS = (process.env.NEXT_PUBLIC_WHATSAPP_E164 ?? PHONE).replace(/\D/g, "");
 
 type Lang = "en" | "fr" | "es" | "ht";
 

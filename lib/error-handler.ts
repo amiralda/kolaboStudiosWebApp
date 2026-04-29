@@ -80,6 +80,13 @@ export class ErrorHandler {
     const now = Date.now()
     const record = this.rateLimitMap.get(key)
 
+    // Prune expired entries to prevent unbounded memory growth
+    if (this.rateLimitMap.size > 10000) {
+      for (const [k, v] of this.rateLimitMap) {
+        if (now > v.resetTime) this.rateLimitMap.delete(k)
+      }
+    }
+
     if (!record || now > record.resetTime) {
       this.rateLimitMap.set(key, { count: 1, resetTime: now + windowMs })
       return true

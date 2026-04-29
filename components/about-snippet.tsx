@@ -9,10 +9,11 @@ export function AboutSnippet() {
         <div className="grid md:grid-cols-2 gap-12 items-center">
           <div className="relative aspect-[4/5] rounded-lg overflow-hidden">
             <Image
-              src="/placeholder.svg?height=600&width=480"
-              alt="Kolabo Studios photographer"
+              src="/home/elegant-bride-portrait.png"
+              alt="Kolabo Studios photographer at work"
               fill
               className="object-cover"
+              sizes="(max-width: 768px) 100vw, 50vw"
             />
           </div>
           

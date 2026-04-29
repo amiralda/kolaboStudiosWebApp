@@ -34,6 +34,8 @@ const TEST_SCENARIOS = [
 ]
 
 export default function TestPaymentPage() {
+  if (process.env.NODE_ENV !== "development") return null
+
   const [testOrder, setTestOrder] = useState<OrderData | null>(null)
 
   const createTestOrder = () => {

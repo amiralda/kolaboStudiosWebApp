@@ -70,14 +70,15 @@ export const validatePaymentIntent = (data: unknown) => {
   return CreatePaymentIntentSchema.safeParse(data)
 }
 
-// HTML sanitization
-export const sanitizeHtml = (html: string): string => {
-  // Remove script tags and other dangerous elements
-  return html
-    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
-    .replace(/<iframe\b[^<]*(?:(?!<\/iframe>)<[^<]*)*<\/iframe>/gi, '')
-    .replace(/javascript:/gi, '')
-    .replace(/on\w+\s*=/gi, '')
+// HTML sanitization — encodes special characters so user input is safe in HTML contexts.
+// Use this for any user-supplied string that will appear inside HTML (emails, templates, etc.).
+export const sanitizeHtml = (input: string): string => {
+  return input
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#x27;")
 }
 
 // File validation
