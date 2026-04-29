@@ -12,6 +12,8 @@ interface WebVitals {
 }
 
 export default function PerformanceTestPage() {
+  if (process.env.NODE_ENV !== "development") return null
+
   const [vitals, setVitals] = useState<WebVitals>({
     lcp: null,
     fid: null,

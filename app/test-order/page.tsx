@@ -9,6 +9,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { retouchServices } from '@/lib/retouch-data'
 
 export default function TestOrderPage() {
+  if (process.env.NODE_ENV !== "development") return null
+
   const router = useRouter()
   const [formData, setFormData] = useState({
     serviceId: 'standard-retouch',
