@@ -87,3 +87,4 @@ const withBundleAnalyzer = require('@next/bundle-analyzer')({
 })
 
 export default withBundleAnalyzer(nextConfig)
+
