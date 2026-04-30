@@ -412,8 +412,15 @@ export class DatabaseService {
   }
 }
 
-// Export default instance
-export const db = new DatabaseService()
+// Export default instance — wrapped in try/catch so missing env vars during
+// Next.js build ("Collecting page data") don't crash module initialization.
+export const db: DatabaseService | null = (() => {
+  try {
+    return new DatabaseService()
+  } catch {
+    return null
+  }
+})()
 export const serverDb: DatabaseService | null = (() => {
   try {
     return new DatabaseService(true)
