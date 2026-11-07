@@ -45,9 +45,6 @@ export default function GalleriesPage() {
       <section className="py-16 md:py-20 px-4">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-10 md:mb-12">
-            <p className="text-sm uppercase tracking-[0.3em] text-primary mb-3">
-              New Jersey &middot; Haiti
-            </p>
             <h2 className="text-3xl md:text-5xl font-bold font-sora mb-4">
               One wall, every story
             </h2>
