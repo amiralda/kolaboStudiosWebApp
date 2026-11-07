@@ -11,6 +11,26 @@ import {
 import { checkAdminAuth } from "@/lib/auth/admin-auth"
 import { verifyUploadToken } from "@/lib/upload-token"
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit"
+import Stripe from "stripe"
+
+// A client upload token is issued when the PaymentIntent is CREATED, i.e.
+// before the customer pays. Without this check anyone could create a
+// PaymentIntent, keep the token and upload files without paying.
+// Non-admin client uploads therefore also require the PaymentIntent
+// (orderId) to be paid. Fails closed when Stripe is not configured.
+const PAID_STATUSES = new Set(["succeeded", "processing"])
+
+async function isOrderPaid(orderId: string): Promise<boolean> {
+  const key = process.env.STRIPE_SECRET_KEY
+  if (!key || !/^pi_[A-Za-z0-9]+$/.test(orderId)) return false
+  try {
+    const stripe = new Stripe(key)
+    const intent = await stripe.paymentIntents.retrieve(orderId)
+    return PAID_STATUSES.has(intent.status)
+  } catch {
+    return false
+  }
+}
 
 const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp", "image/tiff", "image/heic"]
 const ALLOWED_CLIENT_FILE_TYPES = [
@@ -136,6 +156,14 @@ export async function POST(request: NextRequest) {
           NextResponse.json(
             { error: "A valid upload token for this order is required." },
             { status: 401 }
+          )
+        )
+      }
+      if (!admin.ok && !(await isOrderPaid(orderId))) {
+        return withCors(
+          NextResponse.json(
+            { error: "This order is not paid yet." },
+            { status: 402 }
           )
         )
       }
