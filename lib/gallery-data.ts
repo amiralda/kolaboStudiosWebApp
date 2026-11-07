@@ -279,7 +279,7 @@ const featuredPhotos: PhotoMetadata[] = [
   },
   {
     id: "ig-w2",
-    src: "/gallery/instagram/ig-55.jpg",
+    src: "/gallery/instagram/ig-55c.jpg",
     alt: "Bride in White, Blue Backdrop",
     title: "Bride in White, Blue Backdrop",
     description: "A wedding moment from our Instagram",
@@ -331,7 +331,7 @@ const featuredPhotos: PhotoMetadata[] = [
   },
   {
     id: "ig-w6",
-    src: "/gallery/instagram/ig-65.jpg",
+    src: "/gallery/instagram/ig-65c.jpg",
     alt: "Bride and Groom at the Reception",
     title: "Bride and Groom at the Reception",
     description: "A wedding moment from our Instagram",
@@ -529,7 +529,7 @@ export const galleryData: Record<string, GalleryCategory> = {
       },
       {
         id: "ig-m4",
-        src: "/gallery/instagram/ig-53.jpg",
+        src: "/gallery/instagram/ig-53c.jpg",
         alt: "Expecting, Arms Wide",
         title: "Expecting, Arms Wide",
         description: "A maternity session from our Instagram",
@@ -1112,7 +1112,7 @@ export const galleryData: Record<string, GalleryCategory> = {
       },
       {
         id: "ig-p44",
-        src: "/gallery/instagram/ig-52.jpg",
+        src: "/gallery/instagram/ig-52c.jpg",
         alt: "Birthday Balloon in Pink",
         title: "Birthday Balloon in Pink",
         description: "A portrait from our Instagram",
@@ -1125,7 +1125,7 @@ export const galleryData: Record<string, GalleryCategory> = {
       },
       {
         id: "ig-p45",
-        src: "/gallery/instagram/ig-54.jpg",
+        src: "/gallery/instagram/ig-54c.jpg",
         alt: "Man in the Blue Suit",
         title: "Man in the Blue Suit",
         description: "A portrait from our Instagram",
@@ -1164,7 +1164,7 @@ export const galleryData: Record<string, GalleryCategory> = {
       },
       {
         id: "ig-p48",
-        src: "/gallery/instagram/ig-60.jpg",
+        src: "/gallery/instagram/ig-60c.jpg",
         alt: "Man in the Navy Suit, Seated",
         title: "Man in the Navy Suit, Seated",
         description: "A portrait from our Instagram",
