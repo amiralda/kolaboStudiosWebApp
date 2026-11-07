@@ -5,7 +5,7 @@ const teamMembers = [
     name: "Dany AUGUSTIN",
     role: "Lead Photographer & Founder",
     bio: "With over 12 years of experience, Dany brings artistic vision and technical expertise to every shoot.",
-    image: "/team/dany.jpg"
+    image: "/team/dany-pro.jpg"
   },
   {
     name: "Edwin DOR",
