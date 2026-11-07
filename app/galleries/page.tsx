@@ -13,7 +13,7 @@ export default function GalleriesPage() {
           <p className="text-sm uppercase tracking-[0.3em] text-primary mb-4">Our work</p>
           <h1 className="text-4xl md:text-6xl font-bold font-sora mb-4">Story-driven galleries</h1>
           <p className="text-lg text-muted-foreground">
-            Explore curated collections across weddings, engagements, maternity, and mini sessions.
+            Explore curated collections across weddings, engagements, maternity, portraits, and mini sessions.
             Each gallery highlights the color palette, posing style, and pacing you can expect during a Kolabo Studios shoot.
           </p>
         </div>

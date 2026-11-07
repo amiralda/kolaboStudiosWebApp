@@ -1,22 +1,39 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
+import { usePathname } from 'next/navigation'
 import { Menu, X, ChevronDown } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
 export function Navigation() {
   const [isOpen, setIsOpen] = useState(false)
-  const [isGalleriesOpen, setIsGalleriesOpen] = useState(false)
+  const [isDesktopGalleriesOpen, setIsDesktopGalleriesOpen] = useState(false)
+  const [isMobileGalleriesOpen, setIsMobileGalleriesOpen] = useState(false)
+  const pathname = usePathname()
+
+  // Whenever the page changes, close every menu. This stops the Galleries
+  // dropdown from getting stuck open after visiting another menu item.
+  useEffect(() => {
+    setIsDesktopGalleriesOpen(false)
+    setIsMobileGalleriesOpen(false)
+    setIsOpen(false)
+  }, [pathname])
 
   const galleryItems = [
     { href: '/galleries/weddings', label: 'Weddings' },
     { href: '/galleries/engagement', label: 'Engagement' },
     { href: '/galleries/maternity', label: 'Maternity' },
+    { href: '/galleries/portrait', label: 'Portrait' },
     { href: '/galleries/minis', label: 'Minis' },
     { href: '/galleries/holiday-minis', label: 'Holiday Minis' },
   ]
+
+  const closeMobileMenu = () => {
+    setIsOpen(false)
+    setIsMobileGalleriesOpen(false)
+  }
 
   return (
     <nav className="fixed top-0 w-full bg-white/95 backdrop-blur-sm z-50 border-b">
@@ -45,25 +62,32 @@ export function Navigation() {
             {/* Galleries Dropdown */}
             <div 
               className="relative"
-              onMouseEnter={() => setIsGalleriesOpen(true)}
-              onMouseLeave={() => setIsGalleriesOpen(false)}
+              onMouseEnter={() => setIsDesktopGalleriesOpen(true)}
+              onMouseLeave={() => setIsDesktopGalleriesOpen(false)}
             >
-              <button className="flex items-center text-black hover:text-primary transition-colors">
+              <button
+                className="flex items-center text-black hover:text-primary transition-colors"
+                onClick={() => setIsDesktopGalleriesOpen(!isDesktopGalleriesOpen)}
+                aria-expanded={isDesktopGalleriesOpen}
+              >
                 Galleries
-                <ChevronDown className="ml-1 h-4 w-4" />
+                <ChevronDown className={`ml-1 h-4 w-4 transition-transform ${isDesktopGalleriesOpen ? 'rotate-180' : ''}`} />
               </button>
               
-              {isGalleriesOpen && (
-                <div className="absolute top-full left-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg py-2">
-                  {galleryItems.map((item) => (
-                    <Link
-                      key={item.href}
-                      href={item.href}
-                      className="block px-4 py-2 text-sm text-black hover:text-primary hover:bg-gray-50 transition-colors"
-                    >
-                      {item.label}
-                    </Link>
-                  ))}
+              {isDesktopGalleriesOpen && (
+                <div className="absolute top-full left-0 pt-2">
+                  <div className="w-48 bg-white border border-gray-200 rounded-lg shadow-lg py-2">
+                    {galleryItems.map((item) => (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        className="block px-4 py-2 text-sm text-black hover:text-primary hover:bg-gray-50 transition-colors"
+                        onClick={() => setIsDesktopGalleriesOpen(false)}
+                      >
+                        {item.label}
+                      </Link>
+                    ))}
+                  </div>
                 </div>
               )}
             </div>
@@ -130,7 +154,10 @@ export function Navigation() {
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => setIsOpen(!isOpen)}
+              onClick={() => {
+                setIsOpen(!isOpen)
+                if (isOpen) setIsMobileGalleriesOpen(false)
+              }}
             >
               {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
             </Button>
@@ -144,7 +171,7 @@ export function Navigation() {
               <Link
                 href="/"
                 className="block px-3 py-2 text-black hover:text-primary transition-colors"
-                onClick={() => setIsOpen(false)}
+                onClick={closeMobileMenu}
               >
                 Home
               </Link>
@@ -152,21 +179,22 @@ export function Navigation() {
               {/* Mobile Galleries Submenu */}
               <div>
                 <button
-                  onClick={() => setIsGalleriesOpen(!isGalleriesOpen)}
+                  onClick={() => setIsMobileGalleriesOpen(!isMobileGalleriesOpen)}
                   className="flex items-center justify-between w-full px-3 py-2 text-black hover:text-primary transition-colors"
+                  aria-expanded={isMobileGalleriesOpen}
                 >
                   Galleries
-                  <ChevronDown className={`h-4 w-4 transition-transform ${isGalleriesOpen ? 'rotate-180' : ''}`} />
+                  <ChevronDown className={`h-4 w-4 transition-transform ${isMobileGalleriesOpen ? 'rotate-180' : ''}`} />
                 </button>
                 
-                {isGalleriesOpen && (
+                {isMobileGalleriesOpen && (
                   <div className="pl-6 space-y-1">
                     {galleryItems.map((item) => (
                       <Link
                         key={item.href}
                         href={item.href}
                         className="block px-3 py-2 text-sm text-gray-600 hover:text-primary transition-colors"
-                        onClick={() => setIsOpen(false)}
+                        onClick={closeMobileMenu}
                       >
                         {item.label}
                       </Link>
@@ -178,7 +206,7 @@ export function Navigation() {
               <Link
                 href="/about"
                 className="block px-3 py-2 text-black hover:text-primary transition-colors"
-                onClick={() => setIsOpen(false)}
+                onClick={closeMobileMenu}
               >
                 About
               </Link>
@@ -186,7 +214,7 @@ export function Navigation() {
               <Link
                 href="/blog"
                 className="block px-3 py-2 text-black hover:text-primary transition-colors"
-                onClick={() => setIsOpen(false)}
+                onClick={closeMobileMenu}
               >
                 Blog
               </Link>
@@ -194,7 +222,7 @@ export function Navigation() {
               <Link
                 href="/faq"
                 className="block px-3 py-2 text-black hover:text-primary transition-colors"
-                onClick={() => setIsOpen(false)}
+                onClick={closeMobileMenu}
               >
                 FAQ
               </Link>
@@ -202,7 +230,7 @@ export function Navigation() {
               <Link
                 href="/pricing"
                 className="block px-3 py-2 text-black hover:text-primary transition-colors"
-                onClick={() => setIsOpen(false)}
+                onClick={closeMobileMenu}
               >
                 Pricing
               </Link>
@@ -210,7 +238,7 @@ export function Navigation() {
               <Link
                 href="/retouch-services"
                 className="block px-3 py-2 text-black hover:text-primary transition-colors"
-                onClick={() => setIsOpen(false)}
+                onClick={closeMobileMenu}
               >
                 Retouch Services
               </Link>
@@ -218,7 +246,7 @@ export function Navigation() {
               <Link
                 href="/contact"
                 className="block px-3 py-2 text-black hover:text-primary transition-colors"
-                onClick={() => setIsOpen(false)}
+                onClick={closeMobileMenu}
               >
                 Contact
               </Link>
@@ -227,7 +255,7 @@ export function Navigation() {
                 <Link
                   href="/admin/orders"
                   className="block px-3 py-2 text-gray-500 hover:text-primary transition-colors text-sm"
-                  onClick={() => setIsOpen(false)}
+                  onClick={closeMobileMenu}
                 >
                   Admin
                 </Link>
