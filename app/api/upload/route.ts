@@ -8,6 +8,9 @@ import {
   validateFileSize,
   validateMagicBytes,
 } from "@/lib/storage/vercel-blob"
+import { checkAdminAuth } from "@/lib/auth/admin-auth"
+import { verifyUploadToken } from "@/lib/upload-token"
+import { checkRateLimit, getClientIp } from "@/lib/rate-limit"
 
 const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp", "image/tiff", "image/heic"]
 const ALLOWED_CLIENT_FILE_TYPES = [
@@ -20,34 +23,11 @@ const ALLOWED_CLIENT_FILE_TYPES = [
 const ALLOWED_ORIGIN = process.env.NEXT_PUBLIC_SITE_URL
 
 // ---------------------------------------------------------------------------
-// Rate limiting — 10 uploads per minute per IP (best-effort, serverless)
-// ---------------------------------------------------------------------------
-const uploadRateMap = new Map<string, { count: number; resetTime: number }>()
-const UPLOAD_LIMIT = 10
-const UPLOAD_WINDOW_MS = 60_000
-
-function checkUploadRateLimit(ip: string): boolean {
-  const now = Date.now()
-  const record = uploadRateMap.get(ip)
-
-  if (uploadRateMap.size > 5000) {
-    for (const [k, v] of uploadRateMap) {
-      if (now > v.resetTime) uploadRateMap.delete(k)
-    }
-  }
-
-  if (!record || now > record.resetTime) {
-    uploadRateMap.set(ip, { count: 1, resetTime: now + UPLOAD_WINDOW_MS })
-    return true
-  }
-  if (record.count >= UPLOAD_LIMIT) return false
-  record.count++
-  return true
-}
-
-// ---------------------------------------------------------------------------
 // CORS helpers
 // ---------------------------------------------------------------------------
+// NOTE: the Origin check below is defense-in-depth only — it is NOT
+// authentication. curl and scripts send no Origin header and pass it.
+// Real protection on this route is the admin auth / upload-token checks.
 function ensureSameOrigin(request: NextRequest) {
   const origin = request.headers.get("origin")
   if (origin && ALLOWED_ORIGIN && !origin.startsWith(ALLOWED_ORIGIN)) {
@@ -80,16 +60,44 @@ function isVercelBlobUrl(url: string): boolean {
   }
 }
 
+/**
+ * Admin auth gate for the file API. Returns a response to send when the
+ * caller is NOT an admin, or null when the caller is authorized.
+ * Fails closed (503) when ADMIN_SECRET is not configured.
+ */
+function adminGate(request: NextRequest): NextResponse | null {
+  const auth = checkAdminAuth(request)
+  if (auth.ok) return null
+  if (auth.status === 503) {
+    return withCors(
+      NextResponse.json(
+        { error: "Admin access is not configured on this server." },
+        { status: 503 }
+      )
+    )
+  }
+  return withCors(
+    NextResponse.json(
+      { error: "Admin authentication required." },
+      {
+        status: 401,
+        headers: {
+          "WWW-Authenticate": 'Basic realm="Kolabo Admin", charset="UTF-8"',
+        },
+      }
+    )
+  )
+}
+
 // ---------------------------------------------------------------------------
 // POST — upload a file
 // ---------------------------------------------------------------------------
 export async function POST(request: NextRequest) {
-  const ip =
-    request.headers.get("x-forwarded-for")?.split(",")[0].trim() ??
-    request.headers.get("x-real-ip") ??
-    "unknown"
+  const ip = getClientIp(request)
 
-  if (!checkUploadRateLimit(ip)) {
+  // Shared rate limit: 10 uploads per minute per IP (Upstash when
+  // configured, in-memory fallback otherwise).
+  if (!(await checkRateLimit(`upload-post:${ip}`, 10, 60))) {
     return withCors(
       NextResponse.json(
         { error: "Too many uploads. Please wait a moment and try again." },
@@ -110,6 +118,30 @@ export async function POST(request: NextRequest) {
 
     if (!file) {
       return withCors(NextResponse.json({ error: "No file provided" }, { status: 400 }))
+    }
+
+    // --- Authorization -----------------------------------------------
+    // "photo" / "general" uploads are admin-only (the gallery manager
+    // in /admin is the only caller). "client" uploads need either admin
+    // auth or a signed upload token issued for exactly this orderId
+    // (see lib/upload-token.ts; tokens are issued with the
+    // create-payment-intent response, bound to the payment intent id).
+    const admin = checkAdminAuth(request)
+    if (uploadType === "client") {
+      const token = formData.get("uploadToken")
+      const tokenOk =
+        !!orderId && verifyUploadToken(token, orderId)
+      if (!admin.ok && !tokenOk) {
+        return withCors(
+          NextResponse.json(
+            { error: "A valid upload token for this order is required." },
+            { status: 401 }
+          )
+        )
+      }
+    } else if (!admin.ok) {
+      const gate = adminGate(request)
+      if (gate) return gate
     }
 
     let uploadResult
@@ -194,12 +226,29 @@ export async function POST(request: NextRequest) {
 }
 
 // ---------------------------------------------------------------------------
-// DELETE — delete a file (must be a Vercel Blob URL)
+// DELETE — delete a file (must be a Vercel Blob URL). Admin-only.
 // ---------------------------------------------------------------------------
 export async function DELETE(request: NextRequest) {
+  const ip = getClientIp(request)
+
+  // Shared rate limit: 20 deletes per minute per IP.
+  if (!(await checkRateLimit(`upload-delete:${ip}`, 20, 60))) {
+    return withCors(
+      NextResponse.json(
+        { error: "Too many requests. Please wait a moment and try again." },
+        { status: 429, headers: { "Retry-After": "60" } }
+      )
+    )
+  }
+
   try {
     const originCheck = ensureSameOrigin(request)
     if (originCheck) return originCheck
+
+    // Deleting files is admin-only. Fails closed (503) when ADMIN_SECRET
+    // is not configured.
+    const gate = adminGate(request)
+    if (gate) return gate
 
     const { searchParams } = new URL(request.url)
     const fileUrl = searchParams.get("url") ?? ""

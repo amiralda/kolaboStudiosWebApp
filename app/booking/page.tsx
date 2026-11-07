@@ -49,7 +49,7 @@ export default function BookingPage() {
           date,
           time,
           location,
-          clientEmail,
+          customerEmail: clientEmail,
         }),
       });
       const data = await res.json();

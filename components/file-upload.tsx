@@ -17,6 +17,10 @@ interface FileUploadProps {
   uploadType?: "photo" | "client" | "general"
   category?: string
   orderId?: string
+  // Signed upload token for client uploads, bound to orderId (issued
+  // with the create-payment-intent response). Required for type=client
+  // unless the caller is an admin. Sent with the upload form data.
+  uploadToken?: string
   title?: string
   description?: string
 }
@@ -41,6 +45,7 @@ export function FileUpload({
   uploadType = "general",
   category = "general",
   orderId,
+  uploadToken,
   title = "Upload Files",
   description,
 }: FileUploadProps) {
@@ -91,6 +96,7 @@ export function FileUpload({
           formData.append("type", uploadType)
           if (category) formData.append("category", category)
           if (orderId) formData.append("orderId", orderId)
+          if (uploadToken) formData.append("uploadToken", uploadToken)
 
           // Simulate progress updates
           const progressInterval = setInterval(() => {
@@ -167,7 +173,7 @@ export function FileUpload({
       // Reset total progress after a delay
       setTimeout(() => setTotalProgress(0), 2000)
     },
-    [files, maxFiles, uploadType, category, orderId, onUpload],
+    [files, maxFiles, uploadType, category, orderId, uploadToken, onUpload],
   )
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({

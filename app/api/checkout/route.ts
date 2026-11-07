@@ -1,6 +1,7 @@
 // app/api/checkout/route.ts
 import { NextRequest, NextResponse } from "next/server"
 import Stripe from "stripe"
+import { checkRateLimit, getClientIp } from "@/lib/rate-limit"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
@@ -87,6 +88,17 @@ function resolvePrice(rawService: string, clientPrice?: number): { fullPriceUsd:
 }
 
 export async function POST(req: NextRequest) {
+  // Shared rate limit: 10 checkout sessions per minute per IP, so a bot
+  // cannot spam Stripe Checkout session creation (Upstash when
+  // configured, in-memory fallback otherwise).
+  const ip = getClientIp(req)
+  if (!(await checkRateLimit(`checkout:${ip}`, 10, 60))) {
+    return NextResponse.json(
+      { error: "Too many requests. Please wait a moment and try again." },
+      { status: 429, headers: { "Retry-After": "60" } }
+    )
+  }
+
   try {
     if (!stripe) {
       return NextResponse.json(

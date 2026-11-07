@@ -29,7 +29,7 @@ const stripePromise = (() => {
 interface PaymentFormProps {
   paymentData: OrderData
   amount: number
-  onSuccess: (paymentIntentId: string) => void
+  onSuccess: (paymentIntentId: string, uploadToken?: string) => void
   onError: (error: string) => void
 }
 
@@ -38,11 +38,12 @@ function CheckoutForm({ paymentData, amount, onSuccess, onError }: PaymentFormPr
   const elements = useElements()
   const [isProcessing, setIsProcessing] = useState(false)
   const [clientSecret, setClientSecret] = useState('')
+  const [uploadToken, setUploadToken] = useState<string | undefined>(undefined)
   const [error, setError] = useState<string | null>(null)
   const [cardComplete, setCardComplete] = useState(false)
 
   const initializePayment = useCallback(async () => {
-    const response = await ApiClient.post<{ clientSecret: string; paymentIntentId: string }>(
+    const response = await ApiClient.post<{ clientSecret: string; paymentIntentId: string; uploadToken?: string }>(
       '/api/create-payment-intent',
       {
         serviceId: paymentData.serviceId,
@@ -54,6 +55,9 @@ function CheckoutForm({ paymentData, amount, onSuccess, onError }: PaymentFormPr
 
     if (response.success && response.data) {
       setClientSecret(response.data.clientSecret)
+      // Signed token for the retouch upload flow (bound to this payment
+      // intent). Passed to onSuccess so the checkout page can store it.
+      setUploadToken(response.data.uploadToken)
     } else {
       const errorMessage = response.error || 'Failed to initialize payment'
       setError(errorMessage)
@@ -136,7 +140,7 @@ function CheckoutForm({ paymentData, amount, onSuccess, onError }: PaymentFormPr
         onError(errorMessage)
       } else if (paymentIntent?.status === 'succeeded') {
         SafeStorage.removeOrderData()
-        onSuccess(paymentIntent.id)
+        onSuccess(paymentIntent.id, uploadToken)
       } else {
         const errorMessage = 'Payment status unclear. Please contact support.'
         setError(errorMessage)

@@ -101,9 +101,10 @@ export const sanityConfig = {
   useCdn: false,
 }
 
-// Contentful integration example
-export const contentfulConfig = {
-  spaceId: process.env.NEXT_PUBLIC_CONTENTFUL_SPACE_ID,
-  accessToken: process.env.NEXT_PUBLIC_CONTENTFUL_ACCESS_TOKEN,
-  environment: process.env.NEXT_PUBLIC_CONTENTFUL_ENVIRONMENT || 'master',
-}
+// NOTE: a Contentful config previously lived here, reading
+// NEXT_PUBLIC_CONTENTFUL_ACCESS_TOKEN. It was deleted (2026-11-07):
+// the CMS code is an unused stub, and if that variable were ever set to
+// a Preview or Management token (instead of a read-only Delivery API
+// token), the token's write access would leak to the browser. If a
+// Contentful integration is ever built for real, use a Delivery API
+// (read-only) token only — never Preview or Management.

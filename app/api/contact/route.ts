@@ -2,6 +2,7 @@ import { type NextRequest, NextResponse } from "next/server"
 import { z } from "zod"
 import { createSupabaseServerClient } from "@/lib/database/supabase"
 import { sendContactEmail, sendContactConfirmation } from "@/lib/email/resend-client"
+import { checkRateLimit, getClientIp } from "@/lib/rate-limit"
 
 const ALLOWED_ORIGIN =
   process.env.NEXT_PUBLIC_SITE_URL || "https://kolabostudios.com"
@@ -18,42 +19,18 @@ const ContactRequestSchema = z.object({
   phone: z.string().max(20, "Phone number too long").trim().optional(),
   message: z.string().min(10, "Message must be at least 10 characters").max(2000, "Message too long").trim(),
   serviceType: z.string().max(50).trim().optional(),
+  // Honeypot: the real form renders this field hidden. Humans never fill
+  // it; bots do. A filled value means spam — drop it silently (return
+  // the normal success response so the bot cannot tell it was caught).
+  company: z.string().max(100).optional(),
 })
 
-// Simple in-process rate limiter (best-effort — not distributed)
-const rateLimitMap = new Map<string, { count: number; resetTime: number }>()
-const RATE_LIMIT = 5
-const RATE_WINDOW_MS = 60_000
-
-function checkRateLimit(ip: string): boolean {
-  const now = Date.now()
-  const record = rateLimitMap.get(ip)
-
-  // Prune expired entries when the map gets large
-  if (rateLimitMap.size > 5000) {
-    for (const [key, val] of rateLimitMap) {
-      if (now > val.resetTime) rateLimitMap.delete(key)
-    }
-  }
-
-  if (!record || now > record.resetTime) {
-    rateLimitMap.set(ip, { count: 1, resetTime: now + RATE_WINDOW_MS })
-    return true
-  }
-
-  if (record.count >= RATE_LIMIT) return false
-
-  record.count++
-  return true
-}
-
 export async function POST(request: NextRequest) {
-  const ip =
-    request.headers.get("x-forwarded-for")?.split(",")[0].trim() ??
-    request.headers.get("x-real-ip") ??
-    "unknown"
+  const ip = getClientIp(request)
 
-  if (!checkRateLimit(ip)) {
+  // Shared rate limit: 5 requests/min/IP (Upstash when configured,
+  // in-memory fallback otherwise).
+  if (!(await checkRateLimit(`contact:${ip}`, 5, 60))) {
     return NextResponse.json(
       { error: "Too many requests. Please wait a moment and try again." },
       { status: 429, headers: { ...corsHeaders, "Retry-After": "60" } }
@@ -72,7 +49,17 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const { name, email, phone, message, serviceType } = parsed.data
+    const { name, email, phone, message, serviceType, company } = parsed.data
+
+    // Honeypot filled: spam bot. Log it and return the normal success
+    // response without storing or sending anything.
+    if (company && company.trim() !== "") {
+      console.warn("🍯 Contact honeypot triggered — dropping submission", { ip })
+      return NextResponse.json(
+        { success: true, message: "Thank you for your message! We'll get back to you soon." },
+        { headers: corsHeaders }
+      )
+    }
 
     let supabase
     try {

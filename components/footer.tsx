@@ -12,7 +12,9 @@ export function Footer() {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    message: ''
+    message: '',
+    // Honeypot — leave empty. Bots fill it; the API drops those submissions.
+    company: '',
   })
   const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle')
   const [submissionError, setSubmissionError] = useState<string | null>(null)
@@ -31,6 +33,7 @@ export function Footer() {
           email: formData.email,
           message: formData.message,
           serviceType: 'footer',
+          company: formData.company,
         }),
       })
 
@@ -39,7 +42,7 @@ export function Footer() {
         throw new Error(data.error || 'Unable to send message right now.')
       }
 
-      setFormData({ name: '', email: '', message: '' })
+      setFormData({ name: '', email: '', message: '', company: '' })
       setStatus('success')
     } catch (err) {
       setStatus('error')
@@ -91,6 +94,20 @@ export function Footer() {
                 rows={4}
                 className="bg-white/10 border-white/20 text-white placeholder:text-white/60"
               />
+              {/* Honeypot — hidden from humans, catches bots */}
+              <div aria-hidden="true" style={{ display: 'none' }}>
+                <label>
+                  Company
+                  <input
+                    type="text"
+                    name="company"
+                    value={formData.company}
+                    onChange={handleChange}
+                    tabIndex={-1}
+                    autoComplete="off"
+                  />
+                </label>
+              </div>
               <div className="space-y-2">
                 <Button type="submit" disabled={status === 'submitting'} className="bg-primary hover:bg-primary/90 w-full">
                   {status === 'submitting' ? 'Sending…' : 'Send Message'}

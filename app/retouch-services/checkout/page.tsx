@@ -35,7 +35,7 @@ export default function CheckoutPage() {
     }
   }, [])
 
-  const handlePaymentSuccess = (paymentIntentId: string) => {
+  const handlePaymentSuccess = (paymentIntentId: string, uploadToken?: string) => {
     try {
       if (typeof window !== 'undefined') {
         window.sessionStorage.setItem(
@@ -43,6 +43,10 @@ export default function CheckoutPage() {
           JSON.stringify({
             paymentIntentId,
             orderData: paymentData,
+            // Signed token for the retouch upload flow (bound to this
+            // payment intent). The upload page presents it with client
+            // uploads; the API verifies it server-side.
+            ...(uploadToken ? { uploadToken } : {}),
           }),
         )
       }

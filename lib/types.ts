@@ -47,6 +47,9 @@ export interface ApiResponse<T = any> {
 export interface PaymentIntentResponse {
   clientSecret: string
   paymentIntentId: string
+  // Signed upload token for the retouch upload flow, bound to the
+  // payment intent id (24h). Omitted when no token secret is configured.
+  uploadToken?: string
 }
 
 export interface Photo {

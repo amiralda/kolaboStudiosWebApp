@@ -4,6 +4,8 @@ import crypto from 'crypto'
 import { calculateOrderAmount } from '@/lib/payment-utils'
 import { validatePaymentIntent } from '@/lib/validation'
 import { ErrorHandler, ErrorType } from '@/lib/error-handler'
+import { checkRateLimit, getClientIp } from '@/lib/rate-limit'
+import { issueUploadToken } from '@/lib/upload-token'
 
 // ✅ Secure Stripe initialization with comprehensive error handling
 const stripe = (() => {
@@ -20,33 +22,6 @@ const stripe = (() => {
     typescript: true,
   })
 })()
-
-// ✅ Rate limiting map (use Redis in production)
-const rateLimitMap = new Map<string, { count: number; resetTime: number }>()
-
-function checkRateLimit(key: string, maxRequests: number = 10, windowMs: number = 60000): boolean {
-  const now = Date.now()
-  const record = rateLimitMap.get(key)
-
-  // Prune expired entries to prevent unbounded growth
-  if (rateLimitMap.size > 10000) {
-    for (const [k, v] of rateLimitMap) {
-      if (now > v.resetTime) rateLimitMap.delete(k)
-    }
-  }
-
-  if (!record || now > record.resetTime) {
-    rateLimitMap.set(key, { count: 1, resetTime: now + windowMs })
-    return true
-  }
-
-  if (record.count >= maxRequests) {
-    return false
-  }
-
-  record.count++
-  return true
-}
 
 export async function POST(request: NextRequest) {
   // ✅ Early return if Stripe not configured
@@ -88,11 +63,12 @@ export async function POST(request: NextRequest) {
     const { serviceId, quantity, rushDelivery, customerInfo } = validationResult.data
     const hashedId = crypto.createHash('sha256').update(customerInfo.email.toLowerCase()).digest('hex')
 
-    // ✅ Rate limiting
-    const clientIP = request.headers.get('x-forwarded-for') || 'unknown'
+    // ✅ Shared rate limiting: 5 requests per 5 minutes per email+IP
+    // (Upstash when configured, in-memory fallback otherwise).
+    const clientIP = getClientIp(request)
     const rateLimitKey = `payment_${hashedId}_${clientIP}`
-    
-    if (!checkRateLimit(rateLimitKey, 5, 300000)) { // 5 requests per 5 minutes
+
+    if (!(await checkRateLimit(rateLimitKey, 5, 300))) { // 5 requests per 5 minutes
       ErrorHandler.log({
         type: ErrorType.PAYMENT,
         message: 'Rate limit exceeded',
@@ -175,9 +151,17 @@ export async function POST(request: NextRequest) {
 
     console.log('Payment intent created successfully:', paymentIntent.id)
 
+    // Signed upload token for the retouch upload flow, bound to this
+    // payment intent's id (24h). The client presents it with
+    // type=client uploads; the upload route verifies it server-side.
+    // Omitted when no token secret is configured (fail closed) — the
+    // payment itself is unaffected.
+    const uploadToken = issueUploadToken(paymentIntent.id)
+
     return NextResponse.json({
       clientSecret: paymentIntent.client_secret,
       paymentIntentId: paymentIntent.id,
+      ...(uploadToken ? { uploadToken } : {}),
     })
 
   } catch (error) {
