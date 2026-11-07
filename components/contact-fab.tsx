@@ -23,7 +23,7 @@ const LABELS: Record<Lang, { title: string; intro: string; call: string; text: s
   en: {
     title: "Contact Kolabo Studios",
     intro:
-      "Hi Kolabo Studios 👋\nI'd like to book a session and have a few questions.\nService: [Wedding / Engagement / Maternity]\nPreferred date: [MM/DD]\nLocation: [City]\nBudget: [Flexible / Range]\n— Sent from kolabostudios.com",
+      "Hi Kolabo Studios 👋\nI want to book a session. Please fill this in before sending:\n• Service: Wedding / Engagement / Maternity / Portrait / Family\n• Date:\n• Location:\n• Budget:\n— Sent from kolabostudios.com",
     call: "Call",
     text: "Text",
     wa: "WhatsApp",
@@ -31,7 +31,7 @@ const LABELS: Record<Lang, { title: string; intro: string; call: string; text: s
   fr: {
     title: "Contacter Kolabo Studios",
     intro:
-      "Bonjour Kolabo Studios 👋\nJe souhaite réserver une séance et j’ai quelques questions.\nService : [Mariage / Fiançailles / Maternité]\nDate souhaitée : [JJ/MM]\nLieu : [Ville]\nBudget : [Flexible / Fourchette]\n— Envoyé depuis kolabostudios.com",
+      "Bonjour Kolabo Studios 👋\nJe souhaite réserver une séance. Veuillez remplir ceci avant d’envoyer :\n• Service : Mariage / Fiançailles / Maternité / Portrait / Famille\n• Date :\n• Lieu :\n• Budget :\n— Envoyé depuis kolabostudios.com",
     call: "Appeler",
     text: "SMS",
     wa: "WhatsApp",
@@ -39,7 +39,7 @@ const LABELS: Record<Lang, { title: string; intro: string; call: string; text: s
   es: {
     title: "Contactar a Kolabo Studios",
     intro:
-      "Hola Kolabo Studios 👋\nQuisiera reservar una sesión y tengo algunas preguntas.\nServicio: [Boda / Compromiso / Maternidad]\nFecha preferida: [DD/MM]\nUbicación: [Ciudad]\nPresupuesto: [Flexible / Rango]\n— Enviado desde kolabostudios.com",
+      "Hola Kolabo Studios 👋\nQuisiera reservar una sesión. Por favor complete esto antes de enviar:\n• Servicio: Boda / Compromiso / Maternidad / Retrato / Familia\n• Fecha:\n• Ubicación:\n• Presupuesto:\n— Enviado desde kolabostudios.com",
     call: "Llamar",
     text: "Texto",
     wa: "WhatsApp",
@@ -47,7 +47,7 @@ const LABELS: Record<Lang, { title: string; intro: string; call: string; text: s
   ht: {
     title: "Kontakte Kolabo Studios",
     intro:
-      "Bonjou Kolabo Studios 👋\nMwen ta renmen pran randevou epi mwen gen kèk kesyon.\nSèvis: [Maryaj / Fiyanse / Matènite]\nDat ou vle a: [JJ/MM]\nKote: [Vil]\nBidjè: [Fleksib / Plaj]\n— Voye depi kolabostudios.com",
+      "Bonjou Kolabo Studios 👋\nMwen ta renmen pran randevou. Tanpri ranpli sa a anvan ou voye l:\n• Sèvis: Maryaj / Fiyanse / Matènite / Pòtre / Fanmi\n• Dat:\n• Kote:\n• Bidjè:\n— Voye depi kolabostudios.com",
     call: "Rele",
     text: "Tèks",
     wa: "WhatsApp",
