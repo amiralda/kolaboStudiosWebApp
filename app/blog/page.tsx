@@ -4,6 +4,24 @@ import { Calendar, User } from 'lucide-react'
 
 const blogPosts = [
   {
+    title: "Wedding Photography Trends for 2026",
+    date: "November 7, 2026",
+    author: "Dany Augustin",
+    excerpt: "2026 is the year wedding photography stopped chasing perfection. Documentary storytelling, true-to-color editing, film texture, and real emotion lead the way.",
+    image: "/gallery/featured/hero (10).jpg",
+    slug: "wedding-trends-2026",
+    category: "Trends"
+  },
+  {
+    title: "Fashion Photography in 2026: Real Skin, Bold Light, Editorial Energy",
+    date: "November 7, 2026",
+    author: "Dany Augustin",
+    excerpt: "Over-retouching is out. Real texture, dramatic chiaroscuro light, and portraits with personality are defining fashion photography in 2026.",
+    image: "/retouch/fashion-after.jpg",
+    slug: "fashion-photography-2026",
+    category: "Trends"
+  },
+  {
     title: "10 Tips for Your Perfect Engagement Session",
     date: "December 15, 2024",
     author: "Dany Augustin",

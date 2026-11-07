@@ -133,5 +133,14 @@ export const retouchPortfolio: RetouchPortfolioItem[] = [
     category: 'Maternity',
     description: 'Gentle retouching emphasizing the beauty of pregnancy with artistic color grading.',
     techniques: ['Gentle Skin Work', 'Body Contouring', 'Artistic Color Grading', 'Background Enhancement']
+  },
+  {
+    id: 'fashion-portrait-1',
+    title: 'Fashion Portrait Retouch',
+    beforeImage: '/retouch/fashion-before.jpg',
+    afterImage: '/retouch/fashion-after.jpg',
+    category: 'Fashion',
+    description: 'Sample before/after demonstration: skin refinement, color grading, and detail enhancement while keeping natural skin texture. Drag the slider to compare.',
+    techniques: ['Frequency Separation', 'Color Grading', 'Skin Refinement', 'Detail Enhancement']
   }
 ]

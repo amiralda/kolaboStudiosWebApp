@@ -24,6 +24,7 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? 'https://kolabostudios.com'),
   title: { default: 'Kolabo Studios', template: '%s | Kolabo Studios' },
+  icons: { icon: '/favicon.ico' },
   description:
     'Wedding, engagement, and maternity photography that captures every moment perfectly. Professional photography services in South Jersey.',
   openGraph: {

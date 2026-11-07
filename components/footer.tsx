@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
@@ -108,7 +109,13 @@ export function Footer() {
 
           {/* Contact Info & Social */}
           <div>
-            <h3 className="text-2xl font-bold mb-6 font-sora">Kolabo Studios</h3>
+            <Image
+              src="/logo-light.png"
+              alt="Kolabo Studios"
+              width={535}
+              height={156}
+              className="h-12 w-auto mb-6"
+            />
             
             <div className="space-y-4 mb-8">
               <div className="flex items-center">

@@ -1,10 +1,11 @@
 import Image from 'next/image'
 import { Badge } from '@/components/ui/badge'
+import { BeforeAfterSlider } from '@/components/before-after-slider'
 import { retouchPortfolio } from '@/lib/retouch-data'
 
 export const metadata = {
   title: 'Retouching Portfolio - Kolabo Studios',
-  description: 'See our professional photo retouching work. Finished examples of wedding, portrait, and maternity photography retouching.',
+  description: 'See our professional photo retouching work. Drag the slider on our fashion portrait to compare before and after.',
 }
 
 export default function RetouchPortfolioPage() {
@@ -16,7 +17,7 @@ export default function RetouchPortfolioPage() {
         <div className="text-center mb-12">
           <h1 className="text-4xl md:text-6xl font-bold mb-4 font-sora">Retouching Portfolio</h1>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Explore finished examples of our professional retouching work
+            Explore finished examples of our professional retouching work. Drag the slider on the fashion portrait to compare before and after.
           </p>
         </div>
 
@@ -34,14 +35,22 @@ export default function RetouchPortfolioPage() {
         <div className="grid md:grid-cols-2 gap-12">
           {retouchPortfolio.map((item) => (
             <div key={item.id} className="space-y-6">
-              <div className="relative aspect-[4/3] rounded-lg overflow-hidden">
-                <Image
-                  src={item.afterImage}
+              {item.beforeImage !== item.afterImage ? (
+                <BeforeAfterSlider
+                  beforeImage={item.beforeImage}
+                  afterImage={item.afterImage}
                   alt={item.title}
-                  fill
-                  className="object-cover"
                 />
-              </div>
+              ) : (
+                <div className="relative aspect-[4/3] rounded-lg overflow-hidden">
+                  <Image
+                    src={item.afterImage}
+                    alt={item.title}
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+              )}
 
               <div>
                 <div className="flex items-center justify-between mb-3">

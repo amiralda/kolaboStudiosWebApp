@@ -5,25 +5,25 @@ import { Calendar } from 'lucide-react'
 
 const blogPosts = [
   {
+    title: "Wedding Photography Trends for 2026",
+    date: "November 7, 2026",
+    excerpt: "2026 is the year wedding photography stopped chasing perfection — documentary storytelling, true-to-color editing, and real emotion lead the way.",
+    image: "/gallery/featured/hero (10).jpg",
+    slug: "wedding-trends-2026"
+  },
+  {
+    title: "Fashion Photography in 2026: Real Skin, Bold Light, Editorial Energy",
+    date: "November 7, 2026",
+    excerpt: "Over-retouching is out. Real texture, dramatic light, and portraits with personality are defining fashion photography in 2026.",
+    image: "/retouch/fashion-after.jpg",
+    slug: "fashion-photography-2026"
+  },
+  {
     title: "10 Tips for Your Perfect Engagement Session",
     date: "December 15, 2024",
     excerpt: "Make the most of your engagement photos with these professional tips...",
     image: "/home/romantic-engagement-couple.jpg",
     slug: "engagement-session-tips"
-  },
-  {
-    title: "Wedding Photography Trends for 2025",
-    date: "December 10, 2024",
-    excerpt: "Discover the latest trends shaping wedding photography this year...",
-    image: "/home/elegant-bride-portrait.png",
-    slug: "wedding-trends-2025"
-  },
-  {
-    title: "Preparing for Your Maternity Session",
-    date: "December 5, 2024",
-    excerpt: "Everything you need to know to prepare for beautiful maternity photos...",
-    image: "/home/beautiful-maternity-photo.png",
-    slug: "maternity-session-prep"
   }
 ]
 

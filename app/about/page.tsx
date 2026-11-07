@@ -4,17 +4,21 @@ const teamMembers = [
   {
     name: "Dany AUGUSTIN",
     role: "Lead Photographer & Founder",
-    bio: "With over 12 years of experience, Dany brings artistic vision and technical expertise to every shoot."
+    bio: "With over 12 years of experience, Dany brings artistic vision and technical expertise to every shoot.",
+    image: undefined
   },
   {
     name: "Edwin DOR",
     role: "Lead Retoucher",
-    bio: "Edwin specializes in candid moments and has a keen eye and finger for retouching authentic emotions."
+    bio: "Edwin specializes in candid moments and has a keen eye and finger for retouching authentic emotions.",
+    image: "/team/edwin.jpg"
   },
   {
     name: "Emma Rodriguez",
     role: "Creative Director",
-    bio: "Emma oversees the creative direction and ensures every project aligns with our artistic vision."
+    bio: "Emma oversees the creative direction and ensures every project aligns with our artistic vision.",
+    // Placeholder portrait until a real photo is available
+    image: "/team/emma.jpg"
   }
 ]
 
@@ -118,9 +122,18 @@ export default function AboutPage() {
             {teamMembers.map((member, index) => (
               <div key={index} className="text-center">
                 <div className="relative aspect-square mb-6 rounded-lg overflow-hidden bg-primary/10 flex items-center justify-center">
-                  <span className="text-6xl font-bold font-sora text-primary">
-                    {member.name.split(' ').map((n) => n[0]).join('').slice(0, 2)}
-                  </span>
+                  {member.image ? (
+                    <Image
+                      src={member.image}
+                      alt={member.name}
+                      fill
+                      className="object-cover"
+                    />
+                  ) : (
+                    <span className="text-6xl font-bold font-sora text-primary">
+                      {member.name.split(' ').map((n) => n[0]).join('').slice(0, 2)}
+                    </span>
+                  )}
                 </div>
                 <h3 className="text-xl font-semibold mb-2 font-sora">{member.name}</h3>
                 <p className="text-primary font-medium mb-4">{member.role}</p>
