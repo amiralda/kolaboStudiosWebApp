@@ -26,10 +26,7 @@ export function useInfiniteScroll({ photos, itemsPerPage = 12 }: UseInfiniteScro
     if (isLoading || !hasMore) return
 
     setIsLoading(true)
-    
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 500))
-    
+
     const startIndex = page * itemsPerPage
     const endIndex = startIndex + itemsPerPage
     const newPhotos = photos.slice(startIndex, endIndex)

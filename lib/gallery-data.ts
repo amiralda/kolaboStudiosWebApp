@@ -1210,20 +1210,8 @@ export const galleryData: Record<string, GalleryCategory> = {
     description:
       "Quick and beautiful photography sessions perfect for families and couples.",
     heroImage: "/home/couple-laughing.png",
-    totalPhotos: 3,
+    totalPhotos: 2,
     photos: [
-      {
-        id: "mini1",
-        src: "/home/couple-laughing.png",
-        alt: "Mini session couple laughing",
-        title: "Joyful Mini Session",
-        date: "2024-09-28",
-        location: "South Jersey",
-        tags: ["mini-session", "couple", "candid"],
-        featured: true,
-        order: 1,
-        uploadedAt: "2024-09-28T11:00:00Z",
-      },
       {
         id: "mini2",
         src: "/gallery/3456.jpg",
