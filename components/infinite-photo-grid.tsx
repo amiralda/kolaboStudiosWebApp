@@ -41,33 +41,38 @@ export function InfinitePhotoGrid({ photos, category }: InfinitePhotoGridProps) 
 
   return (
     <>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-4">
         {displayedPhotos.map((photo) => (
           <div
             key={photo.id}
-            className="relative aspect-[3/4] cursor-pointer group overflow-hidden rounded-lg"
+            className="relative aspect-[3/4] cursor-pointer group overflow-hidden rounded-2xl"
             onClick={() => openLightbox(photo)}
           >
             <Image
               src={photo.src || "/placeholder.svg"}
               alt={photo.alt}
               fill
-              className="object-cover transition-transform duration-300 group-hover:scale-105"
+              className="object-cover transition-transform duration-500 group-hover:scale-105"
               loading="lazy"
             />
-            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors duration-300" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             
             {/* Photo overlay info */}
             <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
               <div className="absolute bottom-4 left-4 right-4 text-white">
+                {photo.categoryLabel && (
+                  <span className="inline-block text-[11px] uppercase tracking-[0.2em] bg-white/20 backdrop-blur px-2.5 py-1 rounded-full mb-2">
+                    {photo.categoryLabel}
+                  </span>
+                )}
                 {photo.title && (
-                  <h3 className="font-semibold text-sm mb-1 bg-black/50 px-2 py-1 rounded">
+                  <h3 className="font-semibold font-sora text-sm md:text-base leading-snug drop-shadow">
                     {photo.title}
                   </h3>
                 )}
-                {photo.date && (
-                  <p className="text-xs bg-black/50 px-2 py-1 rounded inline-block">
-                    {new Date(photo.date).toLocaleDateString()}
+                {photo.location && (
+                  <p className="text-xs text-white/80 mt-0.5">
+                    {photo.location}
                   </p>
                 )}
               </div>

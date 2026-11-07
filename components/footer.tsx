@@ -110,7 +110,7 @@ export function Footer() {
           {/* Contact Info & Social */}
           <div>
             <Image
-              src="/logo-light.png"
+              src="/logo-light.png?v=2"
               alt="Kolabo Studios"
               width={535}
               height={156}
