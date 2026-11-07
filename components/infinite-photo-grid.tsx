@@ -4,7 +4,7 @@ import { useState } from 'react'
 import Image from 'next/image'
 import { Dialog, DialogContent } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
-import { ChevronLeft, ChevronRight, X } from 'lucide-react'
+import { Camera, ChevronLeft, ChevronRight, X } from 'lucide-react'
 import { useInfiniteScroll } from '@/hooks/use-infinite-scroll'
 import type { PhotoMetadata } from '@/lib/gallery-data'
 
@@ -92,10 +92,28 @@ export function InfinitePhotoGrid({ photos, category }: InfinitePhotoGridProps) 
       {/* Infinite scroll sentinel */}
       {hasMore && <div id="scroll-sentinel" className="h-4" />}
 
-      {/* End of photos message */}
+      {/* End of gallery — elegant closer */}
       {!hasMore && displayedPhotos.length > 0 && (
-        <div className="text-center py-8">
-          <p className="text-muted-foreground">You've seen all {photos.length} photos in this gallery</p>
+        <div className="text-center py-10">
+          <div className="flex items-center justify-center gap-3 mb-4">
+            <span className="h-px w-12 bg-primary/40" />
+            <Camera className="h-5 w-5 text-primary" />
+            <span className="h-px w-12 bg-primary/40" />
+          </div>
+          <p className="font-sora text-xl md:text-2xl font-semibold">
+            Every Moment. Perfectly Captured.
+          </p>
+          <p className="text-muted-foreground mt-2">
+            See more on Instagram{' '}
+            <a
+              href="https://www.instagram.com/kolabostudios"
+              target="_blank"
+              rel="noreferrer"
+              className="text-primary hover:underline font-medium"
+            >
+              @kolabostudios
+            </a>
+          </p>
         </div>
       )}
 
