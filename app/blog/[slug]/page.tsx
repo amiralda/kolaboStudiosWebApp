@@ -11,7 +11,7 @@ const getBlogPost = (slug: string) => {
       title: "10 Tips for Your Perfect Engagement Session",
       date: "December 15, 2024",
       author: "Sarah Johnson",
-      image: "/placeholder.svg?height=400&width=800",
+      image: "/home/romantic-engagement-couple.jpg",
       category: "Tips & Advice",
       content: `
         <p>Your engagement session is one of the most exciting photo shoots you'll ever have! It's a chance to celebrate your love story and create beautiful images that you'll treasure forever. Here are our top 10 tips to help you make the most of your engagement photography session.</p>

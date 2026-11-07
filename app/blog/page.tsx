@@ -8,7 +8,7 @@ const blogPosts = [
     date: "December 15, 2024",
     author: "Sarah Johnson",
     excerpt: "Make the most of your engagement photos with these professional tips that will help you feel comfortable and look amazing in front of the camera.",
-    image: "/placeholder.svg?height=300&width=500",
+    image: "/home/romantic-engagement-couple.jpg",
     slug: "engagement-session-tips",
     category: "Tips & Advice"
   },
@@ -17,7 +17,7 @@ const blogPosts = [
     date: "December 10, 2024",
     author: "Michael Chen",
     excerpt: "Discover the latest trends shaping wedding photography this year, from candid documentary styles to creative lighting techniques.",
-    image: "/placeholder.svg?height=300&width=500",
+    image: "/home/elegant-bride-portrait.png",
     slug: "wedding-trends-2025",
     category: "Trends"
   },
@@ -26,7 +26,7 @@ const blogPosts = [
     date: "December 5, 2024",
     author: "Emma Rodriguez",
     excerpt: "Everything you need to know to prepare for beautiful maternity photos, including outfit suggestions and timing recommendations.",
-    image: "/placeholder.svg?height=300&width=500",
+    image: "/home/beautiful-maternity-photo.png",
     slug: "maternity-session-prep",
     category: "Maternity"
   },
@@ -35,7 +35,7 @@ const blogPosts = [
     date: "November 28, 2024",
     author: "Sarah Johnson",
     excerpt: "Learn how to create the perfect wedding day timeline that allows for stunning photos while keeping your celebration on track.",
-    image: "/placeholder.svg?height=300&width=500",
+    image: "/home/gallery-4.png",
     slug: "wedding-timeline-planning",
     category: "Wedding Planning"
   },
@@ -44,7 +44,7 @@ const blogPosts = [
     date: "November 20, 2024",
     author: "Michael Chen",
     excerpt: "Discover how to select locations that complement your style and create the perfect backdrop for your photography session.",
-    image: "/placeholder.svg?height=300&width=500",
+    image: "/home/couple-laughing.png",
     slug: "choosing-photo-locations",
     category: "Tips & Advice"
   },
@@ -53,7 +53,7 @@ const blogPosts = [
     date: "November 15, 2024",
     author: "Emma Rodriguez",
     excerpt: "Get ready for your photography consultation with this guide to what we'll discuss and how to prepare for your session.",
-    image: "/placeholder.svg?height=300&width=500",
+    image: "/gallery/featured/hero (1).jpg",
     slug: "first-consultation-guide",
     category: "Getting Started"
   }

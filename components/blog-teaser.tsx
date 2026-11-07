@@ -8,21 +8,21 @@ const blogPosts = [
     title: "10 Tips for Your Perfect Engagement Session",
     date: "December 15, 2024",
     excerpt: "Make the most of your engagement photos with these professional tips...",
-    image: "/placeholder.svg?height=300&width=400",
+    image: "/home/romantic-engagement-couple.jpg",
     slug: "engagement-session-tips"
   },
   {
     title: "Wedding Photography Trends for 2025",
     date: "December 10, 2024",
     excerpt: "Discover the latest trends shaping wedding photography this year...",
-    image: "/placeholder.svg?height=300&width=400",
+    image: "/home/elegant-bride-portrait.png",
     slug: "wedding-trends-2025"
   },
   {
     title: "Preparing for Your Maternity Session",
     date: "December 5, 2024",
     excerpt: "Everything you need to know to prepare for beautiful maternity photos...",
-    image: "/placeholder.svg?height=300&width=400",
+    image: "/home/beautiful-maternity-photo.png",
     slug: "maternity-session-prep"
   }
 ]
