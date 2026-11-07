@@ -11,7 +11,10 @@ import {
 } from "@/components/ui/dialog";
 import { Phone, MessageCircle, MessageSquareText, X, Globe } from "lucide-react";
 
-const PHONE = process.env.NEXT_PUBLIC_PHONE_E164 ?? "";
+// Business number (E.164). Env vars override when set; the published business
+// number is the fallback so the buttons never render with an empty number.
+const FALLBACK_PHONE_E164 = "+18565955203";
+const PHONE = process.env.NEXT_PUBLIC_PHONE_E164 || FALLBACK_PHONE_E164;
 const WA_DIGITS = (process.env.NEXT_PUBLIC_WHATSAPP_E164 ?? PHONE).replace(/\D/g, "");
 
 type Lang = "en" | "fr" | "es" | "ht";
@@ -79,7 +82,7 @@ export default function ContactFAB() {
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent hideCloseButton className="sm:max-w-[420px] rounded-2xl border bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl">
           <DialogHeader>
-            <DialogTitle className="text-center">{LABELS[lang].title}</DialogTitle>
+            <DialogTitle className="text-center pt-10">{LABELS[lang].title}</DialogTitle>
 
             {/* one and only Close button */}
             <DialogClose asChild>
