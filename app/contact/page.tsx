@@ -18,26 +18,45 @@ export default function ContactPage() {
     message: ''
   })
   const [selectedDate, setSelectedDate] = useState<Date>()
-  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle')
+  const [submissionError, setSubmissionError] = useState<string | null>(null)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setIsSubmitting(true)
-    
-    // Simulate form submission
-    await new Promise(resolve => setTimeout(resolve, 1000))
-    
-    console.log('Form submitted:', {
-      ...formData,
-      preferredDate: selectedDate
-    })
-    
-    // Reset form
-    setFormData({ name: '', email: '', shootType: '', message: '' })
-    setSelectedDate(undefined)
-    setIsSubmitting(false)
-    
-    alert('Thank you for your inquiry! We\'ll get back to you within 24 hours.')
+    setStatus('submitting')
+    setSubmissionError(null)
+
+    try {
+      const message = selectedDate
+        ? `${formData.message}\n\nPreferred date: ${format(selectedDate, 'PPP')}`
+        : formData.message
+
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: formData.name,
+          email: formData.email,
+          message,
+          serviceType: formData.shootType || 'other',
+          // Honeypot — leave empty. Bots fill it; the API drops those submissions.
+          company: '',
+        }),
+      })
+
+      if (!response.ok) {
+        const data = await response.json().catch(() => ({}))
+        throw new Error(data.error || 'Unable to send message right now.')
+      }
+
+      // Reset form
+      setFormData({ name: '', email: '', shootType: '', message: '' })
+      setSelectedDate(undefined)
+      setStatus('success')
+    } catch (err) {
+      setStatus('error')
+      setSubmissionError(err instanceof Error ? err.message : 'Something went wrong. Please try again.')
+    }
   }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -153,21 +172,32 @@ export default function ContactPage() {
                 />
               </div>
 
-              <Button 
-                type="submit" 
-                size="lg" 
+              <Button
+                type="submit"
+                size="lg"
                 className="w-full bg-primary hover:bg-primary/90"
-                disabled={isSubmitting}
+                disabled={status === 'submitting'}
               >
-                {isSubmitting ? 'Sending...' : 'Send Message'}
+                {status === 'submitting' ? 'Sending...' : 'Send Message'}
               </Button>
+
+              {status === 'success' && (
+                <p className="text-sm text-green-700 bg-green-50 border border-green-200 rounded-md p-3">
+                  Thank you for your inquiry! We&apos;ll get back to you within 24 hours.
+                </p>
+              )}
+              {status === 'error' && (
+                <p className="text-sm text-red-700 bg-red-50 border border-red-200 rounded-md p-3">
+                  {submissionError}
+                </p>
+              )}
             </form>
           </div>
 
           {/* Contact Information */}
           <div>
             <h2 className="text-2xl font-semibold mb-6 font-sora">Get In Touch</h2>
-            
+
             <div className="space-y-6 mb-8">
               <div className="flex items-start">
                 <MapPin className="h-6 w-6 text-primary mr-4 mt-1" />
@@ -179,7 +209,7 @@ export default function ContactPage() {
                   </p>
                 </div>
               </div>
-              
+
               <div className="flex items-start">
                 <Phone className="h-6 w-6 text-primary mr-4 mt-1" />
                 <div>
@@ -187,7 +217,7 @@ export default function ContactPage() {
                   <p className="text-muted-foreground">(856) 595-5203</p>
                 </div>
               </div>
-              
+
               <div className="flex items-start">
                 <Mail className="h-6 w-6 text-primary mr-4 mt-1" />
                 <div>
