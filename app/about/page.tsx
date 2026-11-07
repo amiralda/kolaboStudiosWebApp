@@ -5,7 +5,7 @@ const teamMembers = [
     name: "Dany AUGUSTIN",
     role: "Lead Photographer & Founder",
     bio: "With over 12 years of experience, Dany brings artistic vision and technical expertise to every shoot.",
-    image: undefined
+    image: "/team/dany.jpg"
   },
   {
     name: "Edwin DOR",
@@ -64,7 +64,7 @@ export default function AboutPage() {
                   best photographs come from genuine connections and authentic moments.
                 </p>
                 <p>
-                  Based in South Jersey, we serve couples and families throughout the region, 
+                  Based in New Jersey &middot; Haiti, we serve couples and families throughout the region, 
                   bringing our artistic vision and technical expertise to every shoot. Our goal 
                   is to create timeless images that you'll treasure for generations to come.
                 </p>

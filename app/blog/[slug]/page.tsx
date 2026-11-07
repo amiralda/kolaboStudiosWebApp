@@ -2,7 +2,6 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { Calendar, User, ArrowLeft } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { sanitizeHtml } from '@/lib/validation'
 
 // This would typically come from a CMS or database
 const getBlogPost = (slug: string) => {
@@ -15,6 +14,11 @@ const getBlogPost = (slug: string) => {
       category: "Tips & Advice",
       content: `
         <p>Your engagement session is one of the most exciting photo shoots you'll ever have! It's a chance to celebrate your love story and create beautiful images that you'll treasure forever. Here are our top 10 tips to help you make the most of your engagement photography session.</p>
+
+        <figure class="my-10">
+          <img src="/gallery/instagram/ig-64.jpg" alt="Couple holding hands, foreheads touching" class="rounded-xl w-full" />
+          <figcaption class="text-center text-sm text-muted-foreground mt-3">An engagement moment, photographed by Kolabo Studios.</figcaption>
+        </figure>
 
         <h2>1. Choose Meaningful Locations</h2>
         <p>Select locations that have significance to your relationship. Whether it's where you first met, had your first date, or got engaged, meaningful locations will make your photos more personal and emotionally resonant.</p>
@@ -46,7 +50,12 @@ const getBlogPost = (slug: string) => {
         <h2>10. Trust the Process</h2>
         <p>Your photographer is there to guide you and capture your best moments. Trust their expertise and enjoy the experience of celebrating your love together.</p>
 
-        <p>Remember, your engagement session is about celebrating this special time in your lives. Relax, have fun, and let your love shine through - that's when the magic happens!</p>
+        <p>Remember, your engagement session is about celebrating
+
+        <figure class="my-10">
+          <img src="/home/couple-laughing.png" alt="A couple laughing during a session" class="rounded-xl w-full" />
+          <figcaption class="text-center text-sm text-muted-foreground mt-3">Real laughter beats perfect posing, every time.</figcaption>
+        </figure> this special time in your lives. Relax, have fun, and let your love shine through - that's when the magic happens!</p>
       `
     },
     'wedding-trends-2025': {
@@ -57,6 +66,11 @@ const getBlogPost = (slug: string) => {
       category: "Trends",
       content: `
         <p>Wedding photography keeps evolving, and 2025 brought a clear direction: photos that feel real. Couples asked for less posing and more honesty — images that look like their day actually felt. Here are the trends that defined 2025.</p>
+
+        <figure class="my-10">
+          <img src="/gallery/instagram/ig-55c.jpg" alt="Bride in white against a blue backdrop" class="rounded-xl w-full" />
+          <figcaption class="text-center text-sm text-muted-foreground mt-3">Studio bridal portrait.</figcaption>
+        </figure>
 
         <h2>1. Candid, Documentary-Style Coverage</h2>
         <p>The biggest shift of 2025 was toward documentary coverage. Instead of directing every moment, photographers stayed observant — catching the laugh between vows, the nervous hand-squeeze, the tear nobody planned. The result is a gallery that reads like a story, not a checklist.</p>
@@ -73,7 +87,12 @@ const getBlogPost = (slug: string) => {
         <h2>5. Smaller, More Intimate Weddings</h2>
         <p>Micro weddings kept growing. With fewer guests, photographers could spend real time with each person, and couples got galleries full of genuine moments instead of rushed group shots.</p>
 
-        <p>The thread through all of it: authenticity. The trends that lasted in 2025 were the ones that put the couple's real story first — and that is exactly how we shoot at Kolabo Studios.</p>
+        <p>The thread through all of it: authenticity.
+
+        <figure class="my-10">
+          <img src="/gallery/instagram/ig-58.jpg" alt="Veiled bride" class="rounded-xl w-full" />
+          <figcaption class="text-center text-sm text-muted-foreground mt-3">A veiled bride, photographed by Kolabo Studios.</figcaption>
+        </figure> The trends that lasted in 2025 were the ones that put the couple's real story first — and that is exactly how we shoot at Kolabo Studios.</p>
       `
     },
     'maternity-session-prep': {
@@ -84,6 +103,11 @@ const getBlogPost = (slug: string) => {
       category: "Maternity",
       content: `
         <p>A maternity session celebrates one of the most beautiful chapters of your life. A little preparation goes a long way toward photos you'll treasure forever. Here's everything you need to know before your session.</p>
+
+        <figure class="my-10">
+          <img src="/gallery/instagram/ig-53c.jpg" alt="Expecting mother, arms wide" class="rounded-xl w-full" />
+          <figcaption class="text-center text-sm text-muted-foreground mt-3">A maternity portrait from our studio.</figcaption>
+        </figure>
 
         <h2>When to Schedule</h2>
         <p>The sweet spot is between 28 and 36 weeks — your bump is beautifully round, and you're usually still comfortable moving around. Book early, though: the best dates go fast, especially in spring and fall.</p>
@@ -100,7 +124,12 @@ const getBlogPost = (slug: string) => {
         <h2>Rest Beforehand</h2>
         <p>Get a good night's sleep, drink plenty of water, and eat something light before the session. Comfortable shoes for walking between locations help too — we'll handle the rest.</p>
 
-        <p>Most of all, relax. The best maternity photos happen when you feel comfortable and confident. Come as you are, and let us capture this incredible moment in your life.</p>
+        <p>Most of all, relax.
+
+        <figure class="my-10">
+          <img src="/gallery/instagram/ig-03.jpg" alt="Maternity portrait" class="rounded-xl w-full" />
+          <figcaption class="text-center text-sm text-muted-foreground mt-3">Celebrating motherhood.</figcaption>
+        </figure> The best maternity photos happen when you feel comfortable and confident. Come as you are, and let us capture this incredible moment in your life.</p>
       `
     },
     'wedding-timeline-planning': {
@@ -111,6 +140,11 @@ const getBlogPost = (slug: string) => {
       category: "Wedding Planning",
       content: `
         <p>A great wedding day timeline does two things: it keeps your celebration running smoothly, and it gives your photographer the time to make stunning photos. Here's how to build one that works.</p>
+
+        <figure class="my-10">
+          <img src="/gallery/featured/hero (3).jpg" alt="Bridal details" class="rounded-xl w-full" />
+          <figcaption class="text-center text-sm text-muted-foreground mt-3">The details matter as much as the big moments.</figcaption>
+        </figure>
 
         <h2>Start with the Light</h2>
         <p>Work backward from sunset. Golden hour is the best light of the day, so plan your couple portraits for the hour before sunset when possible. If your ceremony is at 4 PM in October, that golden window is right after — perfect timing.</p>
@@ -127,7 +161,12 @@ const getBlogPost = (slug: string) => {
         <h2>Reception: Let It Flow</h2>
         <p>Once the party starts, the best photos are candid. Build your timeline around the big moments — first dance, toasts, cake cutting — and let the rest happen naturally.</p>
 
-        <p>Share your timeline with your photographer early. We can spot the tight spots, suggest a better order, and make sure the light is on your side all day long.</p>
+        <p>Share your timeline with your photographer early.
+
+        <figure class="my-10">
+          <img src="/gallery/instagram/ig-65c.jpg" alt="Bride and groom at the reception" class="rounded-xl w-full" />
+          <figcaption class="text-center text-sm text-muted-foreground mt-3">Bride and groom at the reception.</figcaption>
+        </figure> We can spot the tight spots, suggest a better order, and make sure the light is on your side all day long.</p>
       `
     },
     'choosing-photo-locations': {
@@ -138,6 +177,11 @@ const getBlogPost = (slug: string) => {
       category: "Tips & Advice",
       content: `
         <p>The location of your photo session shapes everything — the light, the mood, the story your photos tell. Here's how to choose a spot that fits you.</p>
+
+        <figure class="my-10">
+          <img src="/gallery/instagram/ig-21.jpg" alt="White dress in the garden" class="rounded-xl w-full" />
+          <figcaption class="text-center text-sm text-muted-foreground mt-3">A portrait in the garden.</figcaption>
+        </figure>
 
         <h2>Start with Meaning</h2>
         <p>The best locations mean something to you. The park where you had your first date, the beach you visit every summer, the street where you got engaged — photos in meaningful places carry an emotion no pretty backdrop can fake.</p>
@@ -154,7 +198,12 @@ const getBlogPost = (slug: string) => {
         <h2>Keep It Close to Home</h2>
         <p>You don't need to travel far for beautiful photos. South Jersey and the Philadelphia area are full of gorgeous spots — from the gardens of Longwood to the beaches of Cape May. Sometimes the best location is fifteen minutes away.</p>
 
-        <p>Not sure where to go? Tell us what you love, and we'll suggest locations that match your style. That's part of the job — and one of our favorite parts.</p>
+        <p>Not sure where to go?
+
+        <figure class="my-10">
+          <img src="/gallery/instagram/ig-13.jpg" alt="Rust dress by the brick wall" class="rounded-xl w-full" />
+          <figcaption class="text-center text-sm text-muted-foreground mt-3">Portrait against a brick wall.</figcaption>
+        </figure> Tell us what you love, and we'll suggest locations that match your style. That's part of the job — and one of our favorite parts.</p>
       `
     },
     'first-consultation-guide': {
@@ -165,6 +214,11 @@ const getBlogPost = (slug: string) => {
       category: "Getting Started",
       content: `
         <p>Booking a photographer starts with a conversation — your first consultation. Here's what happens, what we'll ask, and how to get the most out of it.</p>
+
+        <figure class="my-10">
+          <img src="/gallery/instagram/ig-05.jpg" alt="Beauty close-up with dramatic gold eye makeup" class="rounded-xl w-full" />
+          <figcaption class="text-center text-sm text-muted-foreground mt-3">Editorial beauty, photographed in the studio.</figcaption>
+        </figure>
 
         <h2>It's a Conversation, Not an Interview</h2>
         <p>We'll talk about your day: the venue, the schedule, the people, the moments that matter most to you. We want to understand your story, not just your date and budget.</p>
@@ -181,7 +235,12 @@ const getBlogPost = (slug: string) => {
         <h2>Packages and Pricing</h2>
         <p>We'll explain every package clearly — what's included, how many hours, how many photos, and what the deposit holds. No hidden fees, no surprises. You'll leave knowing exactly what you're getting.</p>
 
-        <p>By the end of the consultation, you should feel confident and excited — not pressured. If we're the right fit, we'll say so. If not, we'll tell you that too. The consultation is free, and there's never any obligation.</p>
+        <p>By the end of the consultation,
+
+        <figure class="my-10">
+          <img src="/gallery/instagram/ig-15.jpg" alt="Black and white portrait" class="rounded-xl w-full" />
+          <figcaption class="text-center text-sm text-muted-foreground mt-3">Black and white portrait study.</figcaption>
+        </figure> you should feel confident and excited — not pressured. If we're the right fit, we'll say so. If not, we'll tell you that too. The consultation is free, and there's never any obligation.</p>
       `
     },
     'wedding-trends-2026': {
@@ -192,6 +251,11 @@ const getBlogPost = (slug: string) => {
       category: "Trends",
       content: `
         <p>2026 is the year wedding photography stopped chasing perfection. Across the industry, photographers and couples agree: the photos that matter are the real ones — unposed, emotional, a little imperfect, and completely yours. Here is what is actually trending in 2026.</p>
+
+        <figure class="my-10">
+          <img src="/gallery/instagram/ig-57.jpg" alt="Bride with red bouquet" class="rounded-xl w-full" />
+          <figcaption class="text-center text-sm text-muted-foreground mt-3">A bride with a red bouquet.</figcaption>
+        </figure>
 
         <h2>1. Documentary Storytelling Leads the Way</h2>
         <p>Photojournalistic, candid coverage is the dominant style of 2026. Industry reporting found that 67% of couples now explicitly prioritize natural, unposed coverage over formal posing. The goal is a gallery that reads like the day felt — not a series of performances for the camera.</p>
@@ -211,7 +275,12 @@ const getBlogPost = (slug: string) => {
         <h2>6. Smaller Weddings, Bigger Albums</h2>
         <p>Micro weddings (20–40 guests) have moved from pandemic necessity to genuine preference. And with digital fatigue setting in, physical albums and coffee-table books are making a real comeback — something you can hold and pass on.</p>
 
-        <p>At Kolabo Studios, this is how we have always shot: real emotion first, beautiful light second, and never a moment forced. If 2026's trends sound like your wedding, let's talk.</p>
+        <p>At Kolabo Studios, this is how we have always shot:
+
+        <figure class="my-10">
+          <img src="/gallery/instagram/ig-55c.jpg" alt="Bride in white against a blue backdrop" class="rounded-xl w-full" />
+          <figcaption class="text-center text-sm text-muted-foreground mt-3">Studio bridal portrait.</figcaption>
+        </figure> real emotion first, beautiful light second, and never a moment forced. If 2026's trends sound like your wedding, let's talk.</p>
 
         <p><em>Further reading: <a href="https://greenweddingshoes.com/wedding-photography-trends/">Green Wedding Shoes — 2026 Wedding Photography Trends</a> · <a href="https://martamayphotography.co.uk/2026-wedding-photography-trends/">Marta May Photography — 2026 Wedding Photography Trends</a> · <a href="https://rosevow.com/photography/wedding-photography-trends-2026">RoseVow — Wedding Photography Trends 2026</a></em></p>
       `
@@ -224,6 +293,11 @@ const getBlogPost = (slug: string) => {
       category: "Trends",
       content: `
         <p>Fashion photography in 2026 is having an honest moment. The over-retouched, over-perfect look that dominated the last decade is fading — and what is replacing it is more interesting: real texture, dramatic light, and portraits that show personality, not just clothes.</p>
+
+        <figure class="my-10">
+          <img src="/retouch/fashion-before.jpg" alt="Portrait before retouching" class="rounded-xl w-full" />
+          <figcaption class="text-center text-sm text-muted-foreground mt-3">Before retouching — the same portrait, straight out of camera.</figcaption>
+        </figure>
 
         <h2>1. The Backlash Against Over-Retouching</h2>
         <p>Images that read as over-retouched are starting to read as forgettable. The strongest fashion work of 2026 keeps real skin texture — freckles, pores, character — and lets the subject look like a person, not a rendering. This is exactly the philosophy behind our retouching: enhance, never erase.</p>
@@ -242,6 +316,11 @@ const getBlogPost = (slug: string) => {
 
         <h2>What This Means for Your Portrait Session</h2>
         <p>You don't need a fashion-week budget to get an editorial look. A portrait session with dramatic light, honest retouching, and a photographer who directs for confidence — not for perfection — gives you images with the same energy. That is what we bring to every portrait, engagement, and fashion session at Kolabo Studios.</p>
+
+        <figure class="my-10">
+          <img src="/gallery/instagram/ig-24.jpg" alt="Blue gown, seated" class="rounded-xl w-full" />
+          <figcaption class="text-center text-sm text-muted-foreground mt-3">Editorial portrait in a blue gown.</figcaption>
+        </figure>
 
         <p><em>Further reading: <a href="https://premierportraits.com.au/editorial-fashion-photography-trends-2026-melbourne-models-agents/">Premier Portraits — Fashion Photography Trends 2026</a> · <a href="https://www.thepictureframes.com/blog-single.php?slug=fashion-photography-trends-in-2026-the-styles-lighting-creative-ideas-defining-modern-fashion">The Picture Frames — Fashion Photography Trends in 2026</a> · <a href="https://blog.evoto.ai/editorial-fashion-photography-tips-for-fasion-week/">Evoto — Editorial Fashion Photography 2026</a></em></p>
       `
@@ -267,7 +346,10 @@ export default function BlogPostPage({ params }: { params: { slug: string } }) {
     )
   }
 
-  const safeContent = sanitizeHtml(post.content)
+  // Blog content is static, authored in this file (no user input), so it is
+  // rendered as-is. (Do NOT run it through the HTML escaper — that escapes
+  // every tag and the article renders as literal "<h2>..." text.)
+  const safeContent = post.content
 
   return (
     <div className="pt-16 min-h-screen">
