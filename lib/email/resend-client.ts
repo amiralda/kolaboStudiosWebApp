@@ -111,7 +111,7 @@ export async function sendContactConfirmation(data: ContactEmailData) {
     const message = escapeHtml(data.message)
 
     const { data: emailData, error } = await resend.emails.send({
-      from: "Kolabo Studios <hello@kolabostudios.com>",
+      from: "Kolabo Studios <noreply@kolabostudios.com>",
       to: [data.email],
       subject: "Thank you for contacting Kolabo Studios",
       html: `
