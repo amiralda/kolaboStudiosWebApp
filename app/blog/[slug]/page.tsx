@@ -10,7 +10,7 @@ const getBlogPost = (slug: string) => {
     'engagement-session-tips': {
       title: "10 Tips for Your Perfect Engagement Session",
       date: "December 15, 2024",
-      author: "Sarah Johnson",
+      author: "Dany Augustin",
       image: "/home/romantic-engagement-couple.jpg",
       category: "Tips & Advice",
       content: `

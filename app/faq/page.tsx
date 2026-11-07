@@ -11,7 +11,7 @@ const faqs = [
   {
     question: "How much do your photography packages cost?",
     answer:
-      "We tailor every package to your needs and budget whether you want something simple or full-day coverage. We have options for every wallet. Contact us for a custom quote and we’ll recommend the best fit for you."
+      "Portrait sessions start at $250 and family sessions at $300. Wedding, engagement, and maternity sessions are priced by coverage — see our Pricing page for the full list, or contact us and we’ll recommend the best fit for you."
   },
   {
     question: "How fast do we receive our photos?",

@@ -4,19 +4,16 @@ const teamMembers = [
   {
     name: "Dany AUGUSTIN",
     role: "Lead Photographer & Founder",
-    image: "/placeholder.svg?height=400&width=400",
     bio: "With over 12 years of experience, Dany brings artistic vision and technical expertise to every shoot."
   },
   {
     name: "Edwin DOR",
     role: "Lead Retoucher",
-    image: "/placeholder.svg?height=400&width=400",
     bio: "Edwin specializes in candid moments and has a keen eye and finger for retouching authentic emotions."
   },
   {
     name: "Emma Rodriguez",
     role: "Creative Director",
-    image: "/placeholder.svg?height=400&width=400",
     bio: "Emma oversees the creative direction and ensures every project aligns with our artistic vision."
   }
 ]
@@ -42,8 +39,8 @@ export default function AboutPage() {
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <div className="relative aspect-[4/5] rounded-lg overflow-hidden">
               <Image
-                src="/placeholder.svg?height=600&width=480"
-                alt="Kolabo Studios team at work"
+                src="/home/couple-laughing.png"
+                alt="A couple laughing during a Kolabo Studios session"
                 fill
                 className="object-cover"
               />
@@ -120,13 +117,10 @@ export default function AboutPage() {
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {teamMembers.map((member, index) => (
               <div key={index} className="text-center">
-                <div className="relative aspect-square mb-6 rounded-lg overflow-hidden">
-                  <Image
-                    src={member.image || "/placeholder.svg"}
-                    alt={member.name}
-                    fill
-                    className="object-cover"
-                  />
+                <div className="relative aspect-square mb-6 rounded-lg overflow-hidden bg-primary/10 flex items-center justify-center">
+                  <span className="text-6xl font-bold font-sora text-primary">
+                    {member.name.split(' ').map((n) => n[0]).join('').slice(0, 2)}
+                  </span>
                 </div>
                 <h3 className="text-xl font-semibold mb-2 font-sora">{member.name}</h3>
                 <p className="text-primary font-medium mb-4">{member.role}</p>

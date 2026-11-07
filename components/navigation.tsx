@@ -82,6 +82,13 @@ export function Navigation() {
             </Link>
 
             <Link
+              href="/pricing"
+              className="text-black hover:text-primary transition-colors"
+            >
+              Pricing
+            </Link>
+
+            <Link
               href="/retouch-services"
               className="text-black hover:text-primary transition-colors"
             >
@@ -182,6 +189,14 @@ export function Navigation() {
                 onClick={() => setIsOpen(false)}
               >
                 FAQ
+              </Link>
+
+              <Link
+                href="/pricing"
+                className="block px-3 py-2 text-black hover:text-primary transition-colors"
+                onClick={() => setIsOpen(false)}
+              >
+                Pricing
               </Link>
 
               <Link

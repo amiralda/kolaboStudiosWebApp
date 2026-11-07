@@ -1,10 +1,10 @@
-import { BeforeAfterSlider } from '@/components/before-after-slider'
+import Image from 'next/image'
 import { Badge } from '@/components/ui/badge'
 import { retouchPortfolio } from '@/lib/retouch-data'
 
 export const metadata = {
   title: 'Retouching Portfolio - Kolabo Studios',
-  description: 'See our professional photo retouching work. Before and after examples of wedding, portrait, and commercial photography retouching.',
+  description: 'See our professional photo retouching work. Finished examples of wedding, portrait, and maternity photography retouching.',
 }
 
 export default function RetouchPortfolioPage() {
@@ -16,8 +16,7 @@ export default function RetouchPortfolioPage() {
         <div className="text-center mb-12">
           <h1 className="text-4xl md:text-6xl font-bold mb-4 font-sora">Retouching Portfolio</h1>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Explore our before and after gallery showcasing the transformation 
-            our professional retouching brings to photography
+            Explore finished examples of our professional retouching work
           </p>
         </div>
 
@@ -35,22 +34,25 @@ export default function RetouchPortfolioPage() {
         <div className="grid md:grid-cols-2 gap-12">
           {retouchPortfolio.map((item) => (
             <div key={item.id} className="space-y-6">
-              <BeforeAfterSlider
-                beforeImage={item.beforeImage}
-                afterImage={item.afterImage}
-                alt={item.title}
-              />
-              
+              <div className="relative aspect-[4/3] rounded-lg overflow-hidden">
+                <Image
+                  src={item.afterImage}
+                  alt={item.title}
+                  fill
+                  className="object-cover"
+                />
+              </div>
+
               <div>
                 <div className="flex items-center justify-between mb-3">
                   <h2 className="text-xl font-semibold font-sora">{item.title}</h2>
                   <Badge variant="secondary">{item.category}</Badge>
                 </div>
-                
+
                 <p className="text-muted-foreground mb-4">
                   {item.description}
                 </p>
-                
+
                 <div>
                   <h3 className="text-sm font-medium mb-2">Techniques Used:</h3>
                   <div className="flex flex-wrap gap-2">

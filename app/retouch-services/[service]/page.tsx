@@ -96,32 +96,16 @@ export default function ServiceDetailPage({ params }: { params: { service: strin
                 <CardTitle className="font-sora">Sample Work</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div className="relative aspect-[4/3] rounded-lg overflow-hidden">
-                    <Image
-                      src="/placeholder.svg?height=300&width=400"
-                      alt="Before retouching sample"
-                      fill
-                      className="object-cover"
-                    />
-                    <div className="absolute bottom-2 left-2 bg-black/70 text-white px-2 py-1 rounded text-sm">
-                      Before
-                    </div>
-                  </div>
-                  <div className="relative aspect-[4/3] rounded-lg overflow-hidden">
-                    <Image
-                      src="/placeholder.svg?height=300&width=400"
-                      alt="After retouching sample"
-                      fill
-                      className="object-cover"
-                    />
-                    <div className="absolute bottom-2 left-2 bg-black/70 text-white px-2 py-1 rounded text-sm">
-                      After
-                    </div>
-                  </div>
+                <div className="relative aspect-[4/3] rounded-lg overflow-hidden">
+                  <Image
+                    src="/home/elegant-bride-portrait.png"
+                    alt="Sample of our retouching work"
+                    fill
+                    className="object-cover"
+                  />
                 </div>
                 <p className="text-sm text-muted-foreground mt-4">
-                  Sample {service.name.toLowerCase()} showing typical results you can expect.
+                  Sample of our retouching work — every image is hand-finished by our retouching team.
                 </p>
               </CardContent>
             </Card>
@@ -148,7 +132,7 @@ export default function ServiceDetailPage({ params }: { params: { service: strin
                   </div>
                   <div className="flex justify-between">
                     <span>Revisions:</span>
-                    <span className="font-medium">2 included</span>
+                    <span className="font-medium">{service.revisions} included</span>
                   </div>
                   <div className="flex justify-between">
                     <span>File formats:</span>

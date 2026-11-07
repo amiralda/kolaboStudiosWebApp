@@ -10,7 +10,7 @@ const stripePromise = loadStripe(
   (process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY as string) || ""
 );
 
-type ServiceKey = "wedding4" | "wedding8" | "engagement4" | "engagement5" | "maternity2";
+type ServiceKey = "wedding4" | "wedding8" | "engagement4" | "engagement5" | "maternity2" | "portrait2" | "family3";
 
 const SERVICES: Record<ServiceKey, { label: string; hours: number; priceUsd: number }> = {
   wedding4:     { label: "Wedding (4h)",      hours: 4, priceUsd: 1500 },
@@ -18,6 +18,8 @@ const SERVICES: Record<ServiceKey, { label: string; hours: number; priceUsd: num
   engagement4:  { label: "Engagement (4h)",   hours: 4, priceUsd: 900  },
   engagement5:  { label: "Engagement (5h)",   hours: 5, priceUsd: 1100 },
   maternity2:   { label: "Maternity (2h)",    hours: 2, priceUsd: 550  },
+  portrait2:    { label: "Portrait (2h)",     hours: 2, priceUsd: 250  },
+  family3:      { label: "Family (3h)",       hours: 3, priceUsd: 300  },
 };
 
 export default function BookingPage() {
@@ -53,7 +55,14 @@ export default function BookingPage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data?.error || "Checkout failed.");
       const stripe = await stripePromise;
-      await stripe?.redirectToCheckout({ sessionId: data.sessionId });
+      if (stripe) {
+        await stripe.redirectToCheckout({ sessionId: data.sessionId });
+      } else if (data.url) {
+        // No publishable key configured — fall back to the Checkout URL directly.
+        window.location.href = data.url;
+      } else {
+        throw new Error("Checkout could not be started.");
+      }
     } catch (e: any) {
       alert(e.message || "Something went wrong.");
       setLoading(false);

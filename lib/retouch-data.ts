@@ -7,6 +7,7 @@ export interface RetouchService {
   turnaroundTime: string
   features: string[]
   popular?: boolean
+  revisions: string
   category: 'basic' | 'standard' | 'premium' | 'custom'
 }
 
@@ -27,6 +28,7 @@ export const retouchServices: RetouchService[] = [
     description: 'Essential retouching services including exposure correction, color grading, and basic skin smoothing. Perfect for photographers who need quick, professional results.',
     shortDescription: 'Essential retouching with color correction and basic skin smoothing',
     price: 15,
+    revisions: '2',
     turnaroundTime: '24-48 hours',
     category: 'basic',
     features: [
@@ -45,6 +47,7 @@ export const retouchServices: RetouchService[] = [
     description: 'Comprehensive retouching including advanced skin work, body contouring, and detailed enhancement. Our most popular package for wedding and portrait photographers.',
     shortDescription: 'Comprehensive retouching with advanced skin work and body contouring',
     price: 25,
+    revisions: '3',
     turnaroundTime: '2-3 days',
     category: 'standard',
     popular: true,
@@ -65,6 +68,7 @@ export const retouchServices: RetouchService[] = [
     description: 'High-end retouching with artistic enhancement, complex compositing, and magazine-quality results. Perfect for commercial and fashion photographers.',
     shortDescription: 'High-end retouching with artistic enhancement and compositing',
     price: 45,
+    revisions: '5',
     turnaroundTime: '3-5 days',
     category: 'premium',
     features: [
@@ -86,6 +90,7 @@ export const retouchServices: RetouchService[] = [
     description: 'Tailored retouching solutions for unique projects. We work closely with you to achieve your specific vision and requirements.',
     shortDescription: 'Tailored retouching solutions for unique projects',
     price: 0, // Custom pricing
+    revisions: 'Unlimited',
     turnaroundTime: 'Varies',
     category: 'custom',
     features: [
@@ -105,8 +110,8 @@ export const retouchPortfolio: RetouchPortfolioItem[] = [
   {
     id: 'wedding-bride-1',
     title: 'Bridal Portrait Enhancement',
-    beforeImage: '/retouch-before-1.png',
-    afterImage: '/retouch-after-1.png',
+    beforeImage: '/home/elegant-bride-portrait.png',
+    afterImage: '/home/elegant-bride-portrait.png',
     category: 'Wedding',
     description: 'Complete bridal portrait retouching including skin perfection, dress enhancement, and background cleanup.',
     techniques: ['Frequency Separation', 'Color Grading', 'Background Cleanup', 'Dress Enhancement']
@@ -114,8 +119,8 @@ export const retouchPortfolio: RetouchPortfolioItem[] = [
   {
     id: 'engagement-couple-1',
     title: 'Engagement Session Retouch',
-    beforeImage: '/retouch-before-2.png',
-    afterImage: '/retouch-after-2.png',
+    beforeImage: '/home/romantic-engagement-couple.jpg',
+    afterImage: '/home/romantic-engagement-couple.jpg',
     category: 'Engagement',
     description: 'Natural skin retouching and color enhancement while maintaining authentic look.',
     techniques: ['Natural Skin Retouching', 'Color Correction', 'Eye Enhancement', 'Teeth Whitening']
@@ -123,8 +128,8 @@ export const retouchPortfolio: RetouchPortfolioItem[] = [
   {
     id: 'maternity-portrait-1',
     title: 'Maternity Portrait Perfection',
-    beforeImage: '/retouch-before-3.png',
-    afterImage: '/retouch-after-3.png',
+    beforeImage: '/home/beautiful-maternity-photo.png',
+    afterImage: '/home/beautiful-maternity-photo.png',
     category: 'Maternity',
     description: 'Gentle retouching emphasizing the beauty of pregnancy with artistic color grading.',
     techniques: ['Gentle Skin Work', 'Body Contouring', 'Artistic Color Grading', 'Background Enhancement']

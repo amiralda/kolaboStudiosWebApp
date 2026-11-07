@@ -6,7 +6,7 @@ const blogPosts = [
   {
     title: "10 Tips for Your Perfect Engagement Session",
     date: "December 15, 2024",
-    author: "Sarah Johnson",
+    author: "Dany Augustin",
     excerpt: "Make the most of your engagement photos with these professional tips that will help you feel comfortable and look amazing in front of the camera.",
     image: "/home/romantic-engagement-couple.jpg",
     slug: "engagement-session-tips",
@@ -15,7 +15,7 @@ const blogPosts = [
   {
     title: "Wedding Photography Trends for 2025",
     date: "December 10, 2024",
-    author: "Michael Chen",
+    author: "Dany Augustin",
     excerpt: "Discover the latest trends shaping wedding photography this year, from candid documentary styles to creative lighting techniques.",
     image: "/home/elegant-bride-portrait.png",
     slug: "wedding-trends-2025",
@@ -33,7 +33,7 @@ const blogPosts = [
   {
     title: "The Art of Wedding Day Timeline Planning",
     date: "November 28, 2024",
-    author: "Sarah Johnson",
+    author: "Dany Augustin",
     excerpt: "Learn how to create the perfect wedding day timeline that allows for stunning photos while keeping your celebration on track.",
     image: "/home/gallery-4.png",
     slug: "wedding-timeline-planning",
@@ -42,7 +42,7 @@ const blogPosts = [
   {
     title: "Choosing the Perfect Location for Your Photos",
     date: "November 20, 2024",
-    author: "Michael Chen",
+    author: "Dany Augustin",
     excerpt: "Discover how to select locations that complement your style and create the perfect backdrop for your photography session.",
     image: "/home/couple-laughing.png",
     slug: "choosing-photo-locations",

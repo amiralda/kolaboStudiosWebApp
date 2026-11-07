@@ -135,7 +135,7 @@ export function Footer() {
             </div>
 
             <div className="text-sm text-white/60">
-              <p>&copy; 2025 Kolabo Studios. All rights reserved.</p>
+              <p>&copy; 2026 Kolabo Studios. All rights reserved.</p>
             </div>
           </div>
         </div>

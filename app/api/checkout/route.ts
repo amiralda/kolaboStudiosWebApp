@@ -30,6 +30,15 @@ const SERVER_PRICES_USD: Record<string, number> = {
   "engagement-5h": 1100,
   maternity: 550,
   "maternity-2h": 550,
+  // Exact keys used by /booking (exact match beats the prefix fallback below,
+  // so the deposit charged always matches the price shown on the booking page)
+  wedding4: 1500,
+  wedding8: 2800,
+  engagement4: 900,
+  engagement5: 1100,
+  maternity2: 550,
+  portrait: 250,
+  family: 300,
 }
 
 const ALLOWED_SERVICES = new Set(Object.keys(SERVER_PRICES_USD))

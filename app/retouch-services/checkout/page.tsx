@@ -224,7 +224,7 @@ export default function CheckoutPage() {
                 </div>
                 <div className="flex items-center text-sm">
                   <CheckCircle className="h-4 w-4 mr-2 text-primary" />
-                  <span>2 revisions included</span>
+                  <span>{service.revisions === 'Unlimited' ? 'Unlimited revisions included' : `${service.revisions} revisions included`}</span>
                 </div>
                 {paymentData.rushDelivery && (
                   <div className="flex items-center text-sm">
