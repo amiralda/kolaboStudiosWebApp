@@ -2,13 +2,8 @@
 "use client";
 
 import React from "react";
-import { loadStripe } from "@stripe/stripe-js";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-
-const stripePromise = loadStripe(
-  // Publishable key can be exposed via NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY if you prefer
-  (process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY as string) || ""
-);
 
 type ServiceKey = "wedding4" | "wedding8" | "engagement4" | "engagement5" | "maternity2" | "portrait2" | "family3";
 
@@ -23,116 +18,191 @@ const SERVICES: Record<ServiceKey, { label: string; hours: number; priceUsd: num
 };
 
 export default function BookingPage() {
+  const router = useRouter();
   const [service, setService] = React.useState<ServiceKey>("wedding4");
+  const [name, setName] = React.useState<string>("");
+  const [clientEmail, setClientEmail] = React.useState<string>("");
+  const [phone, setPhone] = React.useState<string>("");
   const [date, setDate] = React.useState<string>("");
   const [time, setTime] = React.useState<string>("");
   const [location, setLocation] = React.useState<string>("");
-  const [clientEmail, setClientEmail] = React.useState<string>("");
+  const [details, setDetails] = React.useState<string>("");
+  const [company, setCompany] = React.useState<string>("");
   const [agree, setAgree] = React.useState<boolean>(false);
   const [loading, setLoading] = React.useState(false);
+  const [status, setStatus] = React.useState<{ type: "error"; message: string } | null>(null);
 
   const selected = SERVICES[service];
   const deposit = Math.round(selected.priceUsd * 0.6);
 
-  async function handleCheckout() {
-    if (!agree) return alert("Please accept the terms to continue.");
-    if (!date || !time || !location || !clientEmail) {
-      return alert("Please fill date, time, location and email.");
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setStatus(null);
+    if (!agree) {
+      setStatus({ type: "error", message: "Please accept the terms to continue." });
+      return;
+    }
+    if (!name || !clientEmail || !phone || !date || !time || !location || !details) {
+      setStatus({ type: "error", message: "Please fill in all fields so we can prepare your estimate." });
+      return;
     }
     setLoading(true);
     try {
-      const res = await fetch("/api/checkout", {
+      const res = await fetch("/api/booking-request", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           serviceKey: service,
+          name,
+          email: clientEmail,
+          phone,
           date,
           time,
           location,
-          customerEmail: clientEmail,
+          details,
+          company,
         }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data?.error || "Checkout failed.");
-      const stripe = await stripePromise;
-      if (stripe) {
-        await stripe.redirectToCheckout({ sessionId: data.sessionId });
-      } else if (data.url) {
-        // No publishable key configured — fall back to the Checkout URL directly.
-        window.location.href = data.url;
-      } else {
-        throw new Error("Checkout could not be started.");
-      }
-    } catch (e: any) {
-      alert(e.message || "Something went wrong.");
+      if (!res.ok) throw new Error(data?.error || "Could not send your booking request.");
+      router.push("/booking/success");
+    } catch (err: unknown) {
+      setStatus({ type: "error", message: err instanceof Error ? err.message : "Something went wrong." });
       setLoading(false);
     }
   }
 
   return (
     <main className="max-w-xl mx-auto px-4 py-12">
-      <h1 className="text-3xl font-bold mb-6">Book a Session</h1>
+      <h1 className="text-3xl font-bold mb-2">Book a Session</h1>
+      <p className="text-zinc-600 mb-6">
+        Tell us about your shoot — we&rsquo;ll send your estimate and a link to pay the deposit.
+        <strong> No payment is due today.</strong>
+      </p>
 
-      <label className="block mb-3">
-        <span className="block text-sm mb-1">Service</span>
-        <select
-          className="w-full border rounded-md px-3 py-2"
-          value={service}
-          onChange={(e) => setService(e.target.value as ServiceKey)}
-        >
-          {Object.entries(SERVICES).map(([key, s]) => (
-            <option key={key} value={key}>
-              {s.label} — ${s.priceUsd}
-            </option>
-          ))}
-        </select>
-      </label>
+      {status && (
+        <div className="mb-6 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800" role="alert">
+          {status.message}
+        </div>
+      )}
 
-      <div className="grid grid-cols-2 gap-3 mb-3">
-        <label>
-          <span className="block text-sm mb-1">Date</span>
-          <input type="date" className="w-full border rounded-md px-3 py-2" value={date} onChange={(e) => setDate(e.target.value)} />
+      <form onSubmit={handleSubmit}>
+        <label className="block mb-3">
+          <span className="block text-sm mb-1">Service</span>
+          <select
+            className="w-full border rounded-md px-3 py-2"
+            value={service}
+            onChange={(e) => setService(e.target.value as ServiceKey)}
+          >
+            {Object.entries(SERVICES).map(([key, s]) => (
+              <option key={key} value={key}>
+                {s.label} — ${s.priceUsd}
+              </option>
+            ))}
+          </select>
         </label>
-        <label>
-          <span className="block text-sm mb-1">Start time</span>
-          <input type="time" className="w-full border rounded-md px-3 py-2" value={time} onChange={(e) => setTime(e.target.value)} />
+
+        <div className="grid grid-cols-2 gap-3 mb-3">
+          <label>
+            <span className="block text-sm mb-1">Date</span>
+            <input type="date" required className="w-full border rounded-md px-3 py-2" value={date} onChange={(e) => setDate(e.target.value)} />
+          </label>
+          <label>
+            <span className="block text-sm mb-1">Start time</span>
+            <input type="time" required className="w-full border rounded-md px-3 py-2" value={time} onChange={(e) => setTime(e.target.value)} />
+          </label>
+        </div>
+
+        <label className="block mb-3">
+          <span className="block text-sm mb-1">Location</span>
+          <input
+            type="text"
+            required
+            className="w-full border rounded-md px-3 py-2"
+            placeholder="City, venue, or address"
+            value={location}
+            onChange={(e) => setLocation(e.target.value)}
+          />
         </label>
-      </div>
 
-      <label className="block mb-3">
-        <span className="block text-sm mb-1">Location</span>
-        <input
-          type="text"
-          className="w-full border rounded-md px-3 py-2"
-          placeholder="City, venue, or address"
-          value={location}
-          onChange={(e) => setLocation(e.target.value)}
-        />
-      </label>
+        <label className="block mb-3">
+          <span className="block text-sm mb-1">Your name</span>
+          <input
+            type="text"
+            required
+            className="w-full border rounded-md px-3 py-2"
+            placeholder="Full name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+          />
+        </label>
 
-      <label className="block mb-6">
-        <span className="block text-sm mb-1">Your email (for receipt & confirmation)</span>
-        <input
-          type="email"
-          className="w-full border rounded-md px-3 py-2"
-          placeholder="you@email.com"
-          value={clientEmail}
-          onChange={(e) => setClientEmail(e.target.value)}
-        />
-      </label>
+        <div className="grid grid-cols-2 gap-3 mb-3">
+          <label>
+            <span className="block text-sm mb-1">Your email</span>
+            <input
+              type="email"
+              required
+              className="w-full border rounded-md px-3 py-2"
+              placeholder="you@email.com"
+              value={clientEmail}
+              onChange={(e) => setClientEmail(e.target.value)}
+            />
+          </label>
+          <label>
+            <span className="block text-sm mb-1">Your phone</span>
+            <input
+              type="tel"
+              required
+              className="w-full border rounded-md px-3 py-2"
+              placeholder="(555) 123-4567"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+            />
+          </label>
+        </div>
 
-      <div className="text-sm text-zinc-600 mb-4">
-        <p>Duration: {selected.hours}h + 30m buffer • Deposit: <strong>${deposit}</strong> (60% of total) • Currency: USD</p>
-      </div>
+        <label className="block mb-6">
+          <span className="block text-sm mb-1">Tell us about your shoot</span>
+          <textarea
+            required
+            rows={4}
+            className="w-full border rounded-md px-3 py-2"
+            placeholder="What do you need? Occasion, number of people, style, must-have shots…"
+            value={details}
+            onChange={(e) => setDetails(e.target.value)}
+          />
+        </label>
 
-      <label className="flex items-center gap-2 mb-6">
-        <input type="checkbox" checked={agree} onChange={(e) => setAgree(e.target.checked)} />
-        <span className="text-sm">I agree to the terms and understand the deposit is non-refundable.</span>
-      </label>
+        {/* Honeypot: hidden from humans, catches spam bots. */}
+        <div aria-hidden="true" style={{ position: "absolute", left: "-9999px" }}>
+          <label>
+            Company
+            <input
+              type="text"
+              tabIndex={-1}
+              autoComplete="off"
+              value={company}
+              onChange={(e) => setCompany(e.target.value)}
+            />
+          </label>
+        </div>
 
-      <Button onClick={handleCheckout} disabled={loading || !agree} className="w-full">
-        {loading ? "Redirecting…" : "Pay Deposit & Reserve"}
-      </Button>
+        <div className="text-sm text-zinc-600 mb-4">
+          <p>Duration: {selected.hours}h + 30m buffer • Session price: <strong>${selected.priceUsd}</strong></p>
+          <p>Deposit: <strong>${deposit}</strong> (60% of total) — due after we send your estimate • Currency: USD</p>
+          <p className="font-medium text-zinc-800">No payment due today.</p>
+        </div>
+
+        <label className="flex items-center gap-2 mb-6">
+          <input type="checkbox" checked={agree} onChange={(e) => setAgree(e.target.checked)} />
+          <span className="text-sm">I agree to the terms and understand a 60% non-refundable deposit is required to confirm my date.</span>
+        </label>
+
+        <Button type="submit" disabled={loading || !agree} className="w-full">
+          {loading ? "Sending…" : "Send Booking Request"}
+        </Button>
+      </form>
     </main>
   );
 }

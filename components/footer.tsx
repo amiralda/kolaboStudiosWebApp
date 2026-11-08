@@ -160,6 +160,11 @@ export function Footer() {
 
             <div className="text-sm text-white/60">
               <p>&copy; 2026 Kolabo Studios. All rights reserved.</p>
+              <p className="mt-2">
+                <Link href="/admin" className="text-white/60 hover:text-primary transition-colors">
+                  Login
+                </Link>
+              </p>
             </div>
           </div>
         </div>

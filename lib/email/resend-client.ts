@@ -44,6 +44,34 @@ interface BookingConfirmationData {
   sessionId: string
 }
 
+/** Booking REQUEST (no payment yet) — customer + admin copies share this shape. */
+interface BookingRequestData {
+  bookingRef: string
+  customerName: string
+  customerEmail: string
+  customerPhone: string
+  service: string
+  dateIso?: string
+  location?: string
+  details: string
+  fullAmountUsd: number
+  depositAmountUsd: number
+}
+
+/** Step 3 of the flow: Dany's estimate, sent to the customer. */
+interface EstimateEmailData {
+  bookingRef: string
+  customerName: string
+  customerEmail: string
+  service: string
+  dateIso?: string
+  location?: string
+  fullAmountUsd: number
+  depositAmountUsd: number
+  message: string
+  paymentLinkUrl: string
+}
+
 export async function sendContactEmail(data: ContactEmailData) {
   try {
     if (!resend || !process.env.RESEND_API_KEY) {
@@ -187,7 +215,7 @@ export async function sendBookingConfirmationEmail(data: BookingConfirmationData
     const remaining = data.fullAmountUsd - data.depositAmountUsd
 
     const { data: emailData, error } = await resend.emails.send({
-      from: "Kolabo Studios <hello@kolabostudios.com>",
+      from: "Kolabo Studios <noreply@kolabostudios.com>",
       to: [data.customerEmail],
       subject: `Booking Confirmed — ${service} Session | Kolabo Studios`,
       html: `
@@ -327,6 +355,322 @@ export async function sendBookingAdminNotificationEmail(data: BookingConfirmatio
   } catch (error) {
     console.error("❌ Admin notification email service error:", error)
     return { success: false, error: "Failed to send admin notification" }
+  }
+}
+
+/**
+ * Step 2 of the booking-request flow: immediate confirmation to the
+ * customer. NO payment has been taken — the email says so plainly and
+ * explains that Dany will follow up with the estimate + a deposit pay
+ * link. Automated mail always sends from noreply@ (never hello@).
+ */
+export async function sendBookingRequestConfirmation(data: BookingRequestData) {
+  try {
+    if (!resend || !process.env.RESEND_API_KEY) {
+      console.log("📧 Booking request confirmation would be sent to:", data.customerEmail)
+      console.log("⚠️ No RESEND_API_KEY found - email skipped")
+      return { success: true, message: "Email skipped - no API key configured" }
+    }
+
+    const name = escapeHtml(data.customerName)
+    const service = escapeHtml(data.service)
+    const location = data.location ? escapeHtml(data.location) : null
+    const details = escapeHtml(data.details)
+
+    let formattedDate = ""
+    if (data.dateIso) {
+      try {
+        formattedDate = new Date(data.dateIso).toLocaleString("en-US", {
+          weekday: "long",
+          month: "long",
+          day: "numeric",
+          year: "numeric",
+          hour: "numeric",
+          minute: "2-digit",
+        })
+      } catch {
+        formattedDate = data.dateIso
+      }
+    }
+
+    const { data: emailData, error } = await resend.emails.send({
+      from: "Kolabo Studios <noreply@kolabostudios.com>",
+      to: [data.customerEmail],
+      subject: `We received your booking request — ${service} | Kolabo Studios`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+          <div style="text-align: center; margin-bottom: 30px;">
+            <h1 style="color: #00C6AE; margin: 0;">Kolabo Studios</h1>
+            <p style="color: #666; margin: 5px 0;">Professional Photography</p>
+          </div>
+
+          <div style="background: #e8f8f6; border: 2px solid #00C6AE; border-radius: 12px; padding: 24px; text-align: center; margin-bottom: 28px;">
+            <div style="font-size: 40px; margin-bottom: 8px;">📩</div>
+            <h2 style="color: #00776a; margin: 0 0 6px;">We received your booking request!</h2>
+            <p style="color: #555; margin: 0;">No payment has been taken. We'll be in touch shortly.</p>
+          </div>
+
+          <p>Hi ${name},</p>
+          <p>Thank you for choosing Kolabo Studios! We've received your request for a <strong>${service}</strong> session. Here is what you sent us:</p>
+
+          <div style="background: #f9f9f9; border-radius: 8px; padding: 20px; margin: 20px 0;">
+            <table style="width: 100%; border-collapse: collapse;">
+              <tr>
+                <td style="padding: 10px 0; border-bottom: 1px solid #eee; color: #666; width: 40%;"><strong>Service</strong></td>
+                <td style="padding: 10px 0; border-bottom: 1px solid #eee;">${service}</td>
+              </tr>
+              ${formattedDate ? `
+              <tr>
+                <td style="padding: 10px 0; border-bottom: 1px solid #eee; color: #666;"><strong>Date &amp; Time</strong></td>
+                <td style="padding: 10px 0; border-bottom: 1px solid #eee;">${formattedDate}</td>
+              </tr>` : ""}
+              ${location ? `
+              <tr>
+                <td style="padding: 10px 0; border-bottom: 1px solid #eee; color: #666;"><strong>Location</strong></td>
+                <td style="padding: 10px 0; border-bottom: 1px solid #eee;">${location}</td>
+              </tr>` : ""}
+              <tr>
+                <td style="padding: 10px 0; border-bottom: 1px solid #eee; color: #666;"><strong>Your notes</strong></td>
+                <td style="padding: 10px 0; border-bottom: 1px solid #eee; white-space: pre-wrap;">${details}</td>
+              </tr>
+              <tr>
+                <td style="padding: 10px 0; border-bottom: 1px solid #eee; color: #666;"><strong>Session price</strong></td>
+                <td style="padding: 10px 0; border-bottom: 1px solid #eee;">${formatUSD(data.fullAmountUsd)}</td>
+              </tr>
+              <tr>
+                <td style="padding: 10px 0; color: #666;"><strong>Deposit (60%)</strong></td>
+                <td style="padding: 10px 0;">${formatUSD(data.depositAmountUsd)} <span style="color: #999; font-size: 13px;">(due after you receive your estimate)</span></td>
+              </tr>
+            </table>
+          </div>
+
+          <div style="background: #fff8e1; border-left: 4px solid #f6c026; border-radius: 4px; padding: 16px; margin: 20px 0;">
+            <strong>What happens next?</strong>
+            <ol style="margin: 8px 0 0; padding-left: 20px; line-height: 1.8;">
+              <li>Dany will personally review your request</li>
+              <li>You'll receive your estimate with a secure link to pay the ${formatUSD(data.depositAmountUsd)} deposit (60%)</li>
+              <li>Paying the deposit confirms and reserves your date — the remaining ${formatUSD(data.fullAmountUsd - data.depositAmountUsd)} is due on or before your session day</li>
+            </ol>
+          </div>
+
+          <p>Questions? Just reply to this email or reach out through <a href="https://kolabostudios.com/contact" style="color: #00C6AE;">kolabostudios.com/contact</a>.</p>
+
+          <p>We can't wait to capture these memories with you!<br>
+          <strong>The Kolabo Studios Team</strong></p>
+
+          <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
+          <p style="color: #999; font-size: 12px; text-align: center;">
+            Booking ref: ${escapeHtml(data.bookingRef)}<br>
+            <a href="https://kolabostudios.com" style="color: #00C6AE;">kolabostudios.com</a>
+          </p>
+        </div>
+      `,
+    })
+
+    if (error) {
+      console.error("❌ Booking request confirmation email error:", error)
+      return { success: false, error: error.message }
+    }
+
+    console.log("✅ Booking request confirmation sent to", data.customerEmail)
+    return { success: true, data: emailData }
+  } catch (error) {
+    console.error("❌ Booking request confirmation email service error:", error)
+    return { success: false, error: "Failed to send booking request confirmation" }
+  }
+}
+
+/**
+ * Step 2 of the booking-request flow (admin copy): the full booking
+ * details go to Dany at hello@, plus the exact next step — reply with
+ * the estimate and a Stripe Payment Link for the 60% deposit.
+ * No payment has been taken at this point.
+ */
+export async function sendBookingRequestNotification(data: BookingRequestData) {
+  try {
+    if (!resend || !process.env.RESEND_API_KEY) {
+      console.log("📧 Admin booking request notification would be sent")
+      return { success: true, message: "Email skipped - no API key configured" }
+    }
+
+    const name = escapeHtml(data.customerName)
+    const service = escapeHtml(data.service)
+    const location = data.location ? escapeHtml(data.location) : "Not specified"
+    const details = escapeHtml(data.details)
+
+    let formattedDate = "Not specified"
+    if (data.dateIso) {
+      try {
+        formattedDate = new Date(data.dateIso).toLocaleString("en-US", {
+          weekday: "long", month: "long", day: "numeric", year: "numeric",
+          hour: "numeric", minute: "2-digit",
+        })
+      } catch {
+        formattedDate = data.dateIso
+      }
+    }
+
+    const { data: emailData, error } = await resend.emails.send({
+      from: "Kolabo Studios <noreply@kolabostudios.com>",
+      to: [ADMIN_EMAIL],
+      subject: `📩 New Booking Request: ${service} — ${name}`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+          <h2 style="color: #00C6AE; border-bottom: 2px solid #00C6AE; padding-bottom: 10px;">
+            New Booking Request — no payment taken yet
+          </h2>
+          <div style="background: #f9f9f9; padding: 20px; border-radius: 8px; margin: 20px 0;">
+            <table style="width: 100%; border-collapse: collapse;">
+              <tr><td style="padding: 8px 0; border-bottom: 1px solid #eee; color: #666; width: 40%;"><strong>Booking ref</strong></td><td style="padding: 8px 0; border-bottom: 1px solid #eee;"><code>${escapeHtml(data.bookingRef)}</code></td></tr>
+              <tr><td style="padding: 8px 0; border-bottom: 1px solid #eee; color: #666;"><strong>Customer</strong></td><td style="padding: 8px 0; border-bottom: 1px solid #eee;">${name}</td></tr>
+              <tr><td style="padding: 8px 0; border-bottom: 1px solid #eee; color: #666;"><strong>Email</strong></td><td style="padding: 8px 0; border-bottom: 1px solid #eee;"><a href="mailto:${escapeHtml(data.customerEmail)}">${escapeHtml(data.customerEmail)}</a></td></tr>
+              <tr><td style="padding: 8px 0; border-bottom: 1px solid #eee; color: #666;"><strong>Phone</strong></td><td style="padding: 8px 0; border-bottom: 1px solid #eee;"><a href="tel:${escapeHtml(data.customerPhone)}">${escapeHtml(data.customerPhone)}</a></td></tr>
+              <tr><td style="padding: 8px 0; border-bottom: 1px solid #eee; color: #666;"><strong>Service</strong></td><td style="padding: 8px 0; border-bottom: 1px solid #eee;">${service}</td></tr>
+              <tr><td style="padding: 8px 0; border-bottom: 1px solid #eee; color: #666;"><strong>Date &amp; Time</strong></td><td style="padding: 8px 0; border-bottom: 1px solid #eee;">${formattedDate}</td></tr>
+              <tr><td style="padding: 8px 0; border-bottom: 1px solid #eee; color: #666;"><strong>Location</strong></td><td style="padding: 8px 0; border-bottom: 1px solid #eee;">${location}</td></tr>
+              <tr><td style="padding: 8px 0; border-bottom: 1px solid #eee; color: #666;"><strong>What they need</strong></td><td style="padding: 8px 0; border-bottom: 1px solid #eee; white-space: pre-wrap;">${details}</td></tr>
+              <tr><td style="padding: 8px 0; border-bottom: 1px solid #eee; color: #666;"><strong>Full price</strong></td><td style="padding: 8px 0; border-bottom: 1px solid #eee;">${formatUSD(data.fullAmountUsd)}</td></tr>
+              <tr><td style="padding: 8px 0; color: #666;"><strong>Deposit (60%)</strong></td><td style="padding: 8px 0; color: #00C6AE; font-weight: bold;">${formatUSD(data.depositAmountUsd)}</td></tr>
+            </table>
+          </div>
+          <div style="background: #fff8e1; border-left: 4px solid #f6c026; border-radius: 4px; padding: 16px; margin: 20px 0;">
+            <strong>Your next step:</strong>
+            <ol style="margin: 8px 0 0; padding-left: 20px; line-height: 1.8;">
+              <li>Open your <a href="https://kolabostudios.com/admin/bookings">bookings page</a>, find this request, and send the estimate — the customer gets the estimate + a secure link to pay the ${formatUSD(data.depositAmountUsd)} deposit automatically</li>
+              <li>Or reply to <a href="mailto:${escapeHtml(data.customerEmail)}">${escapeHtml(data.customerEmail)}</a> directly with a Stripe Payment Link you create in the Stripe Dashboard (Payments → Payment Links) for ${formatUSD(data.depositAmountUsd)}</li>
+            </ol>
+          </div>
+        </div>
+      `,
+    })
+
+    if (error) {
+      console.error("❌ Admin booking request notification error:", error)
+      return { success: false, error: error.message }
+    }
+
+    console.log("✅ Admin booking request notification sent")
+    return { success: true, data: emailData }
+  } catch (error) {
+    console.error("❌ Admin booking request notification service error:", error)
+    return { success: false, error: "Failed to send admin booking request notification" }
+  }
+}
+
+/**
+ * Step 3 of the booking-request flow: Dany's estimate + deposit pay link,
+ * sent to the customer after Dany fills in the estimate form in /admin.
+ * This is the ONE customer email that deliberately sends from hello@:
+ * it is Dany's personal reply and the customer answers it directly, so
+ * reply_to is hello@ too. (All automated mail still uses noreply@.)
+ */
+export async function sendEstimateEmail(data: EstimateEmailData) {
+  try {
+    if (!resend || !process.env.RESEND_API_KEY) {
+      console.log("📧 Estimate email would be sent to:", data.customerEmail)
+      console.log("⚠️ No RESEND_API_KEY found - email skipped")
+      return { success: true, message: "Email skipped - no API key configured" }
+    }
+
+    const name = escapeHtml(data.customerName)
+    const service = escapeHtml(data.service)
+    const location = data.location ? escapeHtml(data.location) : null
+    const message = escapeHtml(data.message)
+
+    let formattedDate = ""
+    if (data.dateIso) {
+      try {
+        formattedDate = new Date(data.dateIso).toLocaleString("en-US", {
+          weekday: "long",
+          month: "long",
+          day: "numeric",
+          year: "numeric",
+          hour: "numeric",
+          minute: "2-digit",
+        })
+      } catch {
+        formattedDate = data.dateIso
+      }
+    }
+
+    const balance = data.fullAmountUsd - data.depositAmountUsd
+
+    const { data: emailData, error } = await resend.emails.send({
+      from: "Kolabo Studios <hello@kolabostudios.com>",
+      replyTo: "hello@kolabostudios.com",
+      to: [data.customerEmail],
+      subject: `Your estimate — ${service} | Kolabo Studios`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+          <div style="text-align: center; margin-bottom: 30px;">
+            <h1 style="color: #00C6AE; margin: 0;">Kolabo Studios</h1>
+            <p style="color: #666; margin: 5px 0;">Professional Photography</p>
+          </div>
+
+          <h2 style="color: #333;">Your estimate is ready!</h2>
+          <p>Hi ${name},</p>
+          <p style="white-space: pre-wrap;">${message}</p>
+
+          <div style="background: #f9f9f9; border-radius: 8px; padding: 20px; margin: 20px 0;">
+            <table style="width: 100%; border-collapse: collapse;">
+              <tr>
+                <td style="padding: 10px 0; border-bottom: 1px solid #eee; color: #666; width: 40%;"><strong>Service</strong></td>
+                <td style="padding: 10px 0; border-bottom: 1px solid #eee;">${service}</td>
+              </tr>
+              ${formattedDate ? `
+              <tr>
+                <td style="padding: 10px 0; border-bottom: 1px solid #eee; color: #666;"><strong>Date &amp; Time</strong></td>
+                <td style="padding: 10px 0; border-bottom: 1px solid #eee;">${formattedDate}</td>
+              </tr>` : ""}
+              ${location ? `
+              <tr>
+                <td style="padding: 10px 0; border-bottom: 1px solid #eee; color: #666;"><strong>Location</strong></td>
+                <td style="padding: 10px 0; border-bottom: 1px solid #eee;">${location}</td>
+              </tr>` : ""}
+              <tr>
+                <td style="padding: 10px 0; border-bottom: 1px solid #eee; color: #666;"><strong>Full price</strong></td>
+                <td style="padding: 10px 0; border-bottom: 1px solid #eee;">${formatUSD(data.fullAmountUsd)}</td>
+              </tr>
+              <tr>
+                <td style="padding: 10px 0; border-bottom: 1px solid #eee; color: #666;"><strong>Deposit (60%)</strong></td>
+                <td style="padding: 10px 0; border-bottom: 1px solid #eee; color: #00C6AE; font-weight: bold;">${formatUSD(data.depositAmountUsd)}</td>
+              </tr>
+              <tr>
+                <td style="padding: 10px 0; color: #666;"><strong>Balance due at session</strong></td>
+                <td style="padding: 10px 0;">${formatUSD(balance)}</td>
+              </tr>
+            </table>
+          </div>
+
+          <div style="text-align: center; margin: 28px 0;">
+            <a href="${escapeHtml(data.paymentLinkUrl)}" style="display: inline-block; background: #00C6AE; color: #fff; font-weight: bold; font-size: 16px; padding: 14px 28px; border-radius: 8px; text-decoration: none;">Pay ${formatUSD(data.depositAmountUsd)} Deposit</a>
+            <p style="color: #999; font-size: 13px; margin-top: 12px;">Paying the deposit confirms and reserves your date. The deposit is non-refundable.</p>
+          </div>
+
+          <p>Questions or changes? Just reply to this email — it comes straight to Dany.</p>
+
+          <p>We can't wait to work with you!<br>
+          <strong>Dany Augustin, Kolabo Studios</strong></p>
+
+          <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
+          <p style="color: #999; font-size: 12px; text-align: center;">
+            Booking ref: ${escapeHtml(data.bookingRef)}<br>
+            <a href="https://kolabostudios.com" style="color: #00C6AE;">kolabostudios.com</a>
+          </p>
+        </div>
+      `,
+    })
+
+    if (error) {
+      console.error("❌ Estimate email error:", error)
+      return { success: false, error: error.message }
+    }
+
+    console.log("✅ Estimate email sent to", data.customerEmail)
+    return { success: true, data: emailData }
+  } catch (error) {
+    console.error("❌ Estimate email service error:", error)
+    return { success: false, error: "Failed to send estimate email" }
   }
 }
 

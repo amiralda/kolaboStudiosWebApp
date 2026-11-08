@@ -477,6 +477,59 @@ export interface Database {
           updated_at?: string
         }
       }
+      booking_requests: {
+        Row: {
+          id: string
+          booking_ref: string
+          name: string
+          email: string
+          phone: string
+          service_key: string
+          service_label: string
+          date_iso: string
+          location: string
+          details: string
+          full_price_cents: number
+          deposit_cents: number
+          status: "new" | "quoted" | "deposit_paid" | "booked" | "closed"
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          booking_ref: string
+          name: string
+          email: string
+          phone: string
+          service_key: string
+          service_label: string
+          date_iso: string
+          location: string
+          details: string
+          full_price_cents: number
+          deposit_cents: number
+          status?: "new" | "quoted" | "deposit_paid" | "booked" | "closed"
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          booking_ref?: string
+          name?: string
+          email?: string
+          phone?: string
+          service_key?: string
+          service_label?: string
+          date_iso?: string
+          location?: string
+          details?: string
+          full_price_cents?: number
+          deposit_cents?: number
+          status?: "new" | "quoted" | "deposit_paid" | "booked" | "closed"
+          created_at?: string
+          updated_at?: string
+        }
+      }
       retouch_orders: {
         Row: {
           id: string
