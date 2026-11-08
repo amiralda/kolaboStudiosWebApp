@@ -4,6 +4,7 @@ import {
   sendBookingConfirmationEmail,
   sendBookingAdminNotificationEmail,
 } from "@/lib/email/resend-client"
+import { createSupabaseServerClient } from "@/lib/database/supabase"
 
 /**
  * Force Node runtime (not Edge) and avoid any static optimization.
@@ -37,7 +38,7 @@ function log(label: string, data?: unknown) {
 
 async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
   const meta = session.metadata ?? {}
-  const customerEmail =
+  let customerEmail =
     session.customer_details?.email ?? meta.customer_email ?? null
 
   const depositCents = session.amount_total ?? 0
@@ -55,6 +56,35 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
     depositAmountUsd: depositUsd,
     fullAmountUsd: fullUsd,
     sessionId: session.id,
+  }
+
+  // Booking-request flow: a deposit paid through a Payment Link carries
+  // the booking ref in its metadata. Look the request up so the
+  // confirmation email uses the real service label, date, location and
+  // name — and so the date becomes blocked (no double-booking).
+  // Best-effort only: any failure here must never break the emails below.
+  const bookingRef = (meta.booking_ref || "").slice(0, 50)
+  if (bookingRef) {
+    try {
+      const supabase = createSupabaseServerClient()
+      const { data: booking, error } = await supabase
+        .from("booking_requests")
+        .select("*")
+        .eq("booking_ref", bookingRef)
+        .single()
+      if (!error && booking) {
+        bookingData.customerName = (booking.name as string) || bookingData.customerName
+        bookingData.service = (booking.service_label as string) || bookingData.service
+        bookingData.dateIso = (booking.date_iso as string) || bookingData.dateIso
+        bookingData.location = (booking.location as string) || bookingData.location
+        if (!customerEmail && booking.email) {
+          customerEmail = booking.email as string
+          bookingData.customerEmail = customerEmail
+        }
+      }
+    } catch (err) {
+      log("Booking lookup failed (continuing with session metadata)", err instanceof Error ? err.message : String(err))
+    }
   }
 
   log("Checkout completed", {
@@ -87,6 +117,25 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
     log("Admin notification email failed", adminResult.reason)
   } else if (!adminResult.value.success) {
     log("Admin notification email error", adminResult.value.error)
+  }
+
+  // Deposit paid for a booking request: mark it confirmed so its date
+  // becomes unavailable (no double-booking). Best-effort only.
+  if (bookingRef) {
+    try {
+      const supabase = createSupabaseServerClient()
+      const { error } = await supabase
+        .from("booking_requests")
+        .update({ status: "deposit_paid" })
+        .eq("booking_ref", bookingRef)
+      if (error) {
+        log("Booking deposit_paid update error", error.message)
+      } else {
+        log("Booking marked deposit_paid", { bookingRef })
+      }
+    } catch (err) {
+      log("Booking deposit_paid update failed", err instanceof Error ? err.message : String(err))
+    }
   }
 }
 

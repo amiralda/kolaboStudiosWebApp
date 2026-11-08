@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { createSupabaseServerClient } from "@/lib/database/supabase";
 import { EstimateForm, type EstimateFormBooking } from "@/components/admin/estimate-form";
+import { BookingStatusButton } from "@/components/admin/booking-status-button";
 
 export const dynamic = "force-dynamic";
 
@@ -154,6 +155,25 @@ export default async function AdminBookingsPage() {
                 </div>
                 {status === "new" ? (
                   <EstimateForm booking={estimateBooking} />
+                ) : status === "quoted" ? (
+                  <>
+                    <EstimateForm booking={estimateBooking} />
+                    <div className="flex flex-wrap items-center gap-2 border-t pt-4">
+                      <span className="text-sm text-muted-foreground">
+                        Deposit paid another way, or date agreed by phone?
+                      </span>
+                      <BookingStatusButton
+                        bookingRef={String(b.booking_ref ?? "")}
+                        status="booked"
+                        label="Mark as confirmed"
+                      />
+                      <BookingStatusButton
+                        bookingRef={String(b.booking_ref ?? "")}
+                        status="closed"
+                        label="Close request"
+                      />
+                    </div>
+                  </>
                 ) : (
                   <p className="text-sm text-muted-foreground border-t pt-4">
                     Estimate already sent for this request. If you need to resend it, reply to the customer directly at{" "}

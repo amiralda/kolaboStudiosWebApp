@@ -31,9 +31,35 @@ export default function BookingPage() {
   const [agree, setAgree] = React.useState<boolean>(false);
   const [loading, setLoading] = React.useState(false);
   const [status, setStatus] = React.useState<{ type: "error"; message: string } | null>(null);
+  const [bookedDates, setBookedDates] = React.useState<string[]>([]);
+  const [dateError, setDateError] = React.useState<string | null>(null);
 
   const selected = SERVICES[service];
   const deposit = Math.round(selected.priceUsd * 0.6);
+
+  // No double-booking: a date is unavailable once a booking for it is
+  // CONFIRMED (deposit paid or Dany marked it confirmed). A native date
+  // input cannot grey out individual dates, so a booked date is rejected
+  // the moment it is picked — and again on the server before saving.
+  React.useEffect(() => {
+    fetch("/api/booked-dates")
+      .then((res) => (res.ok ? res.json() : { dates: [] }))
+      .then((data) => {
+        if (Array.isArray(data?.dates)) setBookedDates(data.dates);
+      })
+      .catch(() => {
+        // Unavailable list unknown — the server still checks before saving.
+      });
+  }, []);
+
+  function handleDateChange(value: string) {
+    setDate(value);
+    if (value && bookedDates.includes(value)) {
+      setDateError("This date is already booked — please choose another date.");
+    } else {
+      setDateError(null);
+    }
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -44,6 +70,10 @@ export default function BookingPage() {
     }
     if (!name || !clientEmail || !phone || !date || !time || !location || !details) {
       setStatus({ type: "error", message: "Please fill in all fields so we can prepare your estimate." });
+      return;
+    }
+    if (bookedDates.includes(date)) {
+      setStatus({ type: "error", message: "That date is already booked. Please choose another date." });
       return;
     }
     setLoading(true);
@@ -105,7 +135,22 @@ export default function BookingPage() {
         <div className="grid grid-cols-2 gap-3 mb-3">
           <label>
             <span className="block text-sm mb-1">Date</span>
-            <input type="date" required className="w-full border rounded-md px-3 py-2" value={date} onChange={(e) => setDate(e.target.value)} />
+            <input type="date" required className="w-full border rounded-md px-3 py-2" value={date} onChange={(e) => handleDateChange(e.target.value)} />
+            {dateError && <span className="block text-sm text-red-700 mt-1">{dateError}</span>}
+            {bookedDates.length > 0 && (
+              <span className="block text-xs text-zinc-500 mt-1">
+                Already booked:{" "}
+                {bookedDates
+                  .map((d) => {
+                    try {
+                      return new Date(`${d}T12:00:00`).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+                    } catch {
+                      return d;
+                    }
+                  })
+                  .join(", ")}
+              </span>
+            )}
           </label>
           <label>
             <span className="block text-sm mb-1">Start time</span>
