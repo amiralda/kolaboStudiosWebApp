@@ -270,7 +270,6 @@ export async function sendBookingConfirmationEmail(data: BookingConfirmationData
             </ol>
           </div>
 
-          <p>Questions? Just reply to this email or reach out through <a href="https://kolabostudios.com/contact" style="color: #00C6AE;">kolabostudios.com/contact</a>.</p>
 
           <p>We're so excited to capture these memories with you!<br>
           <strong>The Kolabo Studios Team</strong></p>
@@ -453,7 +452,6 @@ export async function sendBookingRequestConfirmation(data: BookingRequestData) {
             </ol>
           </div>
 
-          <p>Questions? Just reply to this email or reach out through <a href="https://kolabostudios.com/contact" style="color: #00C6AE;">kolabostudios.com/contact</a>.</p>
 
           <p>We can't wait to capture these memories with you!<br>
           <strong>The Kolabo Studios Team</strong></p>
