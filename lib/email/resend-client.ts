@@ -407,11 +407,11 @@ export async function sendBookingRequestConfirmation(data: BookingRequestData) {
           <div style="background: #e8f8f6; border: 2px solid #00C6AE; border-radius: 12px; padding: 24px; text-align: center; margin-bottom: 28px;">
             <div style="font-size: 40px; margin-bottom: 8px;">📩</div>
             <h2 style="color: #00776a; margin: 0 0 6px;">We received your booking request!</h2>
-            <p style="color: #555; margin: 0;">No payment has been taken. We'll be in touch shortly.</p>
+            <p style="color: #555; margin: 0;">No payment has been taken. We're working on it, and we'll reach out to you within 24 to 48 hours.</p>
           </div>
 
           <p>Hi ${name},</p>
-          <p>Thank you for choosing Kolabo Studios! We've received your request for a <strong>${service}</strong> session. Here is what you sent us:</p>
+          <p>Thank you for choosing Kolabo Studios! We've received your booking, and we're working on it. We'll reach out to you within 24 to 48 hours with your estimate. Here is what you sent us:</p>
 
           <div style="background: #f9f9f9; border-radius: 8px; padding: 20px; margin: 20px 0;">
             <table style="width: 100%; border-collapse: collapse;">
@@ -745,5 +745,69 @@ export async function sendOrderConfirmation(data: OrderConfirmationData) {
   } catch (error) {
     console.error("❌ Order confirmation email service error:", error)
     return { success: false, error: "Failed to send order confirmation email" }
+  }
+}
+
+/**
+ * Admin account setup link (per-user accounts, Dany 2026-11-08).
+ * Sent from noreply@ (automated mail) to the admin's own email when
+ * their account is created or re-invited. The link is valid 48 hours;
+ * the admin sets their own password on the page — no password is ever
+ * sent or stored by us.
+ */
+export async function sendAdminSetupEmail(data: {
+  email: string
+  setupUrl: string
+}): Promise<{ success: boolean; error?: string }> {
+  try {
+    if (!resend || !process.env.RESEND_API_KEY) {
+      console.log("📧 Admin setup email would be sent to:", data.email)
+      console.log("⚠️ No RESEND_API_KEY found - email skipped")
+      return { success: false, error: "Email is not configured on this server." }
+    }
+
+    const email = escapeHtml(data.email)
+    const setupUrl = escapeHtml(data.setupUrl)
+
+    const { error } = await resend.emails.send({
+      from: "Kolabo Studios <noreply@kolabostudios.com>",
+      to: [data.email],
+      subject: "Set up your Kolabo Studios admin account",
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+          <div style="text-align: center; margin-bottom: 30px;">
+            <h1 style="color: #00C6AE; margin: 0;">Kolabo Studios</h1>
+            <p style="color: #666; margin: 5px 0;">Professional Photography</p>
+          </div>
+
+          <h2 style="color: #333;">Set up your admin account</h2>
+          <p>Hi,</p>
+          <p>An admin account was created for <strong>${email}</strong> on the Kolabo Studios website. Use the link below to set your own password and sign in to the admin area, where you can view booking requests and send estimates.</p>
+
+          <div style="text-align: center; margin: 28px 0;">
+            <a href="${setupUrl}" style="display: inline-block; background: #00C6AE; color: #fff; text-decoration: none; font-weight: bold; padding: 14px 28px; border-radius: 8px;">Set my password</a>
+          </div>
+
+          <p style="color: #666;">This link works for <strong>48 hours</strong>. If it expires, ask another admin to send you a new invite from the admin area (/admin/users).</p>
+          <p style="color: #666;">If you did not expect this email, you can safely ignore it — no account access is granted until a password is set through the link.</p>
+
+          <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
+          <p style="color: #999; font-size: 12px; text-align: center;">
+            <a href="https://kolabostudios.com" style="color: #00C6AE;">kolabostudios.com</a>
+          </p>
+        </div>
+      `,
+    })
+
+    if (error) {
+      console.error("❌ Admin setup email error:", error)
+      return { success: false, error: error.message }
+    }
+
+    console.log("✅ Admin setup email sent to", data.email)
+    return { success: true }
+  } catch (error) {
+    console.error("❌ Admin setup email service error:", error)
+    return { success: false, error: "Failed to send admin setup email" }
   }
 }

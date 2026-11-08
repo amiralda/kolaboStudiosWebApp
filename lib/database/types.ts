@@ -530,6 +530,41 @@ export interface Database {
           updated_at?: string
         }
       }
+      admin_users: {
+        Row: {
+          id: string
+          email: string
+          password_hash: string | null
+          role: string
+          setup_token_hash: string | null
+          setup_token_expires_at: string | null
+          created_at: string
+          updated_at: string
+          last_login_at: string | null
+        }
+        Insert: {
+          id?: string
+          email: string
+          password_hash?: string | null
+          role?: string
+          setup_token_hash?: string | null
+          setup_token_expires_at?: string | null
+          created_at?: string
+          updated_at?: string
+          last_login_at?: string | null
+        }
+        Update: {
+          id?: string
+          email?: string
+          password_hash?: string | null
+          role?: string
+          setup_token_hash?: string | null
+          setup_token_expires_at?: string | null
+          created_at?: string
+          updated_at?: string
+          last_login_at?: string | null
+        }
+      }
       retouch_orders: {
         Row: {
           id: string

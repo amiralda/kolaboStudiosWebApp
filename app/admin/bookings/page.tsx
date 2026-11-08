@@ -1,8 +1,10 @@
+import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { createSupabaseServerClient } from "@/lib/database/supabase";
 import { EstimateForm, type EstimateFormBooking } from "@/components/admin/estimate-form";
 import { BookingStatusButton } from "@/components/admin/booking-status-button";
+import { LogoutButton } from "@/components/admin/logout-button";
 
 export const dynamic = "force-dynamic";
 
@@ -62,11 +64,19 @@ export default async function AdminBookingsPage() {
   return (
     <div className="pt-16 min-h-screen bg-gray-50">
       <div className="max-w-4xl mx-auto px-4 py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold font-sora">Booking Requests</h1>
-          <p className="text-muted-foreground">
-            New requests arrive here and by email. Send the estimate — the customer gets it with a link to pay the 60% deposit.
-          </p>
+        <div className="mb-8 flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <h1 className="text-3xl font-bold font-sora">Booking Requests</h1>
+            <p className="text-muted-foreground">
+              New requests arrive here and by email. Send the estimate — the customer gets it with a link to pay the 60% deposit.
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            <Link href="/admin/users" className="text-sm underline">
+              Admin accounts
+            </Link>
+            <LogoutButton />
+          </div>
         </div>
 
         {storageError && (

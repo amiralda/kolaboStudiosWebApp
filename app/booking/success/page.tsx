@@ -17,7 +17,7 @@ export default function BookingSuccessPage() {
           Thank you — we received your booking request. No payment was taken today.
         </p>
         <p className="text-muted-foreground mb-8">
-          Dany will personally review your request and reach out within 24 hours
+          Dany will personally review your request and reach out within 24 to 48 hours
           with your estimate and a secure link to pay the 60% deposit to confirm
           your date. Please check your email — a confirmation is on its way.
         </p>
