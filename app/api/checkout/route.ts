@@ -109,9 +109,38 @@ export async function POST(req: NextRequest) {
 
     const body = (await req.json()) as Body
 
-    const rawService = ((body.service || body.serviceKey || "wedding") as string)
+    const rawService = ((body.service || body.serviceKey || "") as string)
       .toLowerCase()
       .trim()
+
+    // Required-details rule (Dany, 2026-11-09): a paid booking must NOT be
+    // created when important shoot information is missing — the same fields
+    // the booking-request flow requires. No default service, no empty
+    // name/email, no empty date, no empty location.
+    const customerName = (body.customerName || "").trim()
+    const customerEmail = (body.customerEmail || "").trim()
+    const location = (body.location || "").trim()
+    const combinedDate =
+      body.dateISO ?? (body.date ? `${body.date}T${body.time ?? "00:00"}` : undefined)
+
+    const missing: string[] = []
+    if (!rawService || SERVER_PRICES_USD[rawService] === undefined) missing.push("service")
+    if (!customerName) missing.push("customerName")
+    if (!customerEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(customerEmail)) missing.push("customerEmail")
+    if (!combinedDate || Number.isNaN(Date.parse(combinedDate))) missing.push("date")
+    if (!location) missing.push("location")
+
+    if (missing.length > 0) {
+      return NextResponse.json(
+        {
+          error:
+            "Missing required booking details: " +
+            missing.join(", ") +
+            ". A booking cannot be created without the service, name, email, date and location.",
+        },
+        { status: 400 }
+      )
+    }
 
     const { fullPriceUsd } = resolvePrice(rawService, body.fullPrice)
 
@@ -123,9 +152,6 @@ export async function POST(req: NextRequest) {
 
     const depositUsd = fullPriceUsd * DEPOSIT_RATE
     const amount_cents = dollarsToCents(depositUsd)
-
-    const combinedDate =
-      body.dateISO ?? (body.date ? `${body.date}T${body.time ?? "00:00"}` : undefined)
 
     const title =
       `${capitalize(serviceLabel)} Deposit (${Math.round(DEPOSIT_RATE * 100)}%)` +
