@@ -40,6 +40,19 @@ const SERVER_PRICES_USD: Record<string, number> = {
   maternity2: 550,
   portrait: 250,
   family: 300,
+  birthday4: 400,
+  newborn2: 400,
+  graduation2: 300,
+  headshots1: 150,
+  event4: 600,
+  couples2: 300,
+  baptism2: 300,
+  boudoir2: 400,
+  corporate2: 450,
+  realestate2: 250,
+  pet1: 150,
+  sports2: 300,
+  fashion3: 550,
 }
 
 const ALLOWED_SERVICES = new Set(Object.keys(SERVER_PRICES_USD))
